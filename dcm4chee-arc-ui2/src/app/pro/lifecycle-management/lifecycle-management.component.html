@@ -8,7 +8,7 @@
                         <label class="col-md-6 text-right control-label">AET:</label>
                         <div class="col-md-6">
                             <md-select [(ngModel)]="aet" class="col-md-12">
-                                <md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
+                                <md-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.description}}">{{ ae.dicomAETitle }}</md-option>
                             </md-select>
                         </div>
                     </div>

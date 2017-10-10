@@ -10,6 +10,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {RetentionPolicyDialogComponent} from "../../widgets/dialogs/retention-policy-dialog/retention-policy-dialog.component";
 import {ControlService} from "../../control/control.service";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 
 @Component({
@@ -239,7 +240,7 @@ export class LifecycleManagementComponent implements OnInit {
     archiveDevice;
     StudyRetentionPolicy;
     ExternalRetrieveAETchecked;
-    retentionPolicyArchiveDevicePath = "dcmArchiveDevice.dcmStudyRetentionPolicy";
+    retentionPolicyArchiveDevicePath = "dcmDevice.dcmArchiveDevice.dcmStudyRetentionPolicy";
     dialogRef: MdDialogRef<any>;
     constructor(
         private service:LifecycleManagementService,
@@ -250,6 +251,7 @@ export class LifecycleManagementComponent implements OnInit {
         public mainservice:AppService,
         private datePipe:DatePipe,
         private controlService: ControlService,
+        public httpErrorHandler:HttpErrorHandler,
         public cfpLoadingBar: SlimLoadingBarService
     ) { }
 
@@ -340,20 +342,7 @@ export class LifecycleManagementComponent implements OnInit {
                             (err)=>{
                                 $this.StudyRetentionPolicy[index] = retention;
                                 $this.cfpLoadingBar.complete();
-                                try{
-                                    $this.mainservice.setMessage({
-                                        'title': 'Error ' + err.status,
-                                        'text': JSON.parse(err._body).errorMessage,
-                                        'status': 'error'
-                                    });
-
-                                }catch (e){
-                                    $this.mainservice.setMessage({
-                                        'title': 'Error ' + err.status,
-                                        'text': err.statusText,
-                                        'status': 'error'
-                                    });
-                                }
+                                $this.httpErrorHandler.handleError(err);
                             }
                         );
                     }else{
@@ -449,7 +438,7 @@ export class LifecycleManagementComponent implements OnInit {
         }else{
             this.service.getArchiveDevice(this.mainservice.deviceName).subscribe((res)=>{
                 $this.archiveDevice = res;
-                if(_.hasIn(res,"dcmArchiveDevice.dcmStudyRetentionPolicy")){
+                if(_.hasIn(res,$this.retentionPolicyArchiveDevicePath)){
                     $this.archiveDevice = res;
                     $this.StudyRetentionPolicy = _.get(res,$this.retentionPolicyArchiveDevicePath);
                     console.log("$this.StudyRetentionPolicy ",$this.StudyRetentionPolicy );
@@ -457,6 +446,9 @@ export class LifecycleManagementComponent implements OnInit {
             },(err)=>{
                 if(retries)
                     $this.getArchiveDevice(retries-1);
+                else{
+                    $this.httpErrorHandler.handleError(err);
+                }
             });
         }
     }
@@ -527,11 +519,7 @@ export class LifecycleManagementComponent implements OnInit {
                         $this.cfpLoadingBar.complete();
                     },
                     (err)=>{
-                        $this.mainservice.setMessage( {
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();
                     }
                 );
@@ -553,7 +541,7 @@ export class LifecycleManagementComponent implements OnInit {
                     }
                 },
                 (err)=>{
-
+                    $this.httpErrorHandler.handleError(err);
                 }
             );
         }else{
@@ -605,6 +593,8 @@ export class LifecycleManagementComponent implements OnInit {
             (err)=>{
                 if (retries){
                     $this.getAets(retries - 1);
+                }else{
+                    $this.httpErrorHandler.handleError(err);
                 }
             }
         );
