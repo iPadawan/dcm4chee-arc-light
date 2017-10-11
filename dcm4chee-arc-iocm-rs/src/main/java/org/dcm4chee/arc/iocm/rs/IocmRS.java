@@ -621,7 +621,7 @@ public class IocmRS {
     }
 
     private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
-                        String codeValue, String designator) throws IOException {
+                        String codeValue, String designator) throws Exception {
         logRequest();
         try {
             ArchiveAEExtension arcAE = getArchiveAE();
@@ -641,7 +641,9 @@ public class IocmRS {
             storeService.store(ctx, attrs);
             rsForward.forward(rsOp, arcAE, null, request);
         } catch (DicomServiceException e) {
-            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.fromStatusCode(e.getStatus())));
+            throw new WebApplicationException(getResponse(e.getStatus() + " : " + e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
