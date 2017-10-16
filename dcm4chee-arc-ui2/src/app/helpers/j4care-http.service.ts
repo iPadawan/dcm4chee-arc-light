@@ -7,7 +7,7 @@ import {WindowRefService} from "./window-ref.service";
 
 @Injectable()
 export class J4careHttpService{
-    constructor (public $http:Http, public mainservice:AppService) {}
+    constructor (public $http:J4careHttpService, public mainservice:AppService) {}
     header;
     token;
     get(url,header?){

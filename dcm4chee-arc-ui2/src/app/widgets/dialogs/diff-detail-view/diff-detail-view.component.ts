@@ -10,6 +10,7 @@ import {StudiesService} from "../../../studies/studies.service";
 import {ExportDialogComponent} from "../export/export.component";
 import {Headers, Http} from "@angular/http";
 import {Observable} from "rxjs";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 declare var DCM4CHE: any;
 
 @Component({
@@ -63,7 +64,7 @@ export class DiffDetailViewComponent implements OnInit {
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
         public studyService:StudiesService,
-        public $http:Http
+        public $http:J4careHttpService
     ){}
     activeTable;
     setActiveTable(mode){

@@ -4,12 +4,13 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
 import {Observable} from "rxjs";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Injectable()
 export class DiffProService {
 
     constructor(
-        private $http:Http,
+        private $http:J4careHttpService,
         private mainservice:AppService,
         private cfpLoadingBar: SlimLoadingBarService,
     ) { }

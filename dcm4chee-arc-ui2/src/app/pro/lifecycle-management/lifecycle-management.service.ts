@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import {AppService} from "../../app.service";
 import {Http} from "@angular/http";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Injectable()
 export class LifecycleManagementService {
 
     constructor(
-        private $http:Http,
+        private $http:J4careHttpService,
         private mainservice:AppService,
     ) { }
     _config(params) {

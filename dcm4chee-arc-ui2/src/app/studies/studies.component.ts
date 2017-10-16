@@ -2414,7 +2414,7 @@ export class StudiesComponent implements OnDestroy{
         this.$http.head(this.renderURL(inst)).subscribe((res)=>{
 /*            console.log("res",res);
             console.log("res",res.headers.get("content-type"));*/
-            let contentType = res.headers.get("content-type");
+            let contentType = res["headers"].get("content-type");
             // if(contentType === )
         });
         window.open(this.renderURL(inst));

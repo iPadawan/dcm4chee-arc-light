@@ -3,12 +3,13 @@ import {Http, Headers} from "@angular/http";
 import {Globalvar} from "../../../constants/globalvar";
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import * as _ from 'lodash';
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Injectable()
 export class DiffDetailViewService {
     jsonHeader = new Headers({ 'Content-Type': 'application/json' });
     constructor(
-     private $http:Http
+     private $http:J4careHttpService
     ) { }
 
     rejectStudy(homeAet, externalAET, study, select){

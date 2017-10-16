@@ -4,12 +4,13 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import Global = NodeJS.Global;
 import {Globalvar} from "../../constants/globalvar";
 import {AeListService} from "../../ae-list/ae-list.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Injectable()
 export class StatisticsService {
 
     constructor(
-        private $http:Http,
+        private $http:J4careHttpService,
         private aeListService:AeListService
     ) { }
 
