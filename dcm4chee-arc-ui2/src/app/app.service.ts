@@ -9,7 +9,8 @@ export class AppService implements OnInit, OnDestroy{
     private _user: User;
     private _global;
     subscription: Subscription;
-    constructor(public $http: Http) {
+
+    constructor(public ngHttp:Http) {
         this.subscription = this.globalSet$.subscribe(obj => {
             console.log('globalset subscribe ', obj);
             this._global = obj;
@@ -95,8 +96,8 @@ export class AppService implements OnInit, OnDestroy{
     //     console.log("in appservice",msg);
     //     this.msg.setMsg(msg);
     // }
-    getRealmOfLogedinUser(){
-        return this.$http.get('/dcm4chee-arc/ui2/rs/realm')
+/*    getRealmOfLogedinUser(){
+        return this.$http.get('rs/realm')
             .map(res => {
                 let resjson;
                 try {
@@ -106,9 +107,9 @@ export class AppService implements OnInit, OnDestroy{
                 }
                 return resjson;
             });
-    }
+    }*/
     getUserInfo(): Observable<User>{
-        return this.$http.get('/dcm4chee-arc/ui2/rs/realm')
+        return this.ngHttp.get('rs/realm')
             .map(res => {
                 console.log('in map1', res);
                 let resjson;
