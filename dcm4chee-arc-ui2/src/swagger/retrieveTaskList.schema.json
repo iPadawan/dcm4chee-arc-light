@@ -1,20 +1,23 @@
 {
-  "title": "ExportTaskList",
+  "title": "RetrieveTaskList",
   "type": "array",
   "items": {
     "required": [
       "pk",
       "status",
       "dicomDeviceName",
-      "ExporterID",
+      "LocalAET",
+      "RemoteAET",
+      "DestinationAET",
+      "StudyInstanceUID",
       "createdTime",
       "updatedTime",
       "scheduledTime"
     ],
     "properties": {
       "pk": {
-        "title": "Export Task PK",
-        "description": "Export Task PK",
+        "title": "Retrieve Task PK",
+        "description": "Retrieve Task PK",
         "type": "integer"
       },
       "status": {
@@ -36,9 +39,19 @@
         "description": "Name of Device performing the Task ",
         "type": "string"
       },
-      "ExporterID": {
-        "title": "Exporter ID",
-        "description": "ID of exporter performing the Task ",
+      "LocalAET": {
+        "title": "Local AET",
+        "description": "Archive AE Title which was used as Calling AET",
+        "type": "string"
+      },
+      "RemoteAET": {
+        "title": "Remote AET",
+        "description": "AE Title of the C-MOVE SCP",
+        "type": "string"
+      },
+      "DestinationAET": {
+        "title": "Destination AET",
+        "description": "Move Destination AE Title",
         "type": "string"
       },
       "StudyInstanceUID": {
@@ -56,17 +69,29 @@
         "description": "Unique Identifier of the Object",
         "type": "string"
       },
-      "Modality": {
-        "title": "Modality",
-        "description": "Modality",
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+      "statusCode": {
+        "title": "DICOM Status Code",
+        "description": "DICOM Status Code in hex",
+        "type": "string"
       },
-      "NumberOfInstances": {
-        "title": "Number of Instances ",
-        "description": "Number of Instances",
+      "errorComment": {
+        "title": "DICOM Error Comment",
+        "type": "string"
+      },
+      "remaining": {
+        "title": "Number of Remaining Sub-Operations",
+        "type": "integer"
+      },
+      "completed": {
+        "title": "Number of Completed Sub-Operations",
+        "type": "integer"
+      },
+      "failed": {
+        "title": "Number of Failed Sub-Operations",
+        "type": "integer"
+      },
+      "warning": {
+        "title": "Number of Warning Sub-Operations",
         "type": "integer"
       },
       "failures": {
@@ -85,6 +110,11 @@
         "description": "time when this task was last updated",
         "type": "string",
         "format": "date-time"
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "number of failed attempts to process this message",
+        "type": "integer"
       },
       "scheduledTime": {
         "title": "Scheduled Time",
