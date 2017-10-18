@@ -343,14 +343,16 @@ public class StoreServiceEJB {
             case NEVER:
                 throw new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED,
                     StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG);
-            case EXPIRED_UNSET:
-                if (!isExpired(series, true))
-                    throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
-                        StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
             case ONLY_EXPIRED:
                 if (!isExpired(series, false))
                     throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
                             StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
+                break;
+            case EXPIRED_UNSET:
+                if (!isExpired(series, true))
+                    throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
+                            StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
+                break;
         }
     }
 
