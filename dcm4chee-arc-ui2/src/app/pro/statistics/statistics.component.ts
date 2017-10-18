@@ -5,6 +5,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {HistogramDialogComponent} from "../../widgets/dialogs/histogram-dialog/histogram-dialog.component";
 import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
+import {AppService} from "../../app.service";
 
 @Component({
   selector: 'app-statistics',
@@ -78,10 +79,27 @@ export class StatisticsComponent implements OnInit {
         public viewContainerRef: ViewContainerRef,
         public dialog: MdDialog,
         public config: MdDialogConfig,
-        public cfpLoadingBar: SlimLoadingBarService
+        public cfpLoadingBar: SlimLoadingBarService,
+        public mainservice:AppService
     ) { }
-
-    ngOnInit() {
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init() {
         this.setTodayDate();
         this.getElasticsearchUrl(2);
 /*        this.getAets(1);

@@ -158,8 +158,24 @@ export class DiffProComponent implements OnInit {
         public dialog: MdDialog,
         public config: MdDialogConfig
     ) { }
-
-    ngOnInit() {
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init() {
         this.getAes(2);
         this.getAets(2);
         this.getDiffAttributeSet(2);
