@@ -612,7 +612,10 @@ export class DiffProComponent implements OnInit {
         let $this = this;
         this.service.getDiffAttributeSet().subscribe(
             (res)=>{
-                $this.diffAttributes = res;
+                //Don't show all group
+                $this.diffAttributes = res.filter(attr=>{
+                    return attr.id != "all";
+                });
                 $this.diffAttributes.forEach((m,i)=>{
                     if(_.hasIn(m,"actions")){
                         m.patientMode = (m.actions.indexOf("patient-update") > -1) ? true : false;
