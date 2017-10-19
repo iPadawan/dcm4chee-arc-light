@@ -5,6 +5,9 @@ import Global = NodeJS.Global;
 import {Globalvar} from "../../constants/globalvar";
 import {AeListService} from "../../ae-list/ae-list.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {StudiesService} from "../../studies/studies.service";
+import {Observable} from "rxjs/Observable";
+import {DatePipe} from "@angular/common";
 
 @Injectable()
 export class StatisticsService {
@@ -12,7 +15,8 @@ export class StatisticsService {
     constructor(
         private $http:J4careHttpService,
         private nativeHttp:Http,
-        private aeListService:AeListService
+        private aeListService:AeListService,
+        private studiesService:StudiesService
     ) { }
 
     queryGet(params, url){
@@ -134,6 +138,20 @@ export class StatisticsService {
         this.setRangeToParams(params,convertedRange,"Setting time range failed on Stored Counts ");
         return this.queryGet(params, url);
     }
+    getStudiesStoredCountsFromDatabase(range, aet){
+        let param = {
+            "StudyDate":this.getStudyDateFromRange(range),
+            "count":true
+        }
+        if(typeof aet === "string")
+            return this.studiesService.queryStudies(this.studiesService.rsURL('internal',aet,"",""),param);
+        else
+            return Observable.forkJoin(
+                this.getMainAets(aet).map(aetElement => {
+                    return this.studiesService.queryStudies(this.studiesService.rsURL('internal',aetElement.dicomAETitle,"",""),param)
+                })
+            );
+    }
     getRetrieveCounts(range, url){
         let convertedRange = this.getRangeConverted(range);
         let params = Globalvar.RETRIEVCOUNTS_PARAMETERS;
@@ -163,5 +181,18 @@ export class StatisticsService {
         let params = Globalvar.AUDITEVENTS_PARAMETERS;
         this.setRangeToParams(params,convertedRange,"Setting time range failed on Audit Event ");
         return this.queryGet(params, url);
+    }
+    getStudyDateFromRange(range){
+        var datePipe = new DatePipe('us-US');
+        if(range.from === range.to){
+            return datePipe.transform(range.from, 'yyyyMMdd');
+        }else{
+            return `${datePipe.transform(range.from, 'yyyyMMdd')}-${datePipe.transform(range.to, 'yyyyMMdd')}`;
+        }
+    }
+    getMainAets(aets){
+        return aets.filter(aet => {
+            return aet.dcmAcceptedUserRole.indexOf('user') > -1;
+        });
     }
 }

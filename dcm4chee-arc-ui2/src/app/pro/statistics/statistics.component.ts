@@ -219,7 +219,7 @@ export class StatisticsComponent implements OnInit {
         this.getAuditEvents();
         this.getErrorCounts();
         this.getRetrieveCounts();
-        this.getStudiesStoredCounts();
+        this.getStudiesStoredCountsFromDatabase();
         this.getWildflyErrorCounts();
         // this.getQueriesCounts();
         this.getQueriesUserID(2);
@@ -545,12 +545,28 @@ export class StatisticsComponent implements OnInit {
             });
         });
     }
-    getStudiesStoredCounts(){
+/*    getStudiesStoredCounts(){
         let $this = this;
         this.service.getStudiesStoredCounts(this.range, this.url).subscribe(
             (res)=>{
                 try {
                     $this.studieStored.count = res.hits.total;
+                }catch (e){
+                    $this.studieStored.count = "-";
+                }
+            },
+            (err)=>{
+                $this.studieStored.count = "-";
+                console.log("error",err);
+            });
+    }*/
+
+    getStudiesStoredCountsFromDatabase(){
+        let $this = this;
+        this.service.getStudiesStoredCountsFromDatabase(this.range, this.aets).subscribe(
+            (res)=>{
+                try {
+                    $this.studieStored.count = res.map(count => {return count.count}).reduce((a, b) => a + b, 0);
                 }catch (e){
                     $this.studieStored.count = "-";
                 }
