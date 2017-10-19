@@ -11,11 +11,12 @@ export class StatisticsService {
 
     constructor(
         private $http:J4careHttpService,
+        private nativeHttp:Http,
         private aeListService:AeListService
     ) { }
 
     queryGet(params, url){
-        return this.$http.get(`${url}/_search?source=`+JSON.stringify(params))
+        return this.nativeHttp.get(`${url}/_search?source=`+JSON.stringify(params))
             .map(res => {
                 let resjson;
                 try{
@@ -75,7 +76,7 @@ export class StatisticsService {
         }
     }
     checkIfElasticSearchIsRunning(url){
-        return this.$http.get(`${url}/?pretty`)
+        return this.nativeHttp.get(`${url}/?pretty`)
             .map(res => {
                 let resjson;
                 try{
@@ -95,11 +96,6 @@ export class StatisticsService {
     }
     getQueriesUserID(range, url, aets){
         let convertedRange = this.getRangeConverted(range);
-/*        aets = [
-            {dicomAETitle:"ARCHIVEACT"},
-            {dicomAETitle:"ARCHIVEACT_ADMIN"},
-            {dicomAETitle:"ARCHIVEACT_TRASH"}
-        ];*/
         let params = Globalvar.QUERIESUSERID_PARAMETERS(
             aets.map((aet)=>{
                 return `Destination.UserID:${aet.dicomAETitle}`;
