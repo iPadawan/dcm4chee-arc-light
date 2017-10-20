@@ -221,7 +221,7 @@ export class StatisticsComponent implements OnInit {
         this.getRetrieveCounts();
         this.getStudiesStoredCountsFromDatabase();
         this.getWildflyErrorCounts();
-        // this.getQueriesCounts();
+        this.getQueriesCounts();
         this.getQueriesUserID(2);
         this.getRetrievUserID();
         this.getStudiesStoredSopClass();
@@ -450,11 +450,11 @@ export class StatisticsComponent implements OnInit {
             this.service.getQueriesUserID(this.range, this.url, this.aets).subscribe(
                 (res)=>{
                     $this.prepareHistogramData(res,'querieUserID');
-                    try {
+/*                    try {
                         $this.queries.count = res.hits.total;
                     }catch (e){
                         $this.queries.count = "-";
-                    }
+                    }*/
                 },
                 (err)=>{
                     $this.studieStored.count = "-";
@@ -474,11 +474,11 @@ export class StatisticsComponent implements OnInit {
                 if(_.hasIn($this.histogramData,'retrievesUserID.chartOptions.scales.yAxes[0].scaleLabel.labelString')){
                     $this.histogramData["retrievesUserID"].chartOptions['scales'].yAxes[0].scaleLabel.labelString = "Retrieves";
                 }
-                try {
+/*                try {
                     $this.queries.count = res.hits.total;
                 }catch (e){
                     $this.queries.count = "-";
-                }
+                }*/
             },
             (err)=>{
                 console.log("error",err);
@@ -625,22 +625,22 @@ export class StatisticsComponent implements OnInit {
             }
         });
     }*/
-    // getQueriesCounts(){
-    //     let $this = this;
-    //     this.service.getQueriesCounts(this.range, this.url).subscribe(
-    //         (res)=>{
-    //             try {
-    //                 $this.queries.count = res.hits.total;
-    //                 $this.prepareHistogramData(res,'queriesCounts');
-    //             }catch (e){
-    //                 $this.queries.count = "-";
-    //             }
-    //         },
-    //         (err)=>{
-    //             console.log("error",err);
-    //             $this.queries.count = "-";
-    //         });
-    // }
+    getQueriesCounts(){
+        let $this = this;
+        this.service.getQueriesCounts(this.range, this.url).subscribe(
+            (res)=>{
+                try {
+                    $this.queries.count = res.hits.total;
+                    $this.prepareHistogramData(res,'queriesCounts');
+                }catch (e){
+                    $this.queries.count = "-";
+                }
+            },
+            (err)=>{
+                console.log("error",err);
+                $this.queries.count = "-";
+            });
+    }
     getErrorCounts(){
         let $this = this;
         this.service.getErrorCounts(this.range, this.url).subscribe(

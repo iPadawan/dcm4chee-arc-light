@@ -222,13 +222,42 @@
                                 <td>{{item.Time | date:'yyyy.MM.dd HH:mm:ss'}}</td>
                                 <td tooltip="{{item.AuditSourceID}}">{{item.AuditSourceID | trim:14}}</td>
                                 <td tooltip="{{item.EventID}}">{{item.EventID | trim:20}}</td>
-                                <td>{{item.ActionCode}}</td>
+                                <td [ngSwitch]="item.ActionCode">
+                                    <ng-container *ngSwitchCase="'C'">
+                                        Create (C)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'R'">
+                                        Read (R)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'U'">
+                                        Update (U)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'D'">
+                                        Delete (D)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'E'">
+                                        Execute (E)
+                                    </ng-container>
+                                </td>
                                 <td tooltip="{{item.Patient}}">{{item.Patient | trim:20}}</td>
                                 <td tooltip="{{item.Study}}">{{item.Study |trim:40}}</td>
                                 <td tooltip="{{item.AccessionNumber}}">{{item.AccessionNumber|trim:15}}</td>
                                 <td tooltip="{{item.userId}}">{{item.userId |trim:15}}</td>
                                 <td>{{item.requestorId}}</td>
-                                <td>{{item.EventOutcomeIndicator}}</td>
+                                <td [ngSwitch]="item.EventOutcomeIndicator">
+                                    <ng-container *ngSwitchCase="'0'">
+                                        Nominal Success (0)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'4'">
+                                        Minor failure (4)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'8'">
+                                        Serious failure (8)
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'12'">
+                                        Major failure (12)
+                                    </ng-container>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
