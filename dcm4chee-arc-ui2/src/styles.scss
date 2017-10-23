@@ -84,7 +84,13 @@ md-grid-list{
 .mat-progress-spinner path, .mat-spinner path{
   stroke: $lightBlue;
 }
-
+.subtable{
+  width: 100%;
+  table-layout: fixed;
+  td{
+    overflow: auto;
+  }
+}
 .loader{
   position: absolute;
   top: 50%;

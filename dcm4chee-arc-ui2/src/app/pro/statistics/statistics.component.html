@@ -235,7 +235,7 @@
                             </tr>
                             <tr *ngIf="item.showDetail">
                                 <td colspan="11">
-                                    <table class="table table-bordered table-condensed">
+                                    <table class="table table-bordered table-condensed subtable" width="100%">
                                         <tr *ngFor="let objectKeys of Object.keys(item.wholeObject)">
                                             <td>{{objectKeys}}</td>
                                             <td>{{item.wholeObject[objectKeys]}}</td>
