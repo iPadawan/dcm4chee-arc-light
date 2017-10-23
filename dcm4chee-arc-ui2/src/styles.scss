@@ -1833,6 +1833,9 @@ md-dialog-container{
   float: left;
   width: 100%;
 }
+.pointer:hover{
+  cursor: pointer;
+}
 .table_block{
   float:left;
   width:100%;
@@ -1888,6 +1891,9 @@ md-dialog-container{
             }
           }
         }
+      }
+      tr:hover > td{
+        background: #cccccc;
       }
     }
   }

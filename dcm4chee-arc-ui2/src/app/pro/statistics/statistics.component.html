@@ -87,9 +87,9 @@
                     <h3>{{studieStored.label}}</h3>
                     <label *ngIf="studieStored.count != undefined">{{studieStored.count}}</label>
                 </div>
-                <div class="count_block">
-                    <h3>{{errors.label}}</h3>
-                    <label *ngIf="errors.count != undefined" [ngClass]="{'text-danger': errors.count}">{{errors.count}}</label>
+                <div class="count_block pointer" (click)="showErrors()">
+                    <h3 class="pointer">{{errors.label}}</h3>
+                    <label class="pointer" *ngIf="errors.count != undefined" [ngClass]="{'text-danger': errors.count}">{{errors.count}}</label>
                 </div>
                 <div class="count_block">
                     <h3>{{wildflError.label}}</h3>
@@ -196,15 +196,16 @@
                     <h3>{{histogramData.studyStoredReceivingAET.noDataText}}</h3>
                 </div>
             </div>
-            <div class="table_block">
+            <div class="table_block" id="auditevents">
                 <div class="header" (click)="toggleBlock('AUDITEVENTS',$event)">
                     <h3>Audit Events</h3>
                     <input *ngIf="toggle === 'AUDITEVENTS'" type="text" [(ngModel)]="searchlist" placeholder="Search...">
                 </div>
-                <div class="table_content" *ngIf="toggle === 'AUDITEVENTS' && auditEvents.length > 0">
+                <div class="table_content" *ngIf="toggle === 'AUDITEVENTS' && auditEvents && auditEvents.length > 0">
                     <table class="table table-bordered table-condensed">
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Time</th>
                                 <th>AuditSourceID</th>
                                 <th>EventID</th>
@@ -218,47 +219,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of auditEvents | search:searchlist | slice:moreAudit.start:moreAudit.limit">
+                        <ng-container *ngFor="let item of auditEvents | search:searchlist | slice:moreAudit.start:moreAudit.limit">
+                            <tr (click)="detailView(item)">
+                                <td class="pointer"><span class="glyphicon glyphicon-th-list"></span></td>
                                 <td>{{item.Time | date:'yyyy.MM.dd HH:mm:ss'}}</td>
                                 <td tooltip="{{item.AuditSourceID}}">{{item.AuditSourceID | trim:14}}</td>
                                 <td tooltip="{{item.EventID}}">{{item.EventID | trim:20}}</td>
-                                <td [ngSwitch]="item.ActionCode">
-                                    <ng-container *ngSwitchCase="'C'">
-                                        Create (C)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'R'">
-                                        Read (R)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'U'">
-                                        Update (U)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'D'">
-                                        Delete (D)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'E'">
-                                        Execute (E)
-                                    </ng-container>
-                                </td>
+                                <td>{{item.ActionCode}}</td>
                                 <td tooltip="{{item.Patient}}">{{item.Patient | trim:20}}</td>
                                 <td tooltip="{{item.Study}}">{{item.Study |trim:40}}</td>
                                 <td tooltip="{{item.AccessionNumber}}">{{item.AccessionNumber|trim:15}}</td>
                                 <td tooltip="{{item.userId}}">{{item.userId |trim:15}}</td>
                                 <td>{{item.requestorId}}</td>
-                                <td [ngSwitch]="item.EventOutcomeIndicator">
-                                    <ng-container *ngSwitchCase="'0'">
-                                        Nominal Success (0)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'4'">
-                                        Minor failure (4)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'8'">
-                                        Serious failure (8)
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'12'">
-                                        Major failure (12)
-                                    </ng-container>
+                                <td>{{item.EventOutcomeIndicator.text}}</td>
+                            </tr>
+                            <tr *ngIf="item.showDetail">
+                                <td colspan="11">
+                                    <table class="table table-bordered table-condensed">
+                                        <tr *ngFor="let objectKeys of Object.keys(item.wholeObject)">
+                                            <td>{{objectKeys}}</td>
+                                            <td>{{item.wholeObject[objectKeys]}}</td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
+                        </ng-container>
                         </tbody>
                     </table>
                 </div>

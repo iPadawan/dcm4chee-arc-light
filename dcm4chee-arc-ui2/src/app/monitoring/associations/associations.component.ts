@@ -234,7 +234,6 @@ export class AssociationsComponent{
                 }else{
                     csv += m.localAETitle + '←' + m.remoteAETitle;
                 }
-                console.log('m', m);
                 if (m.invokedOps){
                     csv += ',';
                     console.log('m.invokedOps', m.invokedOps);

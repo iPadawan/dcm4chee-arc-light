@@ -447,7 +447,6 @@ export class Globalvar {
     }
     public static get ERRORSCOUNTS_PARAMETERS(): any{
         return {
-            "size": 0,
             "aggs": {},
             "highlight": {
                 "fields": {
