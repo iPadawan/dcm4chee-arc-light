@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewerComponent } from './viewer.component';
+import { ExternalRetrieveComponent } from './external-retrieve.component';
 
-describe('ViewerComponent', () => {
-  let component: ViewerComponent;
-  let fixture: ComponentFixture<ViewerComponent>;
+describe('ExternalRetrieveComponent', () => {
+  let component: ExternalRetrieveComponent;
+  let fixture: ComponentFixture<ExternalRetrieveComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ViewerComponent ]
+      declarations: [ ExternalRetrieveComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ViewerComponent);
+    fixture = TestBed.createComponent(ExternalRetrieveComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
