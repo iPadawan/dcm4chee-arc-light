@@ -2,7 +2,6 @@ import {Component, OnInit, HostListener, ViewContainerRef} from '@angular/core';
 import {StatisticsService} from "./statistics.service";
 import * as _ from 'lodash';
 import {Globalvar} from "../../constants/globalvar";
-import {HistogramDialogComponent} from "../../widgets/dialogs/histogram-dialog/histogram-dialog.component";
 import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import {AppService} from "../../app.service";

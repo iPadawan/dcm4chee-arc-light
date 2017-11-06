@@ -141,14 +141,13 @@ export class StatisticsService {
     getStudiesStoredCountsFromDatabase(range, aet){
         let param = {
             "StudyDate":this.getStudyDateFromRange(range),
-            "count":true
         }
         if(typeof aet === "string")
-            return this.studiesService.queryStudies(this.studiesService.rsURL('internal',aet,"",""),param);
+            return this.studiesService.getCount(this.studiesService.rsURL('internal',aet,"",""),"studies",param);
         else
             return Observable.forkJoin(
                 this.getMainAets(aet).map(aetElement => {
-                    return this.studiesService.queryStudies(this.studiesService.rsURL('internal',aetElement.dicomAETitle,"",""),param)
+                    return this.studiesService.getCount(this.studiesService.rsURL('internal',aetElement.dicomAETitle,"",""),"studies",param);
                 })
             );
     }
