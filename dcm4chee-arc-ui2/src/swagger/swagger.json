@@ -27,6 +27,10 @@
       "description": "Count number of matching Entities"
     },
     {
+      "name": "SIZE-RS",
+      "description": "Size of matching Entities"
+    },
+    {
       "name": "DIMSE-RS",
       "description": "Invoke DIMSE Service on remote AE"
     },
@@ -512,7 +516,10 @@
             "name": "body",
             "in": "body",
             "description": "updated device vendor data",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3373,7 +3380,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3442,7 +3452,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Updated Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3520,7 +3533,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Target Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3598,7 +3614,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Patient Attributes with changed Patient ID and Issuer encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -5488,6 +5507,469 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/size": {
+      "get": {
+        "tags": [
+          "SIZE-RS"
+        ],
+        "summary": "Size of Studies",
+        "operationId": "SizeOfStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "match also rejected Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only of Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match only Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match only Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match only Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/size": {
+      "get": {
+        "tags": [
+          "SIZE-RS"
+        ],
+        "summary": "Size of Series of Study",
+        "operationId": "SizeOfStudyOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "match also rejected Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match only Series received from this <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/series/size": {
+      "get": {
+        "tags": [
+          "SIZE-RS"
+        ],
+        "summary": "Size of Series",
+        "operationId": "SizeOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "match also rejected Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "count Series received from this <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/size": {
+      "get": {
+        "tags": [
+          "SIZE-RS"
+        ],
+        "summary": "Size of Instances of Series of Study",
+        "operationId": "SizeOfStudyOfSeriesOfInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/size": {
+      "get": {
+        "tags": [
+          "SIZE-RS"
+        ],
+        "summary": "Size of Instances of Study",
+        "operationId": "SizeOfStudyOfInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/instances/size": {
+      "get": {
+        "tags": [
+          "SIZE-RS"
+        ],
+        "summary": "Size of Instances",
+        "operationId": "SizeOfInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/export": {
       "get": {
         "tags": [
@@ -5818,7 +6300,7 @@
         "expiration": {
           "title": "expiration",
           "description": "Access token lifetime in seconds",
-          "type": ""
+          "type": "integer"
         },
         "systemCurrentTime": {
           "title": "systemCurrentTime",
@@ -5896,6 +6378,19 @@
         "count": {
           "title": "count",
           "description": "number of matches",
+          "type": "integer"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "count": {
+          "title": "size",
+          "description": "size of matches",
           "type": "integer"
         }
       }
