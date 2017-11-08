@@ -30,6 +30,7 @@ import {J4careHttpService} from "../helpers/j4care-http.service";
 import {j4care} from "../helpers/j4care.service";
 import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
 declare var Keycloak: any;
+declare var $: any;
 
 @Component({
     selector: 'app-studies',
@@ -2016,7 +2017,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 '',
                 'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
                 '',
-                'multiple'
+                'multiple',
+                {},
+                ""
             );
         });
     }
@@ -2025,7 +2028,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.studyURL(study.attrs),
             'Export study',
             'Study will not be sent!',
-            'single'
+            'single',
+            study.attrs,
+            "study"
         );
     };
     exportSeries(series) {
@@ -2033,7 +2038,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.seriesURL(series.attrs),
             'Export series',
             'Series will not be sent!',
-            'single'
+            'single',
+            series.attrs,
+            "series"
         );
     };
     exportInstance(instance) {
@@ -2041,10 +2048,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.instanceURL(instance.attrs),
             'Export instance',
             'Instance will not be sent!',
-            'single'
+            'single',
+            instance.attrs,
+            "instance"
         );
     };
-    exporter(url, title, warning, mode){
+    exporter(url, title, warning, mode, objectAttr, dicomMode){
         let $this = this;
         let id;
         let urlRest;
@@ -2068,7 +2077,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 width: '600px'
             };
         }
-        this.dialogRef = this.dialog.open(ExportDialogComponent, );
+        this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
@@ -2076,6 +2085,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.warning = warning;
         this.dialogRef.componentInstance.count = this.count;
+        if($this.externalInternalAetMode === 'external') {
+            this.dialogRef.componentInstance.preselectedExternalAET = this.externalInternalAetModel.dicomAETitle;
+        }
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
@@ -2083,8 +2095,20 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}`;
                 }else{
                     if($this.externalInternalAetMode === 'external'){
+                        urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}`;
+/*                        switch (dicomMode){
+                            case 'study':
+                                console.log("newUrl",this.studyURL(objectAttr));
+                                break;
+                            case 'series':
+                                console.log("newUrl",this.seriesURL(objectAttr));
+                                break;
+                            case 'instance':
+                                console.log("newUrl",this.instanceURL(objectAttr));
+                                break;
+                        }
                         id = 'dicom:' + result.selectedAet;
-                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});
+                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});*/
                     }else{
                         if (result.exportType === 'dicom'){
                             //id = result.dicomPrefix + result.selectedAet;
