@@ -1703,7 +1703,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (this.trashaktive) {
             this.$http.post(
-                this.studyURL(study.attrs) + '/reject/' + this.rjcode.codeValue + '^' + this.rjcode.codingSchemeDesignator,
+                encodeURI(this.studyURL(study.attrs) + '/reject/' + this.rjcode.codeValue + '^' + this.rjcode.codingSchemeDesignator),
                 {},
                 $this.jsonHeader
             ).subscribe(
