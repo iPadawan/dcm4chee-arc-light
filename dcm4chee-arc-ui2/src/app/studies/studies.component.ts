@@ -1710,7 +1710,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (this.trashaktive) {
             this.$http.post(
-                encodeURI(this.studyURL(study.attrs) + '/reject/' + this.rjcode.codeValue + '^' + this.rjcode.codingSchemeDesignator),
+                this.studyURL(study.attrs) + '/reject/' + this.rjcode.codeValue + '^' + this.rjcode.codingSchemeDesignator,
                 {},
                 $this.jsonHeader
             ).subscribe(
@@ -1747,7 +1747,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if (result) {
                     $this.cfpLoadingBar.start();
                     $this.$http.post(
-                        encodeURI($this.studyURL(study.attrs) + '/reject/' + parameters.result.select),
+                        $this.studyURL(study.attrs) + '/reject/' + parameters.result.select,
                         {},
                         $this.jsonHeader
                     ).subscribe(
