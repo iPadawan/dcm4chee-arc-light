@@ -1,0 +1,31 @@
+
+.dashboard{
+  padding:30px 5px;
+  h2{
+    color:rgba(6, 29, 47, 0.84);
+  }
+  .count_block{
+    min-width: 203px;
+    background: rgba(6, 29, 47, 0.68);
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#061d2f+0,7db9e8+100&1+0,0+100;Blue+to+Transparent */
+    background: -moz-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%, rgba(6, 29, 47, 0.87) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    border: none;
+    color: white;
+    padding: 30px 40px;
+    margin-right: 5px;
+    .count{
+      width: 100%;
+      font-size:55px;
+      text-align: center;
+      span.glyphicon{
+        font-size:45px;
+        margin-right:10px;
+      }
+    }
+    .text{
+      text-align: center;
+    }
+  }
+}

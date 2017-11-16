@@ -77,6 +77,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import { ExternalRetrieveComponent } from './monitoring/external-retrieve/external-retrieve.component';
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
+import { DashboardComponent } from './pro/dashboard/dashboard.component';
 
 @NgModule({
     declarations: [
@@ -123,7 +124,8 @@ import { FilterGeneratorComponent } from './helpers/filter-generator/filter-gene
         MonitoringTabsComponent,
         Hl7ApplicationsComponent,
         ExternalRetrieveComponent,
-        FilterGeneratorComponent
+        FilterGeneratorComponent,
+        DashboardComponent
     ],
     imports: [
         BrowserModule,
@@ -161,6 +163,7 @@ import { FilterGeneratorComponent } from './helpers/filter-generator/filter-gene
             { path: 'monitoring/diff', component: DiffProComponent },
             { path: 'monitoring/statistics', component: StatisticsComponent },
             { path: 'monitoring/lifecycle-management', component: LifecycleManagementComponent },
+            { path: 'monitoring/dashboard', component: DashboardComponent },
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
