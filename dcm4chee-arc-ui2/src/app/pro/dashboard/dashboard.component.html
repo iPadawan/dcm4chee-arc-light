@@ -1,30 +1,235 @@
 <div class="dashboard">
-    <h2>Counts</h2>
-    <div class="dashboard_module">
-      <div class="count_block">
-          <!--<div class="icon"><span class="glyphicon glyphicon-search"></span></div>-->
-          <div class="count"><span class="glyphicon glyphicon-search"></span>256</div>
-          <div class="text">Queries Count</div>
-      </div>
-      <div class="count_block">
-          <!--<div class="icon"><span class="glyphicon glyphicon-save"></span></div>-->
-          <div class="count"><span class="glyphicon glyphicon-open"></span>123</div>
-          <div class="text">Retrieves Count</div>
-      </div>
-      <div class="count_block">
-          <div class="icon"></div>
-          <div class="count"><span class="glyphicon glyphicon-save"></span>30</div>
-          <div class="text">Studies Stored Count</div>
-      </div>
-      <div class="count_block">
-          <!--<div class="icon"><span class="glyphicon glyphicon-warning-sign"></span></div>-->
-          <div class="count"><span class="glyphicon glyphicon-warning-sign"></span>0</div>
-          <div class="text">Audit Errors</div>
-      </div>
-      <div class="count_block">
-          <!--<div class="icon"><span class="glyphicon glyphicon-exclamation-sign"></span></div>-->
-          <div class="count"><span class="glyphicon glyphicon-exclamation-sign"></span>0</div>
-          <div class="text">Application Error</div>
-      </div>
+    <div class="dashboard_content">
+        <h2 class="dashboard_block">Counts</h2>
+        <div class="dashboard_module">
+          <div class="count_block dashboard_block">
+              <!--<div class="icon"><span class="glyphicon glyphicon-search"></span></div>-->
+              <div class="count"><span class="glyphicon glyphicon-search"></span>256</div>
+              <div class="text">Queries Count</div>
+          </div>
+          <div class="count_block dashboard_block">
+              <!--<div class="icon"><span class="glyphicon glyphicon-save"></span></div>-->
+              <div class="count"><span class="glyphicon glyphicon-open"></span>123</div>
+              <div class="text">Retrieves Count</div>
+          </div>
+          <div class="count_block dashboard_block">
+              <div class="icon"></div>
+              <div class="count"><span class="glyphicon glyphicon-save"></span>30</div>
+              <div class="text">Studies Stored Count</div>
+          </div>
+          <div class="count_block dashboard_block">
+              <!--<div class="icon"><span class="glyphicon glyphicon-warning-sign"></span></div>-->
+              <div class="count"><span class="glyphicon glyphicon-warning-sign"></span>0</div>
+              <div class="text">Audit Errors</div>
+          </div>
+          <div class="count_block dashboard_block">
+              <!--<div class="icon"><span class="glyphicon glyphicon-exclamation-sign"></span></div>-->
+              <div class="count"><span class="glyphicon glyphicon-exclamation-sign"></span>0</div>
+              <div class="text">Application Error</div>
+          </div>
+        </div>
+    </div>
+
+    <div class="dashboard_content" style="width: 49.5%;">
+        <h2 class="dashboard_block">Audit Events</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_table dashboard_block">
+                <table>
+                    <tr>
+                        <th>Time</th>
+                        <th>AuditSourceID</th>
+                        <th>EventID</th>
+                        <th>Patient ParticipantObjectName</th>
+                        <th>Study ParticipantObjectID</th>
+                        <th>AccessionNumber</th>
+                        <th>EventActionCode</th>
+                        <th>EventOutcomeIndicator</th>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:35:47</td>
+                        <td>PatientViewer</td>
+                        <td>Security Alert</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:50:12</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:35:47</td>
+                        <td>PatientViewer</td>
+                        <td>Security Alert</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:50:12</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content" style="width: 49.5%;float:right;">
+        <h2 class="dashboard_block">Audit Events</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_table dashboard_block">
+                <table>
+                    <tr>
+                        <th>Time</th>
+                        <th>AuditSourceID</th>
+                        <th>EventID</th>
+                        <th>Patient ParticipantObjectName</th>
+                        <th>Study ParticipantObjectID</th>
+                        <th>AccessionNumber</th>
+                        <th>EventActionCode</th>
+                        <th>EventOutcomeIndicator</th>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:35:47</td>
+                        <td>PatientViewer</td>
+                        <td>Security Alert</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:50:12</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:35:47</td>
+                        <td>PatientViewer</td>
+                        <td>Security Alert</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:50:12</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>2017.11.20 10:39:15</td>
+                        <td>archiveact</td>
+                        <td>Query</td>
+                        <td>E</td>
+                        <td>8</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content" style="width: 49.5%;">
+        <h2 class="dashboard_block" style="background:rgba(0, 0, 0, 0.82)">Docker Stats - CPU</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block" style="height: 500px;background:rgba(0, 0, 0, 0.82)" *ngIf="histogramData && histogramData.length > 0"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+
+
+                <ngx-charts-line-chart
+                        [view]="view"
+                        [scheme]="colorScheme"
+                        [results]="histogramData"
+                        [gradient]="gradient"
+                        [xAxis]="showXAxis"
+                        [yAxis]="showYAxis"
+                        [legend]="showLegend"
+                        [showXAxisLabel]="showXAxisLabel"
+                        [showYAxisLabel]="showYAxisLabel"
+                        [xAxisLabel]="xAxisLabel"
+                        [yAxisLabel]="yAxisLabel"
+                        [autoScale]="autoScale"
+                        (select)="onSelect($event)">
+                </ngx-charts-line-chart>
+            </div>
+        </div>
     </div>
 </div>

@@ -354,96 +354,10 @@ export class StatisticsComponent implements OnInit {
         },1);
     }
     prepareHistogramData(response, histogram){
-        let $this = this;
-        $this.histogramData[histogram] = {
-            labels:[],
-            data:{},
-            ready:{
-                labels:[],
-                    data:[]
-            }
-        }
-        this.histogramData[histogram].chartOptions = _.cloneDeep(this.barChartOptions);
-        if(this.isRangeSmallerThan24H()){
-
-            this.histogramData[histogram].chartOptions['scales'].xAxes[0].time.displayFormats = {
-                'millisecond': 'HH:mm:ss',
-                'second': 'HH:mm:ss',
-                'minute': 'HH:mm:ss',
-                'hour': 'HH:mm:ss',
-                'day': 'HH:mm:ss',
-                'week': 'HH:mm:ss',
-                'month': 'HH:mm:ss',
-                'quarter': 'HH:mm:ss',
-                'year': 'HH:mm:ss',
-            }
-        }else{
-            this.histogramData[histogram].chartOptions['scales'].xAxes[0].time.displayFormats = {
-                'millisecond': 'DD.MM.YYYY',
-                'second': 'DD.MM.YYYY',
-                'minute': 'DD.MM.YYYY',
-                'hour': 'DD.MM.YYYY',
-                'day': 'DD.MM.YYYY',
-                'week': 'DD.MM.YYYY',
-                'month': 'DD.MM.YYYY',
-                'quarter': 'DD.MM.YYYY',
-                'year': 'DD.MM.YYYY',
-            }
-        }
-        if(_.hasIn(response,"aggregations.2.buckets") && _.size(response.aggregations[2].buckets) > 0){
-            _.forEach(response.aggregations["2"].buckets,(m,i)=>{
-                $this.histogramData[histogram].labels.push(m.key);
-                _.forEach(m[3].buckets,(bucket,bIndex)=>{
-                    $this.histogramData[histogram].data[bucket.key] = $this.histogramData[histogram].data[bucket.key] ? $this.histogramData[histogram].data[bucket.key] : {};
-                    $this.histogramData[histogram].data[bucket.key].data = $this.histogramData[histogram].data[bucket.key].data || [];
-                    if($this.histogramData[histogram].data[bucket.key].data.length < $this.histogramData[histogram].labels.length){
-                        for (let arr = 0; arr < $this.histogramData[histogram].labels.length;arr++){
-                            if(!$this.histogramData[histogram].data[bucket.key].data[arr]){
-                                $this.histogramData[histogram].data[bucket.key].data.push(null);
-                            }
-                        }
-                    }
-                    $this.histogramData[histogram].data[bucket.key].data[$this.histogramData[histogram].labels.length-1] = bucket.doc_count;
-                });
-            });
-            $this.histogramData[histogram].ready.labels = [this.range.from, ...$this.histogramData[histogram].labels.map(time => { return new Date(time);}), this.range.to];
-            _.forEach($this.histogramData[histogram].data,(d,j)=>{
-                $this.histogramData[histogram].ready.data.push({
-                    label:j,
-                    data:[null,...d.data,null]
-                });
-            });
-            if(Object.keys($this.histogramData[histogram].data).length < 11){
-                $this.histogramData[histogram].chartOptions.legend.position = 'top';
-            }else{
-                if(Object.keys($this.histogramData[histogram].data).length < 30){
-                    $this.histogramData[histogram].chartOptions.legend.position = 'right';
-                }else{
-                    $this.histogramData[histogram] = {
-                        labels:[],
-                        data:{},
-                        ready:{
-                            labels:[],
-                            data:[]
-                        },
-                        noDataText:"Too much data!",
-                    }
-                }
-            }
+        this.service.prepareHistogramData(response, this.range, this.barChartOptions,'histogram').subscribe((histogramData)=>{
+            this.histogramData[histogram] = histogramData;
             this.refreshChart(histogram);
-        }else{
-            console.log("in empty data",response);
-            $this.histogramData[histogram] = {
-                labels:[],
-                data:{},
-                ready:{
-                    labels:[],
-                    data:[]
-                },
-                noDataText:"No data found!",
-            }
-        }
-        console.log("$this.histogramData",$this.histogramData);
+        });
     }
     getQueriesUserID(retries){
         let $this = this;
@@ -472,6 +386,7 @@ export class StatisticsComponent implements OnInit {
             (res)=>{
                 console.log("userid queries =",res);
                 $this.prepareHistogramData(res,'retrievesUserID');
+                console.log("retrievesUserID",$this.histogramData);
                 if(_.hasIn($this.histogramData,'retrievesUserID.chartOptions.scales.yAxes[0].scaleLabel.labelString')){
                     $this.histogramData["retrievesUserID"].chartOptions['scales'].yAxes[0].scaleLabel.labelString = "Retrieves";
                 }
@@ -619,8 +534,6 @@ export class StatisticsComponent implements OnInit {
                 scrollTop: $("#auditevents").offset().top
             }, 500);
             this.searchlist = 'failure';
-        }else{
-
         }
     }
 /*    getStudiesStoredCounts(){

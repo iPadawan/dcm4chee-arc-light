@@ -1,20 +1,55 @@
 
 .dashboard{
   padding:30px 5px;
-  h2{
-    color:rgba(6, 29, 47, 0.84);
+  .dashboard_content{
+    width: 100%;
+    float: left;
+    margin-right: 2px;
   }
-  .count_block{
-    min-width: 203px;
-    background: rgba(6, 29, 47, 0.68);
+  .dashboard_module{
+    float: left;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+  }
+  .dashboard_block{
+    background: rgba(83, 103, 119, 0.92);
+    //background: rgba(6, 29, 47, 0.8);
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#061d2f+0,7db9e8+100&1+0,0+100;Blue+to+Transparent */
-    background: -moz-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%, rgba(6, 29, 47, 0.87) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+/*    background: -moz-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%, rgba(6, 29, 47, 0.87) 100%); //!* FF3.6-15 *!
+    background: -webkit-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%);// !* Chrome10-25,Safari5.1-6 *!
+    background: linear-gradient(to bottom, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%); //!* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!*/
     border: none;
     color: white;
-    padding: 30px 40px;
+    fill: #A0AABE;
     margin-right: 5px;
+    float: left;
+    flex-grow: 1;
+    &:last-child{
+      margin-right:0;
+    }
+  }
+  h2.dashboard_block{
+    margin-top: 2px;
+    margin-bottom: 5px;
+    padding: 2px 9px;
+    //color:rgba(6, 29, 47, 0.84);
+    width: 100%;
+    color: white;
+    background: rgba(75, 93, 107, 0.92);
+    box-sizing: border-box;
+/*    background: -moz-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%, rgba(6, 29, 47, 0.87) 100%); //!* FF3.6-15 *!
+    background: -webkit-linear-gradient(top, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%);// !* Chrome10-25,Safari5.1-6 *!
+    background: linear-gradient(to bottom, rgba(6, 29, 47, 0.60) 0%,rgba(6, 29, 47, 0.87) 100%); //!* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!*/
+  }
+  .count_block{
+    padding: 30px 40px;
+    //min-width: 250px;
+    height:auto;
+    &:hover{
+      cursor: pointer;
+    }
     .count{
       width: 100%;
       font-size:55px;
@@ -27,5 +62,32 @@
     .text{
       text-align: center;
     }
+  }
+  .dashboard_table{
+    min-width: 760px;
+    table{
+      width: 100%;
+      td,th{
+        padding:2px 5px;
+      }
+      th{
+        border-bottom:1px solid white;
+      }
+    }
+  }
+  .ngx-charts-outer{
+    margin: 20px auto;
+  }
+  .chart-legend .legend-label{
+    color:#A0AABE;
+  }
+  .chart-legend .legend-labels{
+    background: transparent !important;
+  }
+  .chart-legend .legend-label .active .legend-label-text{
+    color:white;
+  }
+  ul.legend-labels{
+    max-height:450px !important;
   }
 }

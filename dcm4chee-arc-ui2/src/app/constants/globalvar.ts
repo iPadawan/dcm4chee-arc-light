@@ -611,6 +611,56 @@ export class Globalvar {
             }
         }
     }
+
+    public static get CPU_PARAMETERS():any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "interval": "30s",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "containerName",
+                                "size": 30,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "max": {
+                                        "field": "cpu.totalUsage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static get STUDIESSTOREDSOPCLASS_PARAMETERS(): any{
         return {
             "size": 0,

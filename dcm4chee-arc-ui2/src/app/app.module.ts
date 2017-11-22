@@ -78,6 +78,7 @@ import { ExternalRetrieveComponent } from './monitoring/external-retrieve/extern
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import { DashboardComponent } from './pro/dashboard/dashboard.component';
+import {NgxChartsModule} from "@swimlane/ngx-charts";
 
 @NgModule({
     declarations: [
@@ -141,6 +142,7 @@ import { DashboardComponent } from './pro/dashboard/dashboard.component';
         BrowserAnimationsModule,
         FileUploadModule,
         ChartsModule,
+        NgxChartsModule,
         RouterModule.forRoot([
             {
               path: '',

@@ -8,6 +8,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {StudiesService} from "../../studies/studies.service";
 import {Observable} from "rxjs/Observable";
 import {DatePipe} from "@angular/common";
+import * as _ from 'lodash';
 
 @Injectable()
 export class StatisticsService {
@@ -56,6 +57,21 @@ export class StatisticsService {
             params.query.bool.must.push({
                 "range": {
                     "Event.EventDateTime": {
+                        "gte": convertedRange.from,
+                        "lte": convertedRange.to,
+                        "format": "epoch_millis"
+                    }
+                }
+            });
+        }catch(e){
+            console.error(errorText,e);
+        }
+    }
+    setRangeToParamsCPU(params,convertedRange, errorText){
+        try{
+            params.query.bool.must.push({
+                "range": {
+                    "@timestamp": {
                         "gte": convertedRange.from,
                         "lte": convertedRange.to,
                         "format": "epoch_millis"
@@ -118,6 +134,12 @@ export class StatisticsService {
         let convertedRange = this.getRangeConverted(range);
         let params = Globalvar.STUDIESSTOREDSOPCLASS_PARAMETERS;
         this.setRangeToParams(params,convertedRange,"Setting time range failed on Studies Stored / SOPClass ");
+        return this.queryGet(params, url);
+    }
+    getCpuUsage(range, url){
+        let convertedRange = this.getRangeConverted(range);
+        let params = Globalvar.CPU_PARAMETERS;
+        this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - CPU");
         return this.queryGet(params, url);
     }
     getStudiesStoredUserID(range, url){
@@ -194,4 +216,103 @@ export class StatisticsService {
             return aet.dcmAcceptedUserRole.indexOf('user') > -1;
         });
     }
+    isRangeSmallerThan24H(range){
+        if((new Date(range.to).getTime()) - (new Date(range.from).getTime()) < 86400005)
+            return true;
+        else
+            return false;
+    }
+    prepareHistogramData(response, range, barChartOptions:any,mode){
+        let histogramData:any = {};
+        histogramData = {
+            labels:[],
+            data:{},
+            ready:{
+                labels:[],
+                data:[]
+            },
+            chartOptions:_.cloneDeep(barChartOptions)
+        }
+        if(this.isRangeSmallerThan24H(range)){
+                histogramData.chartOptions['scales'].xAxes[0].time.displayFormats = {
+                    'millisecond': 'HH:mm:ss',
+                    'second': 'HH:mm:ss',
+                    'minute': 'HH:mm:ss',
+                    'hour': 'HH:mm:ss',
+                    'day': 'HH:mm:ss',
+                    'week': 'HH:mm:ss',
+                    'month': 'HH:mm:ss',
+                    'quarter': 'HH:mm:ss',
+                    'year': 'HH:mm:ss',
+                }
+        }else{histogramData.chartOptions['scales'].xAxes[0].time.displayFormats = {
+                'millisecond': 'DD.MM.YYYY',
+                'second': 'DD.MM.YYYY',
+                'minute': 'DD.MM.YYYY',
+                'hour': 'DD.MM.YYYY',
+                'day': 'DD.MM.YYYY',
+                'week': 'DD.MM.YYYY',
+                'month': 'DD.MM.YYYY',
+                'quarter': 'DD.MM.YYYY',
+                'year': 'DD.MM.YYYY',
+            }
+        }
+        if(_.hasIn(response,"aggregations.2.buckets") && _.size(response.aggregations[2].buckets) > 0){
+            _.forEach(response.aggregations["2"].buckets,(m,i)=>{
+                histogramData.labels.push(m.key);
+                _.forEach(m[3].buckets,(bucket,bIndex)=>{
+                    histogramData.data[bucket.key] = histogramData.data[bucket.key] ? histogramData.data[bucket.key] : {};
+                    histogramData.data[bucket.key].data = histogramData.data[bucket.key].data || [];
+                    if(histogramData.data[bucket.key].data.length < histogramData.labels.length){
+                        for (let arr = 0; arr < histogramData.labels.length;arr++){
+                            if(!histogramData.data[bucket.key].data[arr]){
+                                histogramData.data[bucket.key].data.push(null);
+                            }
+                        }
+                    }
+                    if(mode === 'cpu'){
+                        histogramData.data[bucket.key].data[histogramData.labels.length-1] = bucket[1].value;
+                    }else{
+                        histogramData.data[bucket.key].data[histogramData.labels.length-1] = bucket.doc_count;
+                    }
+                });
+            });
+            histogramData.ready.labels = [range.from, ...histogramData.labels.map(time => { return new Date(time);}), range.to];
+            _.forEach(histogramData.data,(d,j)=>{
+                histogramData.ready.data.push({
+                    label:j,
+                    data:[null,...d.data,null]
+                });
+            });
+            if(Object.keys(histogramData.data).length < 11){
+                histogramData.chartOptions.legend.position = 'top';
+            }else{
+                if(Object.keys(histogramData.data).length < 30){
+                    histogramData.chartOptions.legend.position = 'right';
+                }else{
+                    histogramData = {
+                        labels:[],
+                        data:{},
+                        ready:{
+                            labels:[],
+                            data:[]
+                        },
+                        noDataText:"Too much data!",
+                    }
+                }
+            }
+        }else{
+            histogramData = {
+                labels:[],
+                data:{},
+                ready:{
+                    labels:[],
+                    data:[]
+                },
+                noDataText:"No data found!",
+            }
+        }
+        return Observable.of(histogramData);
+    }
+
 }
