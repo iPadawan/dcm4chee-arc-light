@@ -2,6 +2,11 @@
     <div class="dashboard_content">
         <h2 class="dashboard_block">Counts</h2>
         <div class="dashboard_module">
+            <div class="count_block dashboard_block">
+                <div class="icon"></div>
+                <div class="count"><span class="glyphicon glyphicon-save"></span>{{counts.studieStored}}</div>
+                <div class="text">Studies Stored Count</div>
+            </div>
           <div class="count_block dashboard_block">
               <!--<div class="icon"><span class="glyphicon glyphicon-search"></span></div>-->
               <div class="count"><span class="glyphicon glyphicon-search"></span>{{counts.querie}}</div>
@@ -12,11 +17,7 @@
               <div class="count"><span class="glyphicon glyphicon-open"></span>{{counts.retrieve}}</div>
               <div class="text">Retrieves Count</div>
           </div>
-          <div class="count_block dashboard_block">
-              <div class="icon"></div>
-              <div class="count"><span class="glyphicon glyphicon-save"></span>{{counts.studieStored}}</div>
-              <div class="text">Studies Stored Count</div>
-          </div>
+
           <div class="count_block dashboard_block pointer" (click)="showErrors()">
               <!--<div class="icon"><span class="glyphicon glyphicon-warning-sign"></span></div>-->
               <div class="count" [ngClass]="{'error':(counts.errors != '-' && counts.errors !='0')}"><span class="glyphicon glyphicon-warning-sign"></span>{{counts.errors}}</div>
