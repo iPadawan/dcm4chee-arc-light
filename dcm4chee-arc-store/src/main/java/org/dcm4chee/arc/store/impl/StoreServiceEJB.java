@@ -212,7 +212,8 @@ public class StoreServiceEJB {
             }
         }
         Instance instance = createInstance(ctx, conceptNameCode, result);
-        if (ctx.getLocations().isEmpty())
+        boolean createLocations = ctx.getLocations().isEmpty();
+        if (createLocations)
             createLocations(ctx, instance, result);
         else
             copyLocations(ctx, instance, result);
@@ -224,7 +225,7 @@ public class StoreServiceEJB {
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         if(rjNote == null) {
             updateSeriesRejectionState(ctx, series);
-            if (series.getRejectionState() == RejectionState.NONE) {
+            if (createLocations && series.getRejectionState() == RejectionState.NONE) {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
             }
             Study study = series.getStudy();
@@ -253,6 +254,7 @@ public class StoreServiceEJB {
         if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
             return;
 
+        LOG.info("Restore Instance records of Series[pk={}]", series.getPk());
         Metadata metadata = series.getMetadata();
         try ( ZipInputStream zip = session.getStoreService()
                 .openZipInputStream(session, metadata.getStorageID(), metadata.getStoragePath(), studyUID)) {
@@ -263,6 +265,7 @@ public class StoreServiceEJB {
                 restoreInstance(session, series, jsonReader.readDataset(null));
             }
         } catch (IOException e) {
+            LOG.warn("Failed to restore Instance records of Series[pk={}]", series.getPk(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
@@ -657,13 +660,13 @@ public class StoreServiceEJB {
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
-        Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
+        Attributes.UpdatePolicy updatePolicy = session.getPatientUpdatePolicy();
         if (updatePolicy == null)
             return pat;
 
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
