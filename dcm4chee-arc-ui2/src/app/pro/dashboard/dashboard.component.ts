@@ -129,7 +129,15 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.setMin();
         this.getElasticsearchUrl(2);
     }
-
+    showErrors(){
+        if(this.counts.errors && this.counts.errors != '-' && this.counts.errors != '0'){
+            console.log("$('#auditevents').offset().top",$('#auditevents').offset().top);
+            $('html, body').animate({
+                scrollTop: $("#auditevents").offset().top
+            }, 500);
+            this.searchlist = 'failure';
+        }
+    }
     @HostListener('window:scroll', ['$event'])
     loadMoreAuditOnScroll(event) {
         let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,

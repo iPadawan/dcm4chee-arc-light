@@ -17,7 +17,7 @@
               <div class="count"><span class="glyphicon glyphicon-save"></span>{{counts.studieStored}}</div>
               <div class="text">Studies Stored Count</div>
           </div>
-          <div class="count_block dashboard_block">
+          <div class="count_block dashboard_block pointer" (click)="showErrors()">
               <!--<div class="icon"><span class="glyphicon glyphicon-warning-sign"></span></div>-->
               <div class="count" [ngClass]="{'error':(counts.errors != '-' && counts.errors !='0')}"><span class="glyphicon glyphicon-warning-sign"></span>{{counts.errors}}</div>
               <div class="text">Audit Errors</div>
@@ -146,11 +146,11 @@
         </div>
     </div>
 
-    <div class="dashboard_content">
+    <div class="dashboard_content" id="auditevents">
         <h2 class="dashboard_block">Audit Events
             <input type="text" [(ngModel)]="searchlist" placeholder="Search...">
         </h2>
-        <div class="dashboard_module">
+        <div class="dashboard_module" >
             <div class="dashboard_table dashboard_block">
                 <div class="table_content" *ngIf="auditEvents && auditEvents.length > 0">
                     <table class="table table-bordered table-condensed">
