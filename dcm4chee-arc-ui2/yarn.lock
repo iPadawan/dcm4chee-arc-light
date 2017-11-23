@@ -140,9 +140,9 @@
     magic-string "^0.19.0"
     source-map "^0.5.6"
 
-"@swimlane/ngx-charts@5.0":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@swimlane/ngx-charts/-/ngx-charts-5.0.1.tgz#82f0309bd16bd0fb3c2d4b9616df3c5e619b3c8d"
+"@swimlane/ngx-charts@5.3.1":
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/@swimlane/ngx-charts/-/ngx-charts-5.3.1.tgz#942d95e8f11a3156b3f263783287d53eb648284c"
 
 "@types/jasmine@2.5.38":
   version "2.5.38"

@@ -79,6 +79,8 @@ import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-r
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import { DashboardComponent } from './pro/dashboard/dashboard.component';
 import {NgxChartsModule} from "@swimlane/ngx-charts";
+import {DashboardService} from "./pro/dashboard/dashboard.service";
+import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
 
 @NgModule({
     declarations: [
@@ -126,7 +128,8 @@ import {NgxChartsModule} from "@swimlane/ngx-charts";
         Hl7ApplicationsComponent,
         ExternalRetrieveComponent,
         FilterGeneratorComponent,
-        DashboardComponent
+        DashboardComponent,
+        ConvertBytePipe
     ],
     imports: [
         BrowserModule,
@@ -205,7 +208,8 @@ import {NgxChartsModule} from "@swimlane/ngx-charts";
         Hl7ApplicationsService,
         HttpErrorHandler,
         j4care,
-        ExternalRetrieveService
+        ExternalRetrieveService,
+        DashboardService
     ],
     bootstrap: [AppComponent]
 })

@@ -660,6 +660,151 @@ export class Globalvar {
             }
         }
     }
+    public static get MEMORY_RSS_PARAMETERS():any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "interval": "30s",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "containerName",
+                                "size": 20,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "max": {
+                                        "field": "memory.totalRss"
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+    public static get WRITE_PER_SECOND_PARAMETERS():any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "interval": "30s",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "containerName",
+                                "size": 20,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "max": {
+                                        "field": "blkio.write_ps"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public static get READ_PER_SECOND_PARAMETERS():any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "interval": "30s",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "containerName",
+                                "size": 20,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "max": {
+                                        "field": "blkio.read_ps"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public static get STUDIESSTOREDSOPCLASS_PARAMETERS(): any{
         return {

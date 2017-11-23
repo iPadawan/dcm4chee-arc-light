@@ -449,13 +449,13 @@ export class StatisticsComponent implements OnInit {
                 return {
                     AuditSourceID:(_.hasIn(audit,"_source.AuditSource.AuditSourceID"))?audit._source.AuditSource.AuditSourceID:'-',
                     EventID:(_.hasIn(audit,"_source.EventID.originalText"))?audit._source.EventID.originalText:'-',
-                    ActionCode:(_.hasIn(audit,"_source.Event.EventActionCode"))?this.getActionCodeText(audit._source.Event.EventActionCode):'-',
+                    ActionCode:(_.hasIn(audit,"_source.Event.EventActionCode"))?this.service.getActionCodeText(audit._source.Event.EventActionCode):'-',
                     Patient:(_.hasIn(audit,"_source.Patient.ParticipantObjectName"))?audit._source.Patient.ParticipantObjectName:'-',
                     Study:(_.hasIn(audit,"_source.Study.ParticipantObjectID"))?audit._source.Study.ParticipantObjectID:'-',
                     AccessionNumber:(_.hasIn(audit,"_source.AccessionNumber"))?audit._source.AccessionNumber:'-',
                     userId:(_.hasIn(audit,"_source.Source.UserID"))?audit._source.Source.UserID:'-',
                     requestorId:(_.hasIn(audit,"_source.Requestor.UserID"))?audit._source.Requestor.UserID:'-',
-                    EventOutcomeIndicator:(_.hasIn(audit,"_source.Event.EventOutcomeIndicator"))? this.getEventOutcomeIndicatorText(audit._source.Event.EventOutcomeIndicator):{text:'-'},
+                    EventOutcomeIndicator:(_.hasIn(audit,"_source.Event.EventOutcomeIndicator"))? this.service.getEventOutcomeIndicatorText(audit._source.Event.EventOutcomeIndicator):{text:'-'},
                     Time:(_.hasIn(audit,"_source.Event.EventDateTime"))?audit._source.Event.EventDateTime:undefined,
                     wholeObject:j4care.flatten(audit._source),
                     showDetail:false
@@ -468,64 +468,8 @@ export class StatisticsComponent implements OnInit {
         console.log("wholeobject",object);
         object.showDetail = !object.showDetail;
     }
-    getEventOutcomeIndicatorText(code){
-        let returnValue;
-        switch (code){
-            case '0':
-                returnValue = {
-                    text:"Nominal Success (0)",
-                    state:""
-                }
-                break;
-            case '4':
-                returnValue = {
-                    text:"Minor failure (4)",
-                    state:"error"
-                }
-                break;
-            case '8':
-                returnValue = {
-                    text:"Serious failure (8)",
-                    state:"error"
-                }
-                break;
-            case '12':
-                returnValue = {
-                    text:"Major failure (12)",
-                    state:"error"
-                }
-                break;
-            default:
-                returnValue = {
-                    text:"-",
-                    state:""
-                }
-        }
-        return returnValue;
-    }
-    getActionCodeText(code){
-        let returnValue;
-        switch (code){
-            case 'C':
-                returnValue = "Create (C)";
-                break;
-            case 'R':
-                returnValue = "Read (R)";
-                break;
-            case 'U':
-                returnValue = "Update (U)";
-                break;
-            case 'D':
-                returnValue = "Delete (D)";
-                break;
-            case 'E':
-                returnValue = "Execute (E)";
-                break;
-            default:
-                returnValue = "-";
-        }
-        return returnValue;
-    }
+
+
     showErrors(){
         if(this.errors.count && this.errors.count != '-' && this.errors.count != 0){
             this.toggle = 'AUDITEVENTS';

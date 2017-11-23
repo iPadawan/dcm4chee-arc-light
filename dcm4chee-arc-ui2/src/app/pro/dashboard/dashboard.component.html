@@ -4,232 +4,204 @@
         <div class="dashboard_module">
           <div class="count_block dashboard_block">
               <!--<div class="icon"><span class="glyphicon glyphicon-search"></span></div>-->
-              <div class="count"><span class="glyphicon glyphicon-search"></span>256</div>
+              <div class="count"><span class="glyphicon glyphicon-search"></span>{{counts.querie}}</div>
               <div class="text">Queries Count</div>
           </div>
           <div class="count_block dashboard_block">
               <!--<div class="icon"><span class="glyphicon glyphicon-save"></span></div>-->
-              <div class="count"><span class="glyphicon glyphicon-open"></span>123</div>
+              <div class="count"><span class="glyphicon glyphicon-open"></span>{{counts.retrieve}}</div>
               <div class="text">Retrieves Count</div>
           </div>
           <div class="count_block dashboard_block">
               <div class="icon"></div>
-              <div class="count"><span class="glyphicon glyphicon-save"></span>30</div>
+              <div class="count"><span class="glyphicon glyphicon-save"></span>{{counts.studieStored}}</div>
               <div class="text">Studies Stored Count</div>
           </div>
           <div class="count_block dashboard_block">
               <!--<div class="icon"><span class="glyphicon glyphicon-warning-sign"></span></div>-->
-              <div class="count"><span class="glyphicon glyphicon-warning-sign"></span>0</div>
+              <div class="count" [ngClass]="{'error':(counts.errors != '-' && counts.errors !='0')}"><span class="glyphicon glyphicon-warning-sign"></span>{{counts.errors}}</div>
               <div class="text">Audit Errors</div>
           </div>
           <div class="count_block dashboard_block">
               <!--<div class="icon"><span class="glyphicon glyphicon-exclamation-sign"></span></div>-->
-              <div class="count"><span class="glyphicon glyphicon-exclamation-sign"></span>0</div>
+              <div class="count" [ngClass]="{'error':(counts.wildflError != '-' && counts.wildflError !='0')}"><span class="glyphicon glyphicon-exclamation-sign"></span>{{counts.wildflError}}</div>
               <div class="text">Application Error</div>
           </div>
         </div>
     </div>
+    <div class="dashboard_content graph" style="width: 49.5%;" >
+        <h2 class="dashboard_block">Docker Stats - CPU</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+                <ng-container *ngIf="!(graphData && graphData.cpu && graphData.cpu.length > 0)">loader</ng-container>
+                <ng-container *ngIf="graphData && graphData.cpu && graphData.cpu.length > 0">
+                    <ngx-charts-line-chart
+                            [view]="view"
+                            [scheme]="colorScheme"
+                            [results]="graphData?.cpu"
+                            [gradient]="gradient"
+                            [xAxis]="showXAxis"
+                            [yAxis]="showYAxis"
+                            [legend]="showLegend"
+                            [showXAxisLabel]="showXAxisLabel"
+                            [showYAxisLabel]="showYAxisLabel"
+                            [xAxisLabel]="xAxisLabel.cpu"
+                            [yAxisLabel]="yAxisLabel.cpu"
+                            [autoScale]="autoScale"
+                            (select)="onSelect($event)">
+                            <ng-template #tooltipTemplate let-model="model">
+                                <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+                                <h4>{{model.value}}</h4>
+                            </ng-template>
+                    </ngx-charts-line-chart>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content right graph" style="width: 49.5%;" >
+        <h2 class="dashboard_block">Docker Stats - Memory Total Resources</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+                <ng-container *ngIf="!(graphData && graphData.memoryRss && graphData.memoryRss.length > 0)">loader</ng-container>
+                <ng-container *ngIf="graphData && graphData.memoryRss && graphData.memoryRss.length > 0">
+                    <ngx-charts-line-chart
+                            [view]="view"
+                            [scheme]="colorScheme"
+                            [results]="graphData?.memoryRss"
+                            [gradient]="gradient"
+                            [xAxis]="showXAxis"
+                            [yAxis]="showYAxis"
+                            [legend]="showLegend"
+                            [showXAxisLabel]="showXAxisLabel"
+                            [showYAxisLabel]="showYAxisLabel"
+                            [xAxisLabel]="xAxisLabel.memoryRss"
+                            [yAxisLabel]="yAxisLabel.memoryRss"
+                            [autoScale]="autoScale"
+                            (select)="onSelect($event)">
+                            <ng-template #tooltipTemplate let-model="model">
+                                <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+                                <h4>{{model.value|convertByte:2}}</h4>
+                            </ng-template>
+                    </ngx-charts-line-chart>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content graph" style="width: 49.5%;" >
+        <h2 class="dashboard_block">Docker Stats - average amount of bytes written per second</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+                <ng-container *ngIf="!(graphData && graphData.writesPerSecond && graphData.writesPerSecond.length > 0)">loader</ng-container>
+                <ng-container *ngIf="graphData && graphData.writesPerSecond && graphData.writesPerSecond.length > 0">
+                    <ngx-charts-line-chart
+                            [view]="view"
+                            [scheme]="colorScheme"
+                            [results]="graphData?.writesPerSecond"
+                            [gradient]="gradient"
+                            [xAxis]="showXAxis"
+                            [yAxis]="showYAxis"
+                            [legend]="showLegend"
+                            [showXAxisLabel]="showXAxisLabel"
+                            [showYAxisLabel]="showYAxisLabel"
+                            [xAxisLabel]="xAxisLabel.writesPerSecond"
+                            [yAxisLabel]="yAxisLabel.writesPerSecond"
+                            [autoScale]="autoScale"
+                            (select)="onSelect($event)">
+                            <ng-template #tooltipTemplate let-model="model">
+                                <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+                                <h4>{{model.value|convertByte}}/s</h4>
+                            </ng-template>
+                    </ngx-charts-line-chart>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content right graph" style="width: 49.5%;" >
+        <h2 class="dashboard_block">Docker Stats - average amount of bytes read per second</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+                <ng-container *ngIf="!(graphData && graphData.readsPerSecond && graphData.readsPerSecond.length > 0)">loader</ng-container>
+                <ng-container *ngIf="graphData && graphData.readsPerSecond && graphData.readsPerSecond.length > 0">
+                    <ngx-charts-line-chart
+                            [view]="view"
+                            [scheme]="colorScheme"
+                            [results]="graphData?.readsPerSecond"
+                            [gradient]="gradient"
+                            [xAxis]="showXAxis"
+                            [yAxis]="showYAxis"
+                            [legend]="showLegend"
+                            [showXAxisLabel]="showXAxisLabel"
+                            [showYAxisLabel]="showYAxisLabel"
+                            [xAxisLabel]="xAxisLabel.readsPerSecond"
+                            [yAxisLabel]="yAxisLabel.readsPerSecond"
+                            [autoScale]="autoScale"
+                            (select)="onSelect($event)">
+                            <ng-template #tooltipTemplate let-model="model">
+                                <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+                                <h4>{{model.value|convertByte}}/s</h4>
+                            </ng-template>
+                    </ngx-charts-line-chart>
+                </ng-container>
+            </div>
+        </div>
+    </div>
 
-    <div class="dashboard_content" style="width: 49.5%;">
-        <h2 class="dashboard_block">Audit Events</h2>
+    <div class="dashboard_content">
+        <h2 class="dashboard_block">Audit Events
+            <input type="text" [(ngModel)]="searchlist" placeholder="Search...">
+        </h2>
         <div class="dashboard_module">
             <div class="dashboard_table dashboard_block">
-                <table>
-                    <tr>
-                        <th>Time</th>
-                        <th>AuditSourceID</th>
-                        <th>EventID</th>
-                        <th>Patient ParticipantObjectName</th>
-                        <th>Study ParticipantObjectID</th>
-                        <th>AccessionNumber</th>
-                        <th>EventActionCode</th>
-                        <th>EventOutcomeIndicator</th>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:35:47</td>
-                        <td>PatientViewer</td>
-                        <td>Security Alert</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:50:12</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:35:47</td>
-                        <td>PatientViewer</td>
-                        <td>Security Alert</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:50:12</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                </table>
+                <div class="table_content" *ngIf="auditEvents && auditEvents.length > 0">
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Time</th>
+                            <th>AuditSourceID</th>
+                            <th>EventID</th>
+                            <th>EventActionCode</th>
+                            <th>Patient ParticipantObjectName</th>
+                            <th>Study ParticipantObjectID</th>
+                            <th>AccessionNumber</th>
+                            <th>Source UserID</th>
+                            <th>Requestor UserID</th>
+                            <th>EventOutcomeIndicator</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <ng-container *ngFor="let item of auditEvents | search:searchlist | slice:moreAudit.start:moreAudit.limit">
+                            <tr (click)="detailView(item)">
+                                <td class="pointer"><span class="glyphicon glyphicon-th-list"></span></td>
+                                <td>{{item.Time | date:'yyyy.MM.dd HH:mm:ss'}}</td>
+                                <td tooltip="{{item.AuditSourceID}}">{{item.AuditSourceID | trim:14}}</td>
+                                <td tooltip="{{item.EventID}}">{{item.EventID | trim:20}}</td>
+                                <td>{{item.ActionCode}}</td>
+                                <td tooltip="{{item.Patient}}">{{item.Patient | trim:20}}</td>
+                                <td tooltip="{{item.Study}}">{{item.Study |trim:40}}</td>
+                                <td tooltip="{{item.AccessionNumber}}">{{item.AccessionNumber|trim:15}}</td>
+                                <td tooltip="{{item.userId}}">{{item.userId |trim:15}}</td>
+                                <td>{{item.requestorId}}</td>
+                                <td>{{item.EventOutcomeIndicator.text}}</td>
+                            </tr>
+                            <tr *ngIf="item.showDetail">
+                                <td colspan="11">
+                                    <table class="table table-bordered table-condensed subtable" width="100%">
+                                        <tr *ngFor="let objectKeys of Object.keys(item.wholeObject)">
+                                            <td>{{objectKeys}}</td>
+                                            <td>{{item.wholeObject[objectKeys]}}</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="load_more" *ngIf="auditEvents && moreAudit.limit <= auditEvents.length" (click)="loadMoreAudit()"><i *ngIf="moreAudit.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
             </div>
         </div>
     </div>
-    <div class="dashboard_content" style="width: 49.5%;float:right;">
-        <h2 class="dashboard_block">Audit Events</h2>
-        <div class="dashboard_module">
-            <div class="dashboard_table dashboard_block">
-                <table>
-                    <tr>
-                        <th>Time</th>
-                        <th>AuditSourceID</th>
-                        <th>EventID</th>
-                        <th>Patient ParticipantObjectName</th>
-                        <th>Study ParticipantObjectID</th>
-                        <th>AccessionNumber</th>
-                        <th>EventActionCode</th>
-                        <th>EventOutcomeIndicator</th>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:35:47</td>
-                        <td>PatientViewer</td>
-                        <td>Security Alert</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:50:12</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:35:47</td>
-                        <td>PatientViewer</td>
-                        <td>Security Alert</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:50:12</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>2017.11.20 10:39:15</td>
-                        <td>archiveact</td>
-                        <td>Query</td>
-                        <td>E</td>
-                        <td>8</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="dashboard_content" style="width: 49.5%;">
-        <h2 class="dashboard_block" style="background:rgba(0, 0, 0, 0.82)">Docker Stats - CPU</h2>
-        <div class="dashboard_module">
-            <div class="dashboard_block" style="height: 500px;background:rgba(0, 0, 0, 0.82)" *ngIf="histogramData && histogramData.length > 0"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
 
 
-                <ngx-charts-line-chart
-                        [view]="view"
-                        [scheme]="colorScheme"
-                        [results]="histogramData"
-                        [gradient]="gradient"
-                        [xAxis]="showXAxis"
-                        [yAxis]="showYAxis"
-                        [legend]="showLegend"
-                        [showXAxisLabel]="showXAxisLabel"
-                        [showYAxisLabel]="showYAxisLabel"
-                        [xAxisLabel]="xAxisLabel"
-                        [yAxisLabel]="yAxisLabel"
-                        [autoScale]="autoScale"
-                        (select)="onSelect($event)">
-                </ngx-charts-line-chart>
-            </div>
-        </div>
-    </div>
 </div>

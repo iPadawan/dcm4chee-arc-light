@@ -142,6 +142,24 @@ export class StatisticsService {
         this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - CPU");
         return this.queryGet(params, url);
     }
+    getMemoryRssUsage(range, url){
+        let convertedRange = this.getRangeConverted(range);
+        let params = Globalvar.MEMORY_RSS_PARAMETERS;
+        this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - Memory RSS");
+        return this.queryGet(params, url);
+    }
+    getWritesPerSecond(range, url){
+        let convertedRange = this.getRangeConverted(range);
+        let params = Globalvar.WRITE_PER_SECOND_PARAMETERS;
+        this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - Writes p. second");
+        return this.queryGet(params, url);
+    }
+    getReadsPerSecond(range, url){
+        let convertedRange = this.getRangeConverted(range);
+        let params = Globalvar.READ_PER_SECOND_PARAMETERS;
+        this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - Writes p. second");
+        return this.queryGet(params, url);
+    }
     getStudiesStoredUserID(range, url){
         let convertedRange = this.getRangeConverted(range);
         let params = Globalvar.STUDIESSTOREDUSERID_PARAMETERS;
@@ -314,5 +332,63 @@ export class StatisticsService {
         }
         return Observable.of(histogramData);
     }
+    getActionCodeText(code){
+        let returnValue;
+        switch (code){
+            case 'C':
+                returnValue = "Create (C)";
+                break;
+            case 'R':
+                returnValue = "Read (R)";
+                break;
+            case 'U':
+                returnValue = "Update (U)";
+                break;
+            case 'D':
+                returnValue = "Delete (D)";
+                break;
+            case 'E':
+                returnValue = "Execute (E)";
+                break;
+            default:
+                returnValue = "-";
+        }
+        return returnValue;
+    }
 
+    getEventOutcomeIndicatorText(code){
+        let returnValue;
+        switch (code){
+            case '0':
+                returnValue = {
+                    text:"Nominal Success (0)",
+                    state:""
+                }
+                break;
+            case '4':
+                returnValue = {
+                    text:"Minor failure (4)",
+                    state:"error"
+                }
+                break;
+            case '8':
+                returnValue = {
+                    text:"Serious failure (8)",
+                    state:"error"
+                }
+                break;
+            case '12':
+                returnValue = {
+                    text:"Major failure (12)",
+                    state:"error"
+                }
+                break;
+            default:
+                returnValue = {
+                    text:"-",
+                    state:""
+                }
+        }
+        return returnValue;
+    }
 }

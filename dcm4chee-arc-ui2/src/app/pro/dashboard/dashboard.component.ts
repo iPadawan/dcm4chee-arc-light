@@ -1,33 +1,53 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import {Globalvar} from "../../constants/globalvar";
 import {StatisticsService} from "../statistics/statistics.service";
 import {colorSets} from "@swimlane/ngx-charts/release/utils";
+import {DashboardService} from "./dashboard.service";
+import {j4care} from "../../helpers/j4care.service";
+import * as _ from 'lodash';
 
 @Component({
     selector: 'dashboard',
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.scss'],
-    encapsulation: ViewEncapsulation.Native
+    templateUrl: './dashboard.component.html'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit,OnDestroy {
 
-    public barChartLabels = [];
+/*    public barChartLabels = [];
     public pieChartColor =  Globalvar.HISTOGRAMCOLORS;
     public barChartType:string = 'line';
     public barChartLegend:boolean = true;
-    public barChartData:any[] = [];
+    public barChartData:any[] = [];*/
     //
+    Object = Object;
+    searchlist = '';
+    counts = {
+        querie:'-',
+        retrieve:'-',
+        errors:'-',
+        wildflError:'-',
+        studieStored:'-'
+    };
     colorScheme;
     showXAxis = true;
     showYAxis = true;
-    gradient = false;
+    gradient = true;
     showLegend = true;
     showXAxisLabel = true;
-    xAxisLabel = '@timestamp per 30 seconds';
     showYAxisLabel = true;
-    yAxisLabel = 'Max cpu.totalUsage';
+    xAxisLabel = {
+        cpu:'@timestamp per 30 seconds',
+        memoryRss:'@timestamp per 30 seconds',
+        writesPerSecond:'@timestamp per 30 seconds',
+        readsPerSecond:'@timestamp per 30 seconds'
+    };
+    yAxisLabel = {
+        cpu:'Max cpu.totalUsage',
+        memoryRss:'Max memory.totalRss (Bytes)',
+        writesPerSecond:'Average written B/s',
+        readsPerSecond:'Average read B/s'
+    };
     autoScale = true;
-    view: any[] = [800, 400];
+    view: any[] = [800, 250];
     onSelect(event) {
         console.log(event);
 /*        this.colorScheme = colorSets[0];
@@ -44,15 +64,27 @@ export class DashboardComponent implements OnInit {
 
     elasticSearchIsRunning;
     url;
-    // histogramData = {"labels":[1510754400000],"data":{"1.2.840.10008.5.1.4.1.1.1":{"data":[3]},"1.2.840.10008.5.1.4.1.1.2":{"data":[1]}},"ready":{"labels":["2017-11-13T14:24:25.694Z","2017-11-15T14:00:00.000Z","2017-11-20T14:24:25.695Z"],"data":[{"label":"1.2.840.10008.5.1.4.1.1.1","data":[null,3,null]},{"label":"1.2.840.10008.5.1.4.1.1.2","data":[null,1,null]}]},"chartOptions":{"scaleShowVerticalLines":false,"responsive":true,"maintainAspectRatio":false,"legend":{"position":"top"},"scales":{"xAxes":[{"type":"time","time":{"displayFormats":{"millisecond":"DD.MM.YYYY","second":"DD.MM.YYYY","minute":"DD.MM.YYYY","hour":"DD.MM.YYYY","day":"DD.MM.YYYY","week":"DD.MM.YYYY","month":"DD.MM.YYYY","quarter":"DD.MM.YYYY","year":"DD.MM.YYYY"}}}],"yAxes":[{"ticks":{"min":0},"scaleLabel":{"display":true,"labelString":"Studies"}}]}},"show":false};
-    histogramData = {};
-    range = {
+    // graphData = {"labels":[1510754400000],"data":{"1.2.840.10008.5.1.4.1.1.1":{"data":[3]},"1.2.840.10008.5.1.4.1.1.2":{"data":[1]}},"ready":{"labels":["2017-11-13T14:24:25.694Z","2017-11-15T14:00:00.000Z","2017-11-20T14:24:25.695Z"],"data":[{"label":"1.2.840.10008.5.1.4.1.1.1","data":[null,3,null]},{"label":"1.2.840.10008.5.1.4.1.1.2","data":[null,1,null]}]},"chartOptions":{"scaleShowVerticalLines":false,"responsive":true,"maintainAspectRatio":false,"legend":{"position":"top"},"scales":{"xAxes":[{"type":"time","time":{"displayFormats":{"millisecond":"DD.MM.YYYY","second":"DD.MM.YYYY","minute":"DD.MM.YYYY","hour":"DD.MM.YYYY","day":"DD.MM.YYYY","week":"DD.MM.YYYY","month":"DD.MM.YYYY","quarter":"DD.MM.YYYY","year":"DD.MM.YYYY"}}}],"yAxes":[{"ticks":{"min":0},"scaleLabel":{"display":true,"labelString":"Studies"}}]}},"show":false};
+    graphData = {};
+    rangeMin = {
         from:undefined,
         to:undefined
     };
+    rangeDay = {
+        from:undefined,
+        to:undefined
+    };
+    aets;
     colorIndex = 0;
+    auditEvents;
+    moreAudit = {
+        limit: 30,
+        start: 0,
+        loaderActive: false
+    };
     constructor(
-        public statisticsService:StatisticsService
+        public statisticsService:StatisticsService,
+        public service:DashboardService
     ) { }
 
     public barChartOptions:any = {
@@ -90,20 +122,47 @@ export class DashboardComponent implements OnInit {
             }]
         }
     };
-
     ngOnInit() {
         console.log("colorSets",colorSets);
         this.colorScheme = colorSets[2];
         this.setTodayDate();
+        this.setMin();
         this.getElasticsearchUrl(2);
-
     }
 
+    @HostListener('window:scroll', ['$event'])
+    loadMoreAuditOnScroll(event) {
+        let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
+            hH = $('.load_more').outerHeight(),
+            wH = $(window).height(),
+            wS = window.pageYOffset;
+        console.log("ws",wS);
+        console.log("hT + hH - wH",(hT + hH - wH));
+        if (wS > (hT + hH - wH)){
+            this.loadMoreAudit();
+        }
+    }
+    loadMoreAudit(){
+        this.moreAudit.loaderActive = true;
+        this.moreAudit.limit += 20;
+        this.moreAudit.loaderActive = false;
+    }
     setTodayDate(){
         let d = new Date();
+        d.setHours(0);
+        d.setMinutes(0);
+        this.rangeDay.from = d;
+        this.rangeDay.to = new Date();
+    }
+    setMin(){
+        let d = new Date();
         d.setMinutes(d.getMinutes() - 15);
-        this.range.from = d;
-        this.range.to = new Date();
+        this.rangeMin.from = d;
+        this.rangeMin.to = new Date();
+    }
+    detailView(object){
+        console.log("wholeobject",object);
+        object.showDetail = !object.showDetail;
     }
 
     getElasticsearchUrl(retries){
@@ -128,9 +187,10 @@ export class DashboardComponent implements OnInit {
         this.statisticsService.checkIfElasticSearchIsRunning(this.url).subscribe(
             (res)=>{
                 $this.elasticSearchIsRunning = true;
-                $this.statisticsService.getCpuUsage($this.range, $this.url).subscribe(cpu=>{
-                    $this.histogramData = $this.prepareLineData(cpu);
-                });
+/*                setInterval(()=>{
+                    $this.getElasticsearchData();
+                },10000);*/
+                $this.getAets(2);
             },
             (err)=>{
                 if (retries){
@@ -141,25 +201,173 @@ export class DashboardComponent implements OnInit {
             }
         );
     }
+    getElasticsearchData(){
+        this.getMemoryRssUsage();
+        this.getCpuUsage();
+        this.getWritesPerSecond();
+        this.getReadsPerSecond();
+        this.getQueriesCount();
+        this.getRetrieveCounts();
+        this.getErrorCounts();
+        this.getWildflyErrorCounts();
+        this.getAuditEvents();
+    }
+    getCpuUsage(){
+        this.statisticsService.getCpuUsage(this.rangeMin, this.url).subscribe(cpu=>{
+            if(this.graphData['cpu'] && this.graphData['cpu'].length > 0){
+                this.graphData['cpu'].splice(0,this.graphData['cpu'].length);
+                setTimeout(()=>{
+                    this.graphData['cpu'] = [...this.service.prepareGraphData(cpu)];
+                },0);
+            }else{
+                this.graphData['cpu'] = this.service.prepareGraphData(cpu);
+            }
+        });
+    }
+    getMemoryRssUsage(){
+        this.statisticsService.getMemoryRssUsage(this.rangeMin, this.url).subscribe(memoryRss=>{
+            if(this.graphData['memoryRss'] && this.graphData['memoryRss'].length > 0){
+                this.graphData['memoryRss'].splice(0,this.graphData['memoryRss'].length);
+                setTimeout(()=>{
+                    this.graphData['memoryRss'] = [...this.service.prepareGraphData(memoryRss)];
+                },0);
+            }else{
+                this.graphData['memoryRss'] = this.service.prepareGraphData(memoryRss);
+            }
+        });
+    }
+    getWritesPerSecond(){
+        this.statisticsService.getWritesPerSecond(this.rangeMin, this.url).subscribe(writesPerSecond=>{
+            if(this.graphData['writesPerSecond'] && this.graphData['writesPerSecond'].length > 0){
+                this.graphData['writesPerSecond'].splice(0,this.graphData['writesPerSecond'].length);
+                setTimeout(()=>{
+                    this.graphData['writesPerSecond'] = [...this.service.prepareGraphData(writesPerSecond)];
+                },0);
+            }else{
+                this.graphData['writesPerSecond'] = this.service.prepareGraphData(writesPerSecond);
+            }
+        });
+    }
+    getReadsPerSecond(){
+        this.statisticsService.getReadsPerSecond(this.rangeMin, this.url).subscribe(readsPerSecond=>{
+            if(this.graphData['readsPerSecond'] && this.graphData['readsPerSecond'].length > 0){
+                this.graphData['readsPerSecond'].splice(0,this.graphData['readsPerSecond'].length);
+                setTimeout(()=>{
+                    this.graphData['readsPerSecond'] = [...this.service.prepareGraphData(readsPerSecond)];
+                },0);
+            }else{
+                this.graphData['readsPerSecond'] = this.service.prepareGraphData(readsPerSecond);
+            }
+        });
+    }
+    getQueriesCount(){
+        let $this = this;
+        this.statisticsService.getQueriesCounts(this.rangeDay, this.url).subscribe(
+            (res)=>{
+                try {
+                    $this.counts.querie= res.hits.total;
+                }catch (e){
+                    $this.counts.querie = "-";
+                }
+            },
+            (err)=>{
+                $this.counts.querie = "-";
+            });
 
-    prepareLineData(elasticData){
-        let preparedData = [];
-        let group = {};
-        elasticData.aggregations[2].buckets.forEach((m,i) => {
-            m[3].buckets.forEach(buckets=>{
-                group[buckets.key] = group[buckets.key] || [];
-                group[buckets.key].push({
-                    value:buckets[1].value,
-                    name:new Date(m.key)
-                });
+    }
+    getRetrieveCounts(){
+        let $this = this;
+        this.statisticsService.getRetrieveCounts(this.rangeDay, this.url).subscribe(
+            (res)=>{
+                try {
+                    $this.counts.retrieve= res.hits.total;
+                }catch (e){
+                    $this.counts.retrieve = "-";
+                }
+            },
+            (err)=>{
+                $this.counts.retrieve = "-";
+            });
+
+    }
+    getStudiesStoredCountsFromDatabase(){
+        let $this = this;
+        this.statisticsService.getStudiesStoredCountsFromDatabase(this.rangeDay, this.aets).subscribe(
+            (res)=>{
+                try {
+                    $this.counts.studieStored = res.map(count => {return count.count}).reduce((a, b) => a + b, 0);
+                }catch (e){
+                    $this.counts.studieStored = "-";
+                }
+            },
+            (err)=>{
+                $this.counts.studieStored = "-";
+                console.log("error",err);
+            });
+    }
+    getErrorCounts(){
+        let $this = this;
+        this.statisticsService.getErrorCounts(this.rangeDay, this.url).subscribe(
+            (res)=>{
+                try {
+                    $this.counts.errors = res.hits.total;
+                }catch (e){
+                    $this.counts.errors = "-";
+                }
+            },
+            (err)=>{
+                console.log("error",err);
+                $this.counts.errors = "-";
+            });
+    }
+    getWildflyErrorCounts(){
+        let $this = this;
+        this.statisticsService.getWildflyErrorCounts(this.rangeDay, this.url).subscribe(
+            (res)=>{
+                try {
+                    $this.counts.wildflError = res.hits.total;
+                }catch (e){
+                    $this.counts.wildflError = "-";
+                }
+            },
+            (err)=>{
+                $this.counts.wildflError = "-";
+                console.log("error",err);
+            });
+    }
+    getAuditEvents(){
+        let $this = this;
+        this.statisticsService.getAuditEvents(this.rangeDay, this.url).subscribe((res)=>{
+            $this.auditEvents = res.hits.hits.map((audit)=>{
+                return {
+                    AuditSourceID:(_.hasIn(audit,"_source.AuditSource.AuditSourceID"))?audit._source.AuditSource.AuditSourceID:'-',
+                    EventID:(_.hasIn(audit,"_source.EventID.originalText"))?audit._source.EventID.originalText:'-',
+                    ActionCode:(_.hasIn(audit,"_source.Event.EventActionCode"))?this.statisticsService.getActionCodeText(audit._source.Event.EventActionCode):'-',
+                    Patient:(_.hasIn(audit,"_source.Patient.ParticipantObjectName"))?audit._source.Patient.ParticipantObjectName:'-',
+                    Study:(_.hasIn(audit,"_source.Study.ParticipantObjectID"))?audit._source.Study.ParticipantObjectID:'-',
+                    AccessionNumber:(_.hasIn(audit,"_source.AccessionNumber"))?audit._source.AccessionNumber:'-',
+                    userId:(_.hasIn(audit,"_source.Source.UserID"))?audit._source.Source.UserID:'-',
+                    requestorId:(_.hasIn(audit,"_source.Requestor.UserID"))?audit._source.Requestor.UserID:'-',
+                    EventOutcomeIndicator:(_.hasIn(audit,"_source.Event.EventOutcomeIndicator"))? this.statisticsService.getEventOutcomeIndicatorText(audit._source.Event.EventOutcomeIndicator):{text:'-'},
+                    Time:(_.hasIn(audit,"_source.Event.EventDateTime"))?audit._source.Event.EventDateTime:undefined,
+                    wholeObject:j4care.flatten(audit._source),
+                    showDetail:false
+                }
             });
         });
-        for(let groupLabel in group){
-            preparedData.push({
-                name:groupLabel,
-                series:group[groupLabel]
-            })
-        }
-        return preparedData;
+    }
+    getAets(retries){
+        let $this = this;
+        $this.statisticsService.getAets().subscribe((res)=>{
+            $this.aets = res;
+            $this.getElasticsearchData();
+        },(err)=>{
+            if(retries)
+                $this.getAets(retries-1);
+        });
+    }
+
+    ngOnDestroy(){
+
     }
 }
