@@ -149,7 +149,7 @@ import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
         RouterModule.forRoot([
             {
               path: '',
-              redirectTo: '/studies',
+              redirectTo: '/monitoring/dashboard',
               pathMatch: 'full'
             },
             {
