@@ -217,6 +217,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.getMemoryRssUsage();
         this.getMemoryUsage();
         this.getNetworkTransmittedPackets();
+        this.getStudiesStoredCountsFromDatabase();
         this.getCpuUsage();
         this.getWritesPerSecond();
         this.getReadsPerSecond();
