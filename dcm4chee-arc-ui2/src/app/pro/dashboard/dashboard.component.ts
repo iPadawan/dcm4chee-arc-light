@@ -5,6 +5,7 @@ import {colorSets} from "@swimlane/ngx-charts/release/utils";
 import {DashboardService} from "./dashboard.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash';
+import {AppService} from "../../app.service";
 
 @Component({
     selector: 'dashboard',
@@ -43,9 +44,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
         readsPerSecond:'@timestamp per 30 seconds'
     };
     yAxisLabel = {
-        cpu:'Max cpu.totalUsage',
-        memoryRss:'Max memory.totalRss (Bytes)',
-        memoryUsage:'Current memory consumption (Bytes)',
+        cpu:'Max CPU total usage',
+        memoryRss:'RSS memory consumption (B)',
+        memoryUsage:'Memory consumption (B)',
         transmittedPackets:'Packets transmitted per second',
         writesPerSecond:'Average written B/s',
         readsPerSecond:'Average read B/s'
@@ -86,11 +87,13 @@ export class DashboardComponent implements OnInit,OnDestroy {
         start: 0,
         loaderActive: false
     };
+    updateInterval;
+    updateIntervalTime= 30000;
     constructor(
         public statisticsService:StatisticsService,
-        public service:DashboardService
+        public service:DashboardService,
+        public mainservice:AppService
     ) { }
-
     public barChartOptions:any = {
         scaleShowVerticalLines: false,
         responsive: true,
@@ -126,12 +129,30 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }]
         }
     };
-    ngOnInit() {
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init() {
         console.log("colorSets",colorSets);
         this.colorScheme = colorSets[2];
         this.setTodayDate();
         this.setMin();
         this.getElasticsearchUrl(2);
+
     }
     showErrors(){
         if(this.counts.errors && this.counts.errors != '-' && this.counts.errors != '0'){
@@ -199,9 +220,10 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.statisticsService.checkIfElasticSearchIsRunning(this.url).subscribe(
             (res)=>{
                 $this.elasticSearchIsRunning = true;
-/*                setInterval(()=>{
+                $this.updateInterval = setInterval(()=>{
+                    $this.setMin();
                     $this.getGraphDataFromElasticsearch();
-                },10000);*/
+                },$this.updateIntervalTime);
                 $this.getGraphDataFromElasticsearch();
                 $this.getCountDataFromElasticsearch();
                 $this.getAets(2);
@@ -239,11 +261,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getCpuUsage(){
         this.statisticsService.getCpuUsage(this.rangeMin, this.url).subscribe(cpu=>{
-            if(this.graphData['cpu'] && this.graphData['cpu'].length > 0){
-                this.graphData['cpu'].splice(0,this.graphData['cpu'].length);
-                setTimeout(()=>{
-                    this.graphData['cpu'] = [...this.service.prepareGraphData(cpu)];
-                },0);
+            if(this.graphData['cpu']){
+                this.graphData['cpu'] = [];
+                this.graphData['cpu'] = [...this.service.prepareGraphData(cpu)];
             }else{
                 this.graphData['cpu'] = this.service.prepareGraphData(cpu);
             }
@@ -251,11 +271,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getMemoryRssUsage(){
         this.statisticsService.getMemoryRssUsage(this.rangeMin, this.url).subscribe(memoryRss=>{
-            if(this.graphData['memoryRss'] && this.graphData['memoryRss'].length > 0){
-                this.graphData['memoryRss'].splice(0,this.graphData['memoryRss'].length);
-                setTimeout(()=>{
-                    this.graphData['memoryRss'] = [...this.service.prepareGraphData(memoryRss)];
-                },0);
+            if(this.graphData['memoryRss']){
+                this.graphData['memoryRss'] = [];
+                this.graphData['memoryRss'] = [...this.service.prepareGraphData(memoryRss)];
             }else{
                 this.graphData['memoryRss'] = this.service.prepareGraphData(memoryRss);
             }
@@ -263,11 +281,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getMemoryUsage(){
         this.statisticsService.getMemoryUsage(this.rangeMin, this.url).subscribe(memoryUsage=>{
-            if(this.graphData['memoryUsage'] && this.graphData['memoryUsage'].length > 0){
-                this.graphData['memoryUsage'].splice(0,this.graphData['memoryUsage'].length);
-                setTimeout(()=>{
-                    this.graphData['memoryUsage'] = [...this.service.prepareGraphData(memoryUsage)];
-                },0);
+            if(this.graphData['memoryUsage']){
+                this.graphData['memoryUsage'] = [];
+                this.graphData['memoryUsage'] = [...this.service.prepareGraphData(memoryUsage)];
             }else{
                 this.graphData['memoryUsage'] = this.service.prepareGraphData(memoryUsage);
             }
@@ -275,11 +291,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getNetworkTransmittedPackets(){
         this.statisticsService.getNetworkTransmittedPackets(this.rangeMin, this.url).subscribe(transmittedPackets=>{
-            if(this.graphData['transmittedPackets'] && this.graphData['transmittedPackets'].length > 0){
-                this.graphData['transmittedPackets'].splice(0,this.graphData['transmittedPackets'].length);
-                setTimeout(()=>{
-                    this.graphData['transmittedPackets'] = [...this.service.prepareGraphData(transmittedPackets)];
-                },0);
+            if(this.graphData['transmittedPackets']){
+                this.graphData['transmittedPackets'] = [];
+                this.graphData['transmittedPackets'] = [...this.service.prepareGraphData(transmittedPackets)];
             }else{
                 this.graphData['transmittedPackets'] = this.service.prepareGraphData(transmittedPackets);
             }
@@ -287,11 +301,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getWritesPerSecond(){
         this.statisticsService.getWritesPerSecond(this.rangeMin, this.url).subscribe(writesPerSecond=>{
-            if(this.graphData['writesPerSecond'] && this.graphData['writesPerSecond'].length > 0){
-                this.graphData['writesPerSecond'].splice(0,this.graphData['writesPerSecond'].length);
-                setTimeout(()=>{
-                    this.graphData['writesPerSecond'] = [...this.service.prepareGraphData(writesPerSecond)];
-                },0);
+            if(this.graphData['writesPerSecond']){
+                this.graphData['writesPerSecond'] = [];
+                this.graphData['writesPerSecond'] = [...this.service.prepareGraphData(writesPerSecond)];
             }else{
                 this.graphData['writesPerSecond'] = this.service.prepareGraphData(writesPerSecond);
             }
@@ -299,11 +311,9 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getReadsPerSecond(){
         this.statisticsService.getReadsPerSecond(this.rangeMin, this.url).subscribe(readsPerSecond=>{
-            if(this.graphData['readsPerSecond'] && this.graphData['readsPerSecond'].length > 0){
-                this.graphData['readsPerSecond'].splice(0,this.graphData['readsPerSecond'].length);
-                setTimeout(()=>{
-                    this.graphData['readsPerSecond'] = [...this.service.prepareGraphData(readsPerSecond)];
-                },0);
+            if(this.graphData['readsPerSecond']){
+                this.graphData['readsPerSecond'] = [];
+                this.graphData['readsPerSecond'] = [...this.service.prepareGraphData(readsPerSecond)];
             }else{
                 this.graphData['readsPerSecond'] = this.service.prepareGraphData(readsPerSecond);
             }
@@ -417,6 +427,6 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
 
     ngOnDestroy(){
-
+        clearInterval(this.updateInterval);
     }
 }
