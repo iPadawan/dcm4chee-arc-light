@@ -89,7 +89,65 @@
         </div>
     </div>
     <div class="dashboard_content graph" style="width: 49.5%;" >
-        <h2 class="dashboard_block">Docker Stats - average amount of bytes written per second</h2>
+        <h2 class="dashboard_block">Docker Stats - Current memory consumption</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+                <ng-container *ngIf="!(graphData && graphData.memoryUsage && graphData.memoryUsage.length > 0)">loader</ng-container>
+                <ng-container *ngIf="graphData && graphData.memoryUsage && graphData.memoryUsage.length > 0">
+                    <ngx-charts-line-chart
+                            [view]="view"
+                            [scheme]="colorScheme"
+                            [results]="graphData?.memoryUsage"
+                            [gradient]="gradient"
+                            [xAxis]="showXAxis"
+                            [yAxis]="showYAxis"
+                            [legend]="showLegend"
+                            [showXAxisLabel]="showXAxisLabel"
+                            [showYAxisLabel]="showYAxisLabel"
+                            [xAxisLabel]="xAxisLabel.memoryUsage"
+                            [yAxisLabel]="yAxisLabel.memoryUsage"
+                            [autoScale]="autoScale"
+                            (select)="onSelect($event)">
+                            <ng-template #tooltipTemplate let-model="model">
+                                <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+                                <h4>{{model.value|convertByte:2}}</h4>
+                            </ng-template>
+                    </ngx-charts-line-chart>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content graph right" style="width: 49.5%;" >
+        <h2 class="dashboard_block">Docker Stats - Transmitted packets</h2>
+        <div class="dashboard_module">
+            <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+                <ng-container *ngIf="!(graphData && graphData.transmittedPackets && graphData.transmittedPackets.length > 0)">loader</ng-container>
+                <ng-container *ngIf="graphData && graphData.transmittedPackets && graphData.transmittedPackets.length > 0">
+                    <ngx-charts-line-chart
+                            [view]="view"
+                            [scheme]="colorScheme"
+                            [results]="graphData?.transmittedPackets"
+                            [gradient]="gradient"
+                            [xAxis]="showXAxis"
+                            [yAxis]="showYAxis"
+                            [legend]="showLegend"
+                            [showXAxisLabel]="showXAxisLabel"
+                            [showYAxisLabel]="showYAxisLabel"
+                            [xAxisLabel]="xAxisLabel.transmittedPackets"
+                            [yAxisLabel]="yAxisLabel.transmittedPackets"
+                            [autoScale]="autoScale"
+                            (select)="onSelect($event)">
+                            <ng-template #tooltipTemplate let-model="model">
+                                <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+                                <h4>{{model.value}}</h4>
+                            </ng-template>
+                    </ngx-charts-line-chart>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_content graph" style="width: 49.5%;" >
+        <h2 class="dashboard_block">Docker Stats - Average amount of bytes written per second</h2>
         <div class="dashboard_module">
             <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
                 <ng-container *ngIf="!(graphData && graphData.writesPerSecond && graphData.writesPerSecond.length > 0)">loader</ng-container>

@@ -148,6 +148,18 @@ export class StatisticsService {
         this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - Memory RSS");
         return this.queryGet(params, url);
     }
+    getMemoryUsage(range, url){
+        let convertedRange = this.getRangeConverted(range);
+        let params = Globalvar.MEMORY_USAGE_PARAMETERS;
+        this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - Memory Usage");
+        return this.queryGet(params, url);
+    }
+    getNetworkTransmittedPackets(range, url){
+        let convertedRange = this.getRangeConverted(range);
+        let params = Globalvar.NETWORK_TRANSMITTED_PACKETS_PARAMETERS;
+        this.setRangeToParamsCPU(params,convertedRange,"Setting time range failed on  Docker Stats - Network Transmitted packets");
+        return this.queryGet(params, url);
+    }
     getWritesPerSecond(range, url){
         let convertedRange = this.getRangeConverted(range);
         let params = Globalvar.WRITE_PER_SECOND_PARAMETERS;

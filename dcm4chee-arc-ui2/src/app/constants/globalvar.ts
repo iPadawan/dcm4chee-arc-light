@@ -709,6 +709,55 @@ export class Globalvar {
             }
         }
     }
+    public static get MEMORY_USAGE_PARAMETERS():any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "interval": "30s",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "containerName",
+                                "size": 20,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "max": {
+                                        "field": "memory.usage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
     public static get WRITE_PER_SECOND_PARAMETERS():any{
         return {
             "query": {
@@ -796,6 +845,54 @@ export class Globalvar {
                                 "1": {
                                     "max": {
                                         "field": "blkio.read_ps"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public static get NETWORK_TRANSMITTED_PACKETS_PARAMETERS():any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            },
+            "size": 0,
+            "_source": {
+                "excludes": []
+            },
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "@timestamp",
+                        "interval": "30s",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "containerName",
+                                "size": 30,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "max": {
+                                        "field": "net.txPackets_ps"
                                     }
                                 }
                             }

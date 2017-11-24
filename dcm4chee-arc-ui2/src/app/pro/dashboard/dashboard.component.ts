@@ -37,12 +37,16 @@ export class DashboardComponent implements OnInit,OnDestroy {
     xAxisLabel = {
         cpu:'@timestamp per 30 seconds',
         memoryRss:'@timestamp per 30 seconds',
+        memoryUsage:'@timestamp per 30 seconds',
+        transmittedPackets:'@timestamp per 30 seconds',
         writesPerSecond:'@timestamp per 30 seconds',
         readsPerSecond:'@timestamp per 30 seconds'
     };
     yAxisLabel = {
         cpu:'Max cpu.totalUsage',
         memoryRss:'Max memory.totalRss (Bytes)',
+        memoryUsage:'Current memory consumption (Bytes)',
+        transmittedPackets:'Packets transmitted per second',
         writesPerSecond:'Average written B/s',
         readsPerSecond:'Average read B/s'
     };
@@ -211,6 +215,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getElasticsearchData(){
         this.getMemoryRssUsage();
+        this.getMemoryUsage();
+        this.getNetworkTransmittedPackets();
         this.getCpuUsage();
         this.getWritesPerSecond();
         this.getReadsPerSecond();
@@ -241,6 +247,30 @@ export class DashboardComponent implements OnInit,OnDestroy {
                 },0);
             }else{
                 this.graphData['memoryRss'] = this.service.prepareGraphData(memoryRss);
+            }
+        });
+    }
+    getMemoryUsage(){
+        this.statisticsService.getMemoryUsage(this.rangeMin, this.url).subscribe(memoryUsage=>{
+            if(this.graphData['memoryUsage'] && this.graphData['memoryUsage'].length > 0){
+                this.graphData['memoryUsage'].splice(0,this.graphData['memoryUsage'].length);
+                setTimeout(()=>{
+                    this.graphData['memoryUsage'] = [...this.service.prepareGraphData(memoryUsage)];
+                },0);
+            }else{
+                this.graphData['memoryUsage'] = this.service.prepareGraphData(memoryUsage);
+            }
+        });
+    }
+    getNetworkTransmittedPackets(){
+        this.statisticsService.getNetworkTransmittedPackets(this.rangeMin, this.url).subscribe(transmittedPackets=>{
+            if(this.graphData['transmittedPackets'] && this.graphData['transmittedPackets'].length > 0){
+                this.graphData['transmittedPackets'].splice(0,this.graphData['transmittedPackets'].length);
+                setTimeout(()=>{
+                    this.graphData['transmittedPackets'] = [...this.service.prepareGraphData(transmittedPackets)];
+                },0);
+            }else{
+                this.graphData['transmittedPackets'] = this.service.prepareGraphData(transmittedPackets);
             }
         });
     }
