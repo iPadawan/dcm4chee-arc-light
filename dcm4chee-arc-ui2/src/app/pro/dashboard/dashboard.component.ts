@@ -200,8 +200,10 @@ export class DashboardComponent implements OnInit,OnDestroy {
             (res)=>{
                 $this.elasticSearchIsRunning = true;
 /*                setInterval(()=>{
-                    $this.getElasticsearchData();
+                    $this.getGraphDataFromElasticsearch();
                 },10000);*/
+                $this.getGraphDataFromElasticsearch();
+                $this.getCountDataFromElasticsearch();
                 $this.getAets(2);
             },
             (err)=>{
@@ -213,19 +215,27 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }
         );
     }
-    getElasticsearchData(){
-        this.getMemoryRssUsage();
-        this.getMemoryUsage();
-        this.getNetworkTransmittedPackets();
+    getData(){
         this.getStudiesStoredCountsFromDatabase();
-        this.getCpuUsage();
-        this.getWritesPerSecond();
-        this.getReadsPerSecond();
+        this.getGraphDataFromElasticsearch();
+        this.getCountDataFromElasticsearch();
+    }
+    getCountDataFromElasticsearch(){
         this.getQueriesCount();
         this.getRetrieveCounts();
         this.getErrorCounts();
         this.getWildflyErrorCounts();
         this.getAuditEvents();
+
+    }
+    getGraphDataFromElasticsearch(){
+        this.getCpuUsage();
+        this.getMemoryRssUsage();
+        this.getMemoryUsage();
+        this.getNetworkTransmittedPackets();
+        this.getReadsPerSecond();
+        this.getWritesPerSecond();
+
     }
     getCpuUsage(){
         this.statisticsService.getCpuUsage(this.rangeMin, this.url).subscribe(cpu=>{
@@ -399,7 +409,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
         let $this = this;
         $this.statisticsService.getAets().subscribe((res)=>{
             $this.aets = res;
-            $this.getElasticsearchData();
+            $this.getStudiesStoredCountsFromDatabase();
         },(err)=>{
             if(retries)
                 $this.getAets(retries-1);
