@@ -64,7 +64,6 @@ export class PieTimerComponent implements OnInit {
         ctx.fill();
     }
     ngOnInit() {
-        console.log("delauy",this.start);
         this.color = this.color || '#777';
         this.size = this.size || 30;
         this.timer = this.timer || 30;

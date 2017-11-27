@@ -256,6 +256,11 @@ export class DashboardComponent implements OnInit,OnDestroy {
            this.startInterval[interval]();
        }
     }
+    stopAllGraphIntervals(){
+       for(let interval in this.startInterval){
+           clearInterval(this.updateInterval[interval]);
+       }
+    }
     getElasticsearchUrl(retries){
         let $this = this;
         this.statisticsService.getElasticsearchUrl().subscribe(
@@ -487,5 +492,6 @@ export class DashboardComponent implements OnInit,OnDestroy {
 
     ngOnDestroy(){
         // clearInterval(this.updateInterval);
+        this.stopAllGraphIntervals();
     }
 }
