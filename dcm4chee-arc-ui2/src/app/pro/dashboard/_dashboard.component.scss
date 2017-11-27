@@ -48,6 +48,7 @@
     margin-top: 2px;
     margin-bottom: 5px;
     padding: 2px 9px;
+    height:38px;
     //color:rgba(6, 29, 47, 0.84);
     width: 100%;
     color: white;
@@ -68,6 +69,11 @@
       margin-left: 20px;
       vertical-align: middle;
       padding-left:7px;
+    }
+    pie-timer{
+      float: right;
+      position: relative;
+      top: 2px;
     }
   }
   // rgba(28, 36, 43, 0.92) 0%,rgba(6, 29, 47, 0.71)

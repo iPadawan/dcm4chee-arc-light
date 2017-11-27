@@ -33,6 +33,7 @@ import { DurationPickerComponent } from './duration-picker/duration-picker.compo
 import { SchedulePickerComponent } from './schedule-picker/schedule-picker.component';
 import { AttributeInfoComponent } from './attribute-info/attribute-info.component';
 import { ViewerComponent } from './dialogs/viewer/viewer.component';
+import { PieTimerComponent } from './pie-timer/pie-timer.component';
 
 
 @NgModule({
@@ -76,5 +77,6 @@ export const WidgetsComponents = [
     DurationPickerComponent,
     SchedulePickerComponent,
     AttributeInfoComponent,
-    ViewerComponent
+    ViewerComponent,
+    PieTimerComponent
 ];

@@ -87,7 +87,14 @@ export class DashboardComponent implements OnInit,OnDestroy {
         start: 0,
         loaderActive: false
     };
-    updateInterval;
+    updateInterval = {
+        'cpu':undefined,
+        'memoryRss':undefined,
+        'memoryUsage':undefined,
+        'transmittedPackets':undefined,
+        'writesPerSecond':undefined,
+        'readsPerSecond':undefined
+    };
     updateIntervalTime= 30000;
     constructor(
         public statisticsService:StatisticsService,
@@ -197,7 +204,58 @@ export class DashboardComponent implements OnInit,OnDestroy {
         console.log("wholeobject",object);
         object.showDetail = !object.showDetail;
     }
-
+    toggleTimer(mode){
+        console.log("in toggle timer");
+        if(!this.updateInterval[mode]){
+            this.startInterval[mode]();
+        }else{
+            clearInterval(this.updateInterval[mode]);
+            this.updateInterval[mode] = undefined;
+        }
+    }
+    startInterval = {
+        cpu:()=>{
+            this.getCpuUsage();
+            this.updateInterval['cpu'] = setInterval(()=>{
+                this.getCpuUsage();
+            },this.updateIntervalTime);
+        },
+        memoryRss:()=>{
+            this.getMemoryRssUsage();
+            this.updateInterval['memoryRss'] = setInterval(()=>{
+                this.getMemoryRssUsage();
+            },this.updateIntervalTime);
+        },
+        memoryUsage:()=>{
+            this.getMemoryUsage();
+            this.updateInterval['memoryUsage'] = setInterval(()=>{
+                this.getMemoryUsage();
+            },this.updateIntervalTime);
+        },
+        transmittedPackets:()=>{
+            this.getNetworkTransmittedPackets();
+            this.updateInterval['transmittedPackets'] = setInterval(()=>{
+                this.getNetworkTransmittedPackets();
+            },this.updateIntervalTime);
+        },
+        writesPerSecond:()=>{
+            this.getWritesPerSecond();
+            this.updateInterval['writesPerSecond'] = setInterval(()=>{
+                this.getWritesPerSecond();
+            },this.updateIntervalTime);
+        },
+        readsPerSecond:()=>{
+            this.getReadsPerSecond();
+            this.updateInterval['readsPerSecond'] = setInterval(()=>{
+                this.getReadsPerSecond();
+            },this.updateIntervalTime);
+        }
+    };
+    startAllGraphIntervals(){
+       for(let interval in this.startInterval){
+           this.startInterval[interval]();
+       }
+    }
     getElasticsearchUrl(retries){
         let $this = this;
         this.statisticsService.getElasticsearchUrl().subscribe(
@@ -220,12 +278,13 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.statisticsService.checkIfElasticSearchIsRunning(this.url).subscribe(
             (res)=>{
                 $this.elasticSearchIsRunning = true;
-                $this.updateInterval = setInterval(()=>{
-                    $this.setMin();
-                    $this.getGraphDataFromElasticsearch();
-                },$this.updateIntervalTime);
+                // $this.updateInterval = setInterval(()=>{
+                //     $this.setMin();
+                //     $this.getGraphDataFromElasticsearch();
+                // },$this.updateIntervalTime);
                 $this.getGraphDataFromElasticsearch();
                 $this.getCountDataFromElasticsearch();
+                $this.startAllGraphIntervals();
                 $this.getAets(2);
             },
             (err)=>{
@@ -427,6 +486,6 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
 
     ngOnDestroy(){
-        clearInterval(this.updateInterval);
+        // clearInterval(this.updateInterval);
     }
 }
