@@ -89,6 +89,7 @@ export class PieTimerComponent implements OnInit {
             if(this.timerRunning){
                 this.stopInterval();
             }else{
+                this.start = 0;
                 this.startInterval();
             }
         }
