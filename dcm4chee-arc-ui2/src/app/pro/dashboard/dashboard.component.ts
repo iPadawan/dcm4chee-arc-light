@@ -95,6 +95,14 @@ export class DashboardComponent implements OnInit,OnDestroy {
         'writesPerSecond':undefined,
         'readsPerSecond':undefined
     };
+    firstIntervalInit = {
+        'cpu':false,
+        'memoryRss':false,
+        'memoryUsage':false,
+        'transmittedPackets':false,
+        'writesPerSecond':false,
+        'readsPerSecond':false
+    };
     updateIntervalTime= 30000;
     constructor(
         public statisticsService:StatisticsService,
@@ -205,7 +213,6 @@ export class DashboardComponent implements OnInit,OnDestroy {
         object.showDetail = !object.showDetail;
     }
     toggleTimer(mode){
-        console.log("in toggle timer");
         if(!this.updateInterval[mode]){
             this.startInterval[mode]();
         }else{
@@ -215,40 +222,52 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     startInterval = {
         cpu:()=>{
-            this.getCpuUsage();
-            this.updateInterval['cpu'] = setInterval(()=>{
-                this.getCpuUsage();
-            },this.updateIntervalTime);
+            // this.getCpuUsage();
+            if(!this.updateInterval['cpu']){
+                this.updateInterval['cpu'] = setInterval(()=>{
+                    this.getCpuUsage();
+                },this.updateIntervalTime);
+            }
         },
         memoryRss:()=>{
-            this.getMemoryRssUsage();
-            this.updateInterval['memoryRss'] = setInterval(()=>{
-                this.getMemoryRssUsage();
-            },this.updateIntervalTime);
+            // this.getMemoryRssUsage();
+            if(!this.updateInterval['memoryRss']){
+                this.updateInterval['memoryRss'] = setInterval(()=>{
+                    this.getMemoryRssUsage();
+                },this.updateIntervalTime);
+            }
         },
         memoryUsage:()=>{
-            this.getMemoryUsage();
-            this.updateInterval['memoryUsage'] = setInterval(()=>{
-                this.getMemoryUsage();
-            },this.updateIntervalTime);
+            // this.getMemoryUsage();
+            if(!this.updateInterval['memoryUsage']){
+                this.updateInterval['memoryUsage'] = setInterval(()=>{
+                    this.getMemoryUsage();
+                },this.updateIntervalTime);
+            }
         },
         transmittedPackets:()=>{
-            this.getNetworkTransmittedPackets();
-            this.updateInterval['transmittedPackets'] = setInterval(()=>{
-                this.getNetworkTransmittedPackets();
-            },this.updateIntervalTime);
+            // this.getNetworkTransmittedPackets();
+            if(!this.updateInterval['transmittedPackets']){
+                this.updateInterval['transmittedPackets'] = setInterval(()=>{
+                    this.getNetworkTransmittedPackets();
+                },this.updateIntervalTime);
+            }
         },
         writesPerSecond:()=>{
-            this.getWritesPerSecond();
-            this.updateInterval['writesPerSecond'] = setInterval(()=>{
-                this.getWritesPerSecond();
-            },this.updateIntervalTime);
+            // this.getWritesPerSecond();
+            if(!this.updateInterval['writesPerSecond']){
+                this.updateInterval['writesPerSecond'] = setInterval(()=>{
+                    this.getWritesPerSecond();
+                },this.updateIntervalTime);
+            }
         },
         readsPerSecond:()=>{
-            this.getReadsPerSecond();
-            this.updateInterval['readsPerSecond'] = setInterval(()=>{
-                this.getReadsPerSecond();
-            },this.updateIntervalTime);
+            // this.getReadsPerSecond();
+            if(!this.updateInterval['readsPerSecond']){
+                this.updateInterval['readsPerSecond'] = setInterval(()=>{
+                    this.getReadsPerSecond();
+                },this.updateIntervalTime);
+            }
         }
     };
     startAllGraphIntervals(){
@@ -288,8 +307,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
                 //     $this.getGraphDataFromElasticsearch();
                 // },$this.updateIntervalTime);
                 $this.getGraphDataFromElasticsearch();
+                // $this.startAllGraphIntervals();
                 $this.getCountDataFromElasticsearch();
-                $this.startAllGraphIntervals();
                 $this.getAets(2);
             },
             (err)=>{
@@ -331,6 +350,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }else{
                 this.graphData['cpu'] = this.service.prepareGraphData(cpu);
             }
+            this.startInterval["cpu"]();
+            this.firstIntervalInit["cpu"] = true;
         });
     }
     getMemoryRssUsage(){
@@ -341,6 +362,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }else{
                 this.graphData['memoryRss'] = this.service.prepareGraphData(memoryRss);
             }
+            this.startInterval["memoryRss"]();
+            this.firstIntervalInit["memoryRss"] = true;
         });
     }
     getMemoryUsage(){
@@ -351,6 +374,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }else{
                 this.graphData['memoryUsage'] = this.service.prepareGraphData(memoryUsage);
             }
+            this.startInterval["memoryUsage"]();
+            this.firstIntervalInit["memoryUsage"] = true;
         });
     }
     getNetworkTransmittedPackets(){
@@ -361,6 +386,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }else{
                 this.graphData['transmittedPackets'] = this.service.prepareGraphData(transmittedPackets);
             }
+            this.startInterval["transmittedPackets"]();
+            this.firstIntervalInit["transmittedPackets"] = true;
         });
     }
     getWritesPerSecond(){
@@ -371,6 +398,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }else{
                 this.graphData['writesPerSecond'] = this.service.prepareGraphData(writesPerSecond);
             }
+            this.startInterval["writesPerSecond"]();
+            this.firstIntervalInit["writesPerSecond"] = true;
         });
     }
     getReadsPerSecond(){
@@ -381,6 +410,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }else{
                 this.graphData['readsPerSecond'] = this.service.prepareGraphData(readsPerSecond);
             }
+            this.startInterval["readsPerSecond"]();
+            this.firstIntervalInit["readsPerSecond"] = true;
         });
     }
     getQueriesCount(){

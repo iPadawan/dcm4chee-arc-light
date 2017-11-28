@@ -9,22 +9,26 @@ export class DashboardService {
     prepareGraphData(elasticData){
         let preparedData = [];
         let group = {};
-        elasticData.aggregations[2].buckets.forEach((m,i) => {
-            m[3].buckets.forEach(buckets=>{
-              if(buckets[1].value || buckets[1].value === 0){
-                  group[buckets.key] = group[buckets.key] || [];
-                  group[buckets.key].push({
-                      value:buckets[1].value,
-                      name:new Date(m.key)
-                  });
-              }
+        try{
+            elasticData.aggregations[2].buckets.forEach((m,i) => {
+                m[3].buckets.forEach(buckets=>{
+                  if(buckets[1].value || buckets[1].value === 0){
+                      group[buckets.key] = group[buckets.key] || [];
+                      group[buckets.key].push({
+                          value:buckets[1].value,
+                          name:new Date(m.key)
+                      });
+                  }
+                });
             });
-        });
-        for(let groupLabel in group){
-            preparedData.push({
-                name:groupLabel,
-                series:group[groupLabel]
-            })
+            for(let groupLabel in group){
+                preparedData.push({
+                    name:groupLabel,
+                    series:group[groupLabel]
+                })
+            }
+        }catch (e){
+            console.error(e);
         }
         return preparedData;
     }
