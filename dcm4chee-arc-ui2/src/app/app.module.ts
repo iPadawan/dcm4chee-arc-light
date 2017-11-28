@@ -81,6 +81,8 @@ import { DashboardComponent } from './pro/dashboard/dashboard.component';
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {DashboardService} from "./pro/dashboard/dashboard.service";
 import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
+import { RetrieveExportComponent } from './pro/migration/retrieve-export/retrieve-export.component';
+import {RetrieveExportService} from "./pro/migration/retrieve-export/retrieve-export.service";
 
 @NgModule({
     declarations: [
@@ -129,7 +131,8 @@ import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
         ExternalRetrieveComponent,
         FilterGeneratorComponent,
         DashboardComponent,
-        ConvertBytePipe
+        ConvertBytePipe,
+        RetrieveExportComponent
     ],
     imports: [
         BrowserModule,
@@ -172,6 +175,7 @@ import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
+            { path: 'migration/:mode', component: RetrieveExportComponent },
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent },
@@ -209,7 +213,8 @@ import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
         HttpErrorHandler,
         j4care,
         ExternalRetrieveService,
-        DashboardService
+        DashboardService,
+        RetrieveExportService
     ],
     bootstrap: [AppComponent]
 })

@@ -715,6 +715,28 @@ md-dialog-container{
   }
 }
 .filter{
+  &.more_part{
+    width: 100%;
+    float: left;
+    .more{
+      float: left;
+      display: block;
+      background: white;
+      color: black;
+      padding: 3px 7px;
+      width: 49%;
+      border: 1px solid #ccc;
+      text-decoration: none;
+      i.glyphicon{
+        float: right;
+      }
+      &:hover{
+        background:rgba(6, 29, 47, 0.84);
+        color: white;
+        cursor: pointer;
+      }
+    }
+  }
   label{
     font-weight:normal;
   }
@@ -936,7 +958,7 @@ md-dialog-container{
     }
   }
   .filter{
-    select,input, button{
+    select,input, button, .filter_checkbox{
       height:26px;
       line-height:26px;
       padding: 0px 7px;
@@ -2300,5 +2322,22 @@ md-dialog-container{
   top: -31px;
   left: 1px;
 }
-
+.main_white_content{
+  float: left;
+  width:100%;
+  box-sizing: border-box;
+  padding: 20px 30px;
+  margin: 28px 0;
+  background: rgba(255, 255, 255, 0.85) none repeat scroll 0 0;
+  -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+}
+.filter{
+  .btn-default.submit{
+    background: rgba(6, 29, 47, 0.84);
+    color: white;
+    border-radius: 0;
+  }
+}
 @import "app/pro/dashboard/dashboard.component";

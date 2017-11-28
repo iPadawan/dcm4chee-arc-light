@@ -34,6 +34,7 @@ import { SchedulePickerComponent } from './schedule-picker/schedule-picker.compo
 import { AttributeInfoComponent } from './attribute-info/attribute-info.component';
 import { ViewerComponent } from './dialogs/viewer/viewer.component';
 import { PieTimerComponent } from './pie-timer/pie-timer.component';
+import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
 
 
 @NgModule({
@@ -78,5 +79,6 @@ export const WidgetsComponents = [
     SchedulePickerComponent,
     AttributeInfoComponent,
     ViewerComponent,
-    PieTimerComponent
+    PieTimerComponent,
+    DicomFlatListComponent
 ];

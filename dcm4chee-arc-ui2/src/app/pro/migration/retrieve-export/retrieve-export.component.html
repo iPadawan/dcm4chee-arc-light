@@ -1,0 +1,12 @@
+<div class="main_white_content">
+    <h3>{{headerTitle}}</h3>
+    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit(0)"></filter-generator>
+    <div class="filter more_part">
+        <div class="filter_block">
+            <div href="" (click)="showFilter = true" *ngIf="!showFilter" class="more">Querie first<i class="glyphicon glyphicon-triangle-bottom"></i></div>
+            <div href="" (click)="showFilter = false" *ngIf="showFilter" class="more">Close querie block<i class="glyphicon glyphicon-triangle-top"></i></div>
+        </div>
+    </div>
+    <filter-generator *ngIf="showFilter" [schema]="studyFilterSchema" [model]="filterObject" (submit)="onSubmit(0)"></filter-generator>
+    <dicom-list *ngIf="dicomObject && dicomObject.length > 0" [dicomObject]="dicomObject"></dicom-list>
+</div>

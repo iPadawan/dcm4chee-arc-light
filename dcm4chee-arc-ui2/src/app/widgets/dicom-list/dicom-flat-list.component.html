@@ -1,0 +1,13 @@
+<div class="dynamic_table ">
+  <div class="table_header">
+    <div class="th" *ngFor="let header of table" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">{{header.title}}</div>
+  </div>
+  <div class="table_body">
+    <div class="tr" *ngFor="let study of dicomObject | slice:moreGroupElements[attributes.id].start:moreGroupElements[attributes.id].limit;let index = index">
+      <div class="td" *ngFor="let table_element of table" [ngStyle]="{width: table_element.calculatedWidth}">
+        <span *ngIf="_.hasIn(study[table_element.code],'Value[0].Alphabetic')">{{study[table_element.code]?.Value[0].Alphabetic || ''}}</span>
+        <span *ngIf="!_.hasIn(study[table_element.code],'Value[0].Alphabetic') && _.hasIn(study[table_element.code],'Value[0]')">{{study[table_element.code]?.Value[0] || ''}}</span>
+      </div>
+    </div>
+  </div>
+</div>
