@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {ActivatedRoute} from "@angular/router";
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
   selector: 'app-retrieve-export',
@@ -78,7 +79,15 @@ export class RetrieveExportComponent implements OnInit {
               }
           });
           this.filterSchema = this.service.getRetrieveFilterSchema(this.aes,this.submitText);
-          this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
+          // this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
+          let $this = this;
+          this.studyFilterSchema = j4care.prepareFlatFilterObject(this.service.getFlatStudieFilterSchema(this.aes,this.submitText).filter(obj=>{
+              if($this.mode === "retrieve"){
+                  return obj["mode"] != "export";
+              }else{
+                  return obj["mode"] != "retrieve";
+              }
+          }));
         },(err)=>{
               if (retries)
                   this.getAes(retries - 1);
