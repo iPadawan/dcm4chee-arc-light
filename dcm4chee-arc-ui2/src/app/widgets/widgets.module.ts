@@ -35,7 +35,7 @@ import { AttributeInfoComponent } from './attribute-info/attribute-info.componen
 import { ViewerComponent } from './dialogs/viewer/viewer.component';
 import { PieTimerComponent } from './pie-timer/pie-timer.component';
 import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
-
+import { ModalityComponent } from './modality/modality.component';
 
 @NgModule({
     imports: [
@@ -44,7 +44,7 @@ import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
         FormsModule,
         CalendarModule
     ],
-    declarations: [WidgetsComponent ],
+    declarations: [WidgetsComponent],
     exports: [WidgetsComponent],
     providers: [MdDialogConfig]
 })
@@ -80,5 +80,6 @@ export const WidgetsComponents = [
     AttributeInfoComponent,
     ViewerComponent,
     PieTimerComponent,
-    DicomFlatListComponent
+    DicomFlatListComponent,
+    ModalityComponent
 ];
