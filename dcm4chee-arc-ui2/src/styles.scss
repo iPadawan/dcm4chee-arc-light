@@ -216,6 +216,7 @@ md-grid-list{
       & > input,p-calendar input{
         border:none;
         border-bottom:1px solid #cccccc;
+        background:transparent;
       }
       button{
         border:none;
@@ -2004,12 +2005,16 @@ md-dialog-container{
 }
 .dynamic_table{
   .table_header{
-    .th{
+    .tr{
       float: left;
-      background: $extremeLightBlue;
-      color:white;
-      box-sizing: border-box;
-      padding: 5px 2px 5px 7px;
+      width: 100%;
+      .th{
+        float: left;
+        background: $extremeLightBlue;
+        color:white;
+        box-sizing: border-box;
+        padding: 5px 2px 5px 7px;
+      }
     }
   }
   .table_body{
