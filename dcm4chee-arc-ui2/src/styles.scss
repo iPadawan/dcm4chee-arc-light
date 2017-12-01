@@ -736,6 +736,19 @@ md-dialog-container{
         color: white;
         cursor: pointer;
       }
+      &.right{
+        float: right;
+      }
+    }
+    .right.more{
+      float: right;
+      display: block;
+      background: white;
+      color: black;
+      padding: 3px 7px;
+      width: 49%;
+      border: 1px solid #ccc;
+      text-decoration: none;
     }
   }
   label{

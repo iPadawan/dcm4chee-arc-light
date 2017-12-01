@@ -26,6 +26,7 @@ export class RetrieveExportComponent implements OnInit {
     attributeFilters: any = {};
     patients = [];
     dicomObject;
+    countText = "QUERIE COUNT";
     constructor(
         private route: ActivatedRoute,
         private service:RetrieveExportService,
@@ -69,25 +70,27 @@ export class RetrieveExportComponent implements OnInit {
                 this.initAttributeFilter('Patient', 1);
             });
     }
-
+    setStudyFilterSchema(){
+        let $this = this;
+        this.studyFilterSchema = j4care.prepareFlatFilterObject(this.service.getFlatStudieFilterSchema(this.aes,this.submitText,this.countText).filter(obj=>{
+            if($this.mode === "retrieve"){
+                return obj["mode"] != "export";
+            }else{
+                return obj["mode"] != "retrieve";
+            }
+        }));
+    }
     getAes(retries){
         this.aeListService.getAes().subscribe((aes)=>{
-          this.aes = (<any[]>aes).map(ae => {
+            this.aes = (<any[]>aes).map(ae => {
               return {
                   value:ae.dicomAETitle,
                   text:ae.dicomAETitle
               }
-          });
-          this.filterSchema = this.service.getRetrieveFilterSchema(this.aes,this.submitText);
-          // this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
-          let $this = this;
-          this.studyFilterSchema = j4care.prepareFlatFilterObject(this.service.getFlatStudieFilterSchema(this.aes,this.submitText).filter(obj=>{
-              if($this.mode === "retrieve"){
-                  return obj["mode"] != "export";
-              }else{
-                  return obj["mode"] != "retrieve";
-              }
-          }));
+            });
+            this.filterSchema = this.service.getRetrieveFilterSchema(this.aes,this.submitText);
+            // this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
+            this.setStudyFilterSchema();
         },(err)=>{
               if (retries)
                   this.getAes(retries - 1);
@@ -97,7 +100,7 @@ export class RetrieveExportComponent implements OnInit {
     onSubmit(object){
         console.log("onsubmit object",object);
         if(_.hasIn(object,"id")){
-            this.service.convertDateFilter(object.model,'StudyDate');
+            // this.service.convertDateFilter(object.model,'StudyDate');
             switch (object.id){
                 case 'count':
                     this.getStudiesCount(object.model);
@@ -114,7 +117,9 @@ export class RetrieveExportComponent implements OnInit {
     getStudiesCount(params){
         this.service.getStudiesCount(params).subscribe((count)=>{
             console.log("count",count);
-            this.count = count.count;
+            // this.count = count.count;
+            this.countText = `Count:${count.count}`;
+            this.setStudyFilterSchema();
         },(err)=>{
 
         });
@@ -131,7 +136,41 @@ export class RetrieveExportComponent implements OnInit {
         let $this = this;
         this.service.getStudies(params).subscribe((res)=>{
             console.log("studies",res);
-            this.dicomObject = res;
+            // this.dicomObject = res;
+            this.dicomObject = [
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies(),
+                ...this.service.getDummyStudies()
+            ];
+            console.log("lenght",this.dicomObject.length);
             //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
             let index = 0;
             while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
@@ -215,5 +254,4 @@ export class RetrieveExportComponent implements OnInit {
                         $this.initAttributeFilter(entity, retries - 1);
                 });
     };
-
 }
