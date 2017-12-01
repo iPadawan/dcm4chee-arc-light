@@ -9,7 +9,19 @@ export class RetrieveExportService {
       private studieService:StudiesService
   ) { }
 
-  getRetrieveFilterSchema(aet,submitText){
+    /*
+    * Convert "{dateKey}.from" and  "{dateKey}.to" to dateKey:from-to
+    * */
+    convertDateFilter(filters,dateKey){
+        if((_.hasIn(filters,`${dateKey}.from`) && filters[`${dateKey}.from`] != '') || (_.hasIn(filters,`${dateKey}.to`) && filters[`${dateKey}.to`] != '')){
+            if(filters[`${dateKey}.from`] != filters[`${dateKey}.to`]){
+                filters[dateKey] = ((filters[`${dateKey}.from`])?filters[`${dateKey}.from`]:'') + "-" + ((filters[`${dateKey}.to`])?filters[`${dateKey}.to`]:'');
+                delete filters[`${dateKey}.from`];
+                delete filters[`${dateKey}.to`];
+            }
+        }
+    }
+    getRetrieveFilterSchema(aet,submitText){
     return [
             [
                 [
@@ -137,13 +149,13 @@ export class RetrieveExportService {
           ,{
               tag:"p-calendar",
               type:"string",
-              filterKey:"studyDate.from",
+              filterKey:"StudyDate.from",
               placeholder:"Start date from"
           },
           {
               tag:"p-calendar",
               type:"string",
-              filterKey:"studyDate.to",
+              filterKey:"StudyDate.to",
               placeholder:"Start date to"
           }
           ,{
@@ -340,13 +352,13 @@ export class RetrieveExportService {
                     {
                         tag:"p-calendar",
                         type:"string",
-                        filterKey:"studyDate.from",
+                        filterKey:"StudyDate.from",
                         placeholder:"Start date from"
                     },
                     {
                         tag:"p-calendar",
                         type:"string",
-                        filterKey:"studyDate.to",
+                        filterKey:"StudyDate.to",
                         placeholder:"Start date to"
                     }
                 ]

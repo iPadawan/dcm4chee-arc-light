@@ -97,6 +97,7 @@ export class RetrieveExportComponent implements OnInit {
     onSubmit(object){
         console.log("onsubmit object",object);
         if(_.hasIn(object,"id")){
+            this.service.convertDateFilter(object.model,'StudyDate');
             switch (object.id){
                 case 'count':
                     this.getStudiesCount(object.model);
