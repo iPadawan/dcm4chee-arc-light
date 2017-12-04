@@ -34,7 +34,10 @@ export class j4care {
         return str && str[0].toLowerCase() + str.slice(1);
     }
 
-    static prepareFlatFilterObject(array){
+    static prepareFlatFilterObject(array,lineLength?){
+        if(!lineLength){
+            lineLength = 3;
+        }
         if(_.isArray(array) && array.length > 0){
             if(_.hasIn(array,"[0][0].firstChild")){
                 return array
@@ -46,7 +49,7 @@ export class j4care {
                     if(line.length < 2){
                         line.push(formObject);
                     }else{
-                        if(block.length < 3){
+                        if(block.length < lineLength){
                             block.push(line);
                             line = [];
                             line.push(formObject);
@@ -60,7 +63,7 @@ export class j4care {
                     }
                 });
                 if(line.length > 0){
-                    if(block.length < 3){
+                    if(block.length < lineLength){
                         block.push(line);
                     }else{
                         endArray.push(block);
