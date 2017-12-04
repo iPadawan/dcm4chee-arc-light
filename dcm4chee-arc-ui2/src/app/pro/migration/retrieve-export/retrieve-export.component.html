@@ -8,6 +8,6 @@
             <div class="more right" *ngIf="count"> Count: {{count}}</div>
         </div>
     </div>
-    <filter-generator *ngIf="showFilter" [schema]="studyFilterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
+    <filter-generator *ngIf="showFilter" [schema]="studyFilterSchema" [model]="filterObject" (onChange)="onChange($event)" (submit)="onSubmit($event)"></filter-generator>
     <dicom-list class="float_content" *ngIf="dicomObject && dicomObject.length > 0" [dicomObject]="dicomObject"></dicom-list>
 </div>

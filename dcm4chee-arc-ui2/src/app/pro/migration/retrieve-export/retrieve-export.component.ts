@@ -7,6 +7,9 @@ import {ActivatedRoute} from "@angular/router";
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {j4care} from "../../../helpers/j4care.service";
+import {SlimLoadingBarService} from "ng2-slim-loading-bar";
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
+import {StudiesService} from "../../../studies/studies.service";
 
 @Component({
   selector: 'app-retrieve-export',
@@ -28,9 +31,12 @@ export class RetrieveExportComponent implements OnInit {
     dicomObject;
     countText = "QUERIE COUNT";
     constructor(
+        private httpErrorHandler:HttpErrorHandler,
+        private cfpLoadingBar: SlimLoadingBarService,
         private route: ActivatedRoute,
         private service:RetrieveExportService,
         private aeListService:AeListService,
+        private studiesService:StudiesService,
         private mainservice: AppService,
         private $http:J4careHttpService
     ) { }
@@ -88,13 +94,24 @@ export class RetrieveExportComponent implements OnInit {
                   text:ae.dicomAETitle
               }
             });
-            this.filterSchema = this.service.getRetrieveFilterSchema(this.aes,this.submitText);
+            this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
             // this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
             this.setStudyFilterSchema();
         },(err)=>{
               if (retries)
                   this.getAes(retries - 1);
         });
+    }
+    onChange(object){
+        console.log("in retrieve object",object);
+        let dummyObject = {};
+        if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
+            dummyObject['StudyDate.from'] = object['StudyDate.from'];
+            dummyObject['StudyDate.to'] = object['StudyDate.to'];
+            this.service.convertDateFilter(dummyObject,["StudyDate"]);
+            // this.showSplitBlock = true;
+            this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, true),2);
+        }
     }
 
     onSubmit(object){
@@ -110,7 +127,23 @@ export class RetrieveExportComponent implements OnInit {
                 break;
             }
         }else{
-
+            let studyDateSplit = [];
+            if(_.hasIn(object,"splitMode")){
+                studyDateSplit = this.service.splitDate(object);
+            }else{
+                studyDateSplit.push(this.service.convertToDatePareString(object['StudyDate.from'], object['StudyDate.to']));
+            }
+            console.log("studydateSplit",studyDateSplit);
+            if(studyDateSplit.length > 1){
+                //TODO
+            }else{
+                // this.studiesService.
+                this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
+                    console.log("retreive result");
+                },(err)=>{
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
         }
     }
 
@@ -121,7 +154,7 @@ export class RetrieveExportComponent implements OnInit {
             this.countText = `Count:${count.count}`;
             this.setStudyFilterSchema();
         },(err)=>{
-
+            this.httpErrorHandler.handleError(err);
         });
     }
     extractAttrs(attrs, tags, extracted) {
@@ -132,101 +165,14 @@ export class RetrieveExportComponent implements OnInit {
         }
     }
     getStudies(params){
-        let offset = 0;
         let $this = this;
+        $this.cfpLoadingBar.start();
         this.service.getStudies(params).subscribe((res)=>{
             console.log("studies",res);
-            // this.dicomObject = res;
-            this.dicomObject = [
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies(),
-                ...this.service.getDummyStudies()
-            ];
-            console.log("lenght",this.dicomObject.length);
-            //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
-            let index = 0;
-            while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
-                index++;
-            }
-            $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
-
-            let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
-            console.log('res', res);
-            res.forEach(function (studyAttrs, index) {
-                patAttrs = {};
-                $this.extractAttrs(studyAttrs, tags, patAttrs);
-                if (!(pat && _.isEqual(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
-                    pat = {
-                        attrs: patAttrs,
-                        studies: [],
-                        showAttributes: false
-                    };
-                    // $this.$apply(function () {
-                    $this.patients.push(pat);
-                    // });
-                }
-                study = {
-                    patient: pat,
-                    offset: offset + index,
-                    moreSeries: false,
-                    attrs: studyAttrs,
-                    series: null,
-                    showAttributes: false,
-                    fromAllStudies: false,
-                    selected: false
-                };
-                pat.studies.push(study);
-                //                   $this.studies.push(study); //sollte weg kommen
-            });
-            console.log("this pateint",this.patients);
-/*            if ($this.moreStudies = (res.length > $this.limit)) {
-                pat.studies.pop();
-                if (pat.studies.length === 0) {
-                    $this.patients.pop();
-                }
-                // this.studies.pop();
-            }*/
-            // console.log('patients=', $this.patients[0]);
-            // $this.mainservice.setMessage({
-            //     "title": "Info",
-            //     "text": "Test",
-            //     "status": "info"
-            // });
-            // sessionStorage.setItem("patients", $this.patients);
-            // $this.mainservice.setGlobal({patients:this.patients,moreStudies:$this.moreStudies});
-            // $this.mainservice.setGlobal({studyThis:$this});
-/*            console.log('global set', $this.mainservice.global);
-            $this.cfpLoadingBar.complete();*/
+            this.dicomObject = res;
+            $this.cfpLoadingBar.complete();
         },(err)=>{
-
+            $this.httpErrorHandler.handleError(err);
         });
     }
 
