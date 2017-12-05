@@ -1,0 +1,24 @@
+<div>
+    <h3>Retrieve splited process</h3>
+    <div md-dialog-content>
+      <table class="table">
+          <tr>
+              <th>Study range</th>
+              <th>State</th>
+              <th></th>
+          </tr>
+        <tr *ngFor="let date of studyDateSplit">
+            <td class="date">{{date}}</td>
+            <td>
+                <span *ngIf="state[date].loader">Processing...</span>
+                <span *ngIf="state[date].count != undefined" [ngClass]="{'red_color':state[date].x}">{{state[date].count}} <span *ngIf="state[date].ticker">Studies added in queue</span></span>
+            </td>
+            <td class="text-center">
+                <i *ngIf="state[date].loader" class="fa fa-circle-o-notch fa-spin blue_color"></i>
+                <i *ngIf="state[date].ticker" class="material-icons blue_color">check</i>
+                <i *ngIf="state[date].x" class="glyphicon glyphicon-remove red_color"></i>
+            </td>
+        </tr>
+      </table>
+  </div>
+</div>

@@ -10,6 +10,9 @@ import {j4care} from "../../../helpers/j4care.service";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {StudiesService} from "../../../studies/studies.service";
+import {ConfirmComponent} from "../../../widgets/dialogs/confirm/confirm.component";
+import {MdDialog, MdDialogRef} from "@angular/material";
+import {RetrieveStateDialogComponent} from "../../../widgets/dialogs/retrieve-state-dialog/retrieve-state-dialog.component";
 
 @Component({
   selector: 'app-retrieve-export',
@@ -30,6 +33,7 @@ export class RetrieveExportComponent implements OnInit {
     patients = [];
     dicomObject;
     countText = "QUERIE COUNT";
+    dialogRef: MdDialogRef<any>;
     constructor(
         private httpErrorHandler:HttpErrorHandler,
         private cfpLoadingBar: SlimLoadingBarService,
@@ -38,12 +42,22 @@ export class RetrieveExportComponent implements OnInit {
         private aeListService:AeListService,
         private studiesService:StudiesService,
         private mainservice: AppService,
-        private $http:J4careHttpService
+        private $http:J4careHttpService,
+        public dialog: MdDialog
     ) { }
 
     ngOnInit(){
         this.initCheck(10);
     }
+    confirm(confirmparameters){
+        // this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.parameters = confirmparameters;
+        return this.dialogRef.afterClosed();
+    };
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
@@ -94,6 +108,7 @@ export class RetrieveExportComponent implements OnInit {
                   text:ae.dicomAETitle
               }
             });
+            this.filterObject['LocalAET'] = this.aes[0].value;
             this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
             // this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
             this.setStudyFilterSchema();
@@ -104,6 +119,13 @@ export class RetrieveExportComponent implements OnInit {
     }
     onChange(object){
         console.log("in retrieve object",object);
+        if(_.hasIn(object,"ExternalAET") && !_.hasIn(object,"QueryAET")){
+            object['QueryAET'] = object['ExternalAET'];
+            this.filterObject['QueryAET'] = this.filterObject['ExternalAET'];
+
+            // this.studyFilterSchema = [];
+            this.setStudyFilterSchema();
+        }
         let dummyObject = {};
         if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
             dummyObject['StudyDate.from'] = object['StudyDate.from'];
@@ -111,6 +133,8 @@ export class RetrieveExportComponent implements OnInit {
             this.service.convertDateFilter(dummyObject,["StudyDate"]);
             // this.showSplitBlock = true;
             this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, true),2);
+        }else{
+            this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
         }
     }
 
@@ -118,42 +142,100 @@ export class RetrieveExportComponent implements OnInit {
         console.log("onsubmit object",object);
         if(_.hasIn(object,"id")){
             // this.service.convertDateFilter(object.model,'StudyDate');
-            switch (object.id){
-                case 'count':
-                    this.getStudiesCount(object.model);
-                break;
-                case 'querie':
-                    this.getStudies(object.model);
-                break;
+            if(_.hasIn(object.model,"LocalAET") && _.hasIn(object.model,"ExternalAET")){
+                switch (object.id){
+                    case 'count':
+                        this.getStudiesCount(object.model);
+                    break;
+                    case 'querie':
+                        this.getStudies(object.model);
+                    break;
+                }
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Error',
+                    'text': "Calling AETitle or External AETitle missing!",
+                    'status': 'error'
+                });
             }
         }else{
-            let studyDateSplit = [];
-            if(_.hasIn(object,"splitMode")){
-                studyDateSplit = this.service.splitDate(object);
+            if(_.hasIn(object,"LocalAET") && _.hasIn(object,"ExternalAET") && _.hasIn(object,"DestinationAET")){
+
+                let studyDateSplit = [];
+                if(_.hasIn(object,"splitMode")){
+                    studyDateSplit = this.service.splitDate(object);
+                }else{
+                    studyDateSplit.push(this.service.convertToDatePareString(object['StudyDate.from'],object['StudyDate.to']));
+/*                    studyDateSplit.push(this.service.convertToDateString(object['StudyDate.from']));
+                    studyDateSplit.push(this.service.convertToDateString(object['StudyDate.to']));*/
+                }
+                console.log("studyDateSplit",studyDateSplit);
+                if(studyDateSplit.length > 1){
+/*                    this.confirm({
+                        content: 'You are about to retrieve studies without specifying a StudyDate range, are you sure you want to continue?'
+                    }).subscribe(result => {*/
+                        this.dialogRef = this.dialog.open(RetrieveStateDialogComponent, {
+                            height: 'auto',
+                            width: '700px'
+                        });
+                        this.dialogRef.componentInstance.studyDateSplit = studyDateSplit;
+                        this.dialogRef.componentInstance.filter = object;
+                        this.dialogRef.afterClosed().subscribe((ok)=>{
+                        });
+
+                    // });
+                }else{
+                    // this.studiesService.
+                    if(studyDateSplit.length === 0 || (studyDateSplit.length === 1 && !studyDateSplit[0])){
+                        this.confirm({
+                            content: 'You are about to retrieve studies without specifying a StudyDate range, are you sure you want to continue?'
+                        }).subscribe(result => {
+                            if(result){
+                                this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
+                                    console.log("retreive result");
+                                    this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': `Retrieve executed successfully!<br>${res.count} studies added in the queue`,
+                                        'status': 'info'
+                                    });
+                                },(err)=>{
+                                    this.httpErrorHandler.handleError(err);
+                                });
+                            }
+                        });
+                    }else{
+                        this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
+                            console.log("retreive result");
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': `Retrieve executed successfully!<br>${res.count} studies added in the queue`,
+                                'status': 'info'
+                            });
+                        },(err)=>{
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                }
             }else{
-                studyDateSplit.push(this.service.convertToDatePareString(object['StudyDate.from'], object['StudyDate.to']));
-            }
-            console.log("studydateSplit",studyDateSplit);
-            if(studyDateSplit.length > 1){
-                //TODO
-            }else{
-                // this.studiesService.
-                this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
-                    console.log("retreive result");
-                },(err)=>{
-                    this.httpErrorHandler.handleError(err);
+                this.mainservice.setMessage({
+                    'title': 'Error',
+                    'text': "Calling AETitle,External AETitle or destination AETitle is missing!",
+                    'status': 'error'
                 });
             }
         }
     }
 
     getStudiesCount(params){
+        this.cfpLoadingBar.start();
         this.service.getStudiesCount(params).subscribe((count)=>{
             console.log("count",count);
             // this.count = count.count;
             this.countText = `Count:${count.count}`;
+            this.cfpLoadingBar.complete();
             this.setStudyFilterSchema();
         },(err)=>{
+            this.setStudyFilterSchema();
             this.httpErrorHandler.handleError(err);
         });
     }
@@ -169,9 +251,20 @@ export class RetrieveExportComponent implements OnInit {
         $this.cfpLoadingBar.start();
         this.service.getStudies(params).subscribe((res)=>{
             console.log("studies",res);
-            this.dicomObject = res;
+            if(res.length === 0){
+                this.mainservice.setMessage({
+                    'title': 'Info',
+                    'text': "No studies found!",
+                    'status': 'info'
+                });
+            }else{
+                $this.dicomObject = res;
+                $this.countText = `Count:${res.length }`;
+                $this.setStudyFilterSchema();
+            }
             $this.cfpLoadingBar.complete();
         },(err)=>{
+            $this.setStudyFilterSchema();
             $this.httpErrorHandler.handleError(err);
         });
     }

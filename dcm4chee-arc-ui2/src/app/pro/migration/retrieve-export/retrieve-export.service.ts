@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import {forEach} from "@angular/router/src/utils/collection";
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {WindowRefService} from "../../../helpers/window-ref.service";
 
 @Injectable()
 export class RetrieveExportService {
@@ -29,6 +30,7 @@ export class RetrieveExportService {
         return filters;
     }
     retrieve(studyDate, filters){
+        filters.QueryAET = filters.QueryAET || filters.ExternalAET;
         let url = `../aets/${
                         filters.LocalAET
                     }/dimse/${
@@ -37,8 +39,8 @@ export class RetrieveExportService {
                         filters.QueryAET
                     }/export/dicom:${
                         filters.DestinationAET
-                    }?${
-                        this.mainservice.param(
+                    }`;
+        let param = this.mainservice.param(
                             this.setStudyDateRangeToFilterObject(
                                 studyDate,
                                 this.cloneWithoutAet(
@@ -46,14 +48,18 @@ export class RetrieveExportService {
                                     false
                                 )
                             )
-                        )
-                    }`;
-        console.log("retrieve",url);
-        return this.$http.post(url,{});
+                        );
+        if(param != "" && param != undefined){
+            url = `${url}?${param}`;
+        }
+        return this.$http.post(url,{})
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
     setStudyDateRangeToFilterObject(studyRange,filters){
         let dateKey = "StudyDate";
-        filters[dateKey] = studyRange;
+        if(studyRange){
+            filters[dateKey] = studyRange;
+        }
         delete filters[`${dateKey}.from`];
         delete filters[`${dateKey}.to`];
         return filters;
@@ -66,21 +72,45 @@ export class RetrieveExportService {
         let diff = to-from;
         let block = 86400000;
         if(diff > block){
-            endDate.push(object["StudyDate.from"]);
+            endDate.push(this.convertToDateString(object["StudyDate.from"]));
             let daysInDiff = diff/block;
             let dateStep = from;
             while(daysInDiff > 0){
                 endDatePare.push(this.convertToDatePareString(dateStep,dateStep+block));
                 dateStep = dateStep+block;
-                endDate.push(new Date(dateStep));
+                endDate.push(this.convertToDateString(new Date(dateStep)));
                 daysInDiff--;
             }
-            return endDatePare;
+            return endDate;
         }else{
-            return [this.convertToDatePareString(object["StudyDate.from"],object["StudyDate.to"])];
+            if(new Date(object["StudyDate.from"]).getTime() == new Date(object["StudyDate.to"]).getTime()){
+                return [this.convertToDateString(new Date(object["StudyDate.from"]))];
+            }else{
+                return (this.convertToDatePareString(object["StudyDate.from"],object["StudyDate.to"])) ? [this.convertToDateString(object["StudyDate.from"]),this.convertToDateString(object["StudyDate.to"])]:null;
+            }
+        }
+    }
+    convertToDateString(date){
+        let addZero = (nr)=>{
+            if(nr < 10){
+                return `0${nr}`;
+            }
+            return nr;
+        };
+        if(date != undefined){
+            let dateConverted = new Date(date);
+            let dateObject =  {
+                yyyy:dateConverted.getFullYear(),
+                mm:addZero(dateConverted.getMonth()+1),
+                dd:addZero(dateConverted.getDate())
+            };
+            return `${dateObject.yyyy}${(dateObject.mm)}${dateObject.dd}`;
         }
     }
     convertToDatePareString(firstDate,secondDate){
+        if(firstDate === undefined && secondDate === undefined){
+            return undefined;
+        }
         let addZero = (nr)=>{
             if(nr < 10){
                 return `0${nr}`;
@@ -95,7 +125,7 @@ export class RetrieveExportService {
             dd:addZero(firstDateConverted.getDate())
         };
         let firstDateString = `${firstDateObject.yyyy}${(firstDateObject.mm)}${firstDateObject.dd}`;
-        if(firstDate.getTime() == secondDate.getTime()){
+        if(new Date(firstDate).getTime() == new Date(secondDate).getTime()){
             return firstDateString;
         }else{
             let secondDateObject =  {
@@ -163,7 +193,7 @@ export class RetrieveExportService {
                 {
                     tag:"checkbox",
                     filterKey:"splitMode",
-                    text:"Split (StudyDate) into days"
+                    text:"Split (StudyDate) day-ways"
                 },
                 {
                     tag:"button",
@@ -371,10 +401,11 @@ export class RetrieveExportService {
   }
     cloneWithoutAet(object,convertDate){
         const aetsKey = [
-          "LocalAET",
-          "ExternalAET",
-          "QueryAET",
-          "DestinationAET"
+            "LocalAET",
+            "ExternalAET",
+            "QueryAET",
+            "DestinationAET",
+            "splitMode"
         ];
         let newObject = _.clone(object);
         aetsKey.forEach(aet=>{
