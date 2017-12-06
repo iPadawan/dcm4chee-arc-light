@@ -10,6 +10,7 @@ export class RetrieveStateDialogComponent implements OnInit,OnDestroy {
     studyDateSplit;
     filter;
     state = {};
+    title;
     constructor(
       public dialogRef: MdDialogRef<RetrieveStateDialogComponent>,
       private retrieveService:RetrieveExportService

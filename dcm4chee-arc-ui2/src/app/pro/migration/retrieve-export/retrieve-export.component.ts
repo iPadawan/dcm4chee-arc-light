@@ -140,6 +140,10 @@ export class RetrieveExportComponent implements OnInit {
 
     onSubmit(object){
         console.log("onsubmit object",object);
+        let title = "Retrieve splited process";
+        if(this.mode === "export"){
+            title = "Export splited process";
+        }
         if(_.hasIn(object,"id")){
             // this.service.convertDateFilter(object.model,'StudyDate');
             if(_.hasIn(object.model,"LocalAET") && _.hasIn(object.model,"ExternalAET")){
@@ -166,8 +170,6 @@ export class RetrieveExportComponent implements OnInit {
                     studyDateSplit = this.service.splitDate(object);
                 }else{
                     studyDateSplit.push(this.service.convertToDatePareString(object['StudyDate.from'],object['StudyDate.to']));
-/*                    studyDateSplit.push(this.service.convertToDateString(object['StudyDate.from']));
-                    studyDateSplit.push(this.service.convertToDateString(object['StudyDate.to']));*/
                 }
                 console.log("studyDateSplit",studyDateSplit);
                 if(studyDateSplit.length > 1){
@@ -180,6 +182,7 @@ export class RetrieveExportComponent implements OnInit {
                         });
                         this.dialogRef.componentInstance.studyDateSplit = studyDateSplit;
                         this.dialogRef.componentInstance.filter = object;
+                        this.dialogRef.componentInstance.title = title;
                         this.dialogRef.afterClosed().subscribe((ok)=>{
                         });
 
