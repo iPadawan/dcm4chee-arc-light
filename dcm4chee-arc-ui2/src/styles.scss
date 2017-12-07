@@ -1016,13 +1016,16 @@ md-dialog-container{
     cursor: pointer;
   }
 }
-.monitoring{
+.monitoring,.main_white_content{
   .tab-content{
     padding: 30px 10px 0px 10px;
     border: 1px solid #ccc;
     border-top: none;
     table{
       margin-top:35px;
+    }
+    &>h3{
+      margin: 0 0 20px 0;
     }
     float: left;
     width: 100%;
@@ -2344,6 +2347,11 @@ md-dialog-container{
     max-height:400px;
     overflow: auto;
   }
+  .tab-content{
+    &>h3{
+      margin: 0 0 20px 0;
+    }
+  }
 }
 .diff_count {
   float: right;
@@ -2360,12 +2368,13 @@ md-dialog-container{
   top: -31px;
   left: 1px;
 }
+
 .main_white_content{
   float: left;
   width:100%;
   box-sizing: border-box;
-  padding: 20px 30px;
-  margin: 28px 0;
+  padding: 45px 30px 20px 30px;
+  margin: 27px 4px;
   background: rgba(255, 255, 255, 0.85) none repeat scroll 0 0;
   -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
   -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);

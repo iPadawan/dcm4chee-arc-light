@@ -2,16 +2,19 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/migration/retrieve" routerLinkActive="active">Retrieve</a></li>
         <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/migration/export" routerLinkActive="active">Export</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/diff" routerLinkActive="active">Diff</a></li>
     </ul>
-    <h3>{{headerTitle}}</h3>
-    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onChange($event)"></filter-generator>
-    <div class="filter more_part">
-        <div class="filter_block">
-            <div href="" (click)="showFilter = true" *ngIf="!showFilter" class="more">Set filters/querie first<i class="glyphicon glyphicon-triangle-bottom"></i></div>
-            <div href="" (click)="showFilter = false" *ngIf="showFilter" class="more">Close filters block<i class="glyphicon glyphicon-triangle-top"></i></div>
-            <div class="more right" *ngIf="count"> Count: {{count}}</div>
+    <div class="tab-content">
+        <h3>{{headerTitle}}</h3>
+        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onChange($event)"></filter-generator>
+        <div class="filter more_part">
+            <div class="filter_block">
+                <div href="" (click)="showFilter = true" *ngIf="!showFilter" class="more">Set filters/querie first<i class="glyphicon glyphicon-triangle-bottom"></i></div>
+                <div href="" (click)="showFilter = false" *ngIf="showFilter" class="more">Close filters block<i class="glyphicon glyphicon-triangle-top"></i></div>
+                <div class="more right" *ngIf="count"> Count: {{count}}</div>
+            </div>
         </div>
+        <filter-generator *ngIf="showFilter" [schema]="studyFilterSchema" [model]="filterObject" (onChange)="onChange($event)" (submit)="onSubmit($event)"></filter-generator>
+        <dicom-list class="float_content" *ngIf="dicomObject && dicomObject.length > 0" [dicomObject]="dicomObject"></dicom-list>
     </div>
-    <filter-generator *ngIf="showFilter" [schema]="studyFilterSchema" [model]="filterObject" (onChange)="onChange($event)" (submit)="onSubmit($event)"></filter-generator>
-    <dicom-list class="float_content" *ngIf="dicomObject && dicomObject.length > 0" [dicomObject]="dicomObject"></dicom-list>
 </div>
