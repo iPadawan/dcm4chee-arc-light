@@ -192,7 +192,7 @@ export class StatisticsService {
     }
     getStudiesStoredCountsFromDatabase(range, aet){
         let param = {
-            "StudyDate":this.getStudyDateFromRange(range),
+            "StudyReceiveDateTime":this.getStudyDateFromRange(range),
         }
         if(typeof aet === "string")
             return this.studiesService.getCount(this.studiesService.rsURL('internal',aet,"",""),"studies",param);
