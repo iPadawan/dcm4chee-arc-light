@@ -6,6 +6,8 @@ import {DashboardService} from "./dashboard.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash';
 import {AppService} from "../../app.service";
+import {DashboardDetailTableComponent} from "../../widgets/dialogs/dashboard-detail-table/dashboard-detail-table.component";
+import {MdDialog, MdDialogRef} from "@angular/material";
 
 @Component({
     selector: 'dashboard',
@@ -82,6 +84,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
     aets;
     colorIndex = 0;
     auditEvents;
+    auditEventsOriginal;
+    auditErrorObject;
     moreAudit = {
         limit: 30,
         start: 0,
@@ -103,11 +107,13 @@ export class DashboardComponent implements OnInit,OnDestroy {
         'writesPerSecond':false,
         'readsPerSecond':false
     };
+    dialogRef: MdDialogRef<any>;
     updateIntervalTime= 30000;
     constructor(
         public statisticsService:StatisticsService,
         public service:DashboardService,
-        public mainservice:AppService
+        public mainservice:AppService,
+        public dialog: MdDialog
     ) { }
     public barChartOptions:any = {
         scaleShowVerticalLines: false,
@@ -171,11 +177,23 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     showErrors(){
         if(this.counts.errors && this.counts.errors != '-' && this.counts.errors != '0'){
-            console.log("$('#auditevents').offset().top",$('#auditevents').offset().top);
+/*            console.log("$('#auditevents').offset().top",$('#auditevents').offset().top);
             $('html, body').animate({
                 scrollTop: $("#auditevents").offset().top
             }, 500);
-            this.searchlist = 'failure';
+            this.auditEvents = this.auditErrorObject;
+            this.searchlist = 'failure';*/
+            if(this.auditErrorObject && this.auditErrorObject.length < 500){
+                this.showDetailTable(this.auditErrorObject,'Audit Errors');
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Error',
+                    'text': 'Too much data!',
+                    'status': 'error'
+                });
+            }
+
+
         }
     }
     @HostListener('window:scroll', ['$event'])
@@ -199,6 +217,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
         let d = new Date();
         d.setHours(0);
         d.setMinutes(0);
+        d.setSeconds(0);
         this.rangeDay.from = d;
         this.rangeDay.to = new Date();
     }
@@ -219,6 +238,15 @@ export class DashboardComponent implements OnInit,OnDestroy {
             clearInterval(this.updateInterval[mode]);
             this.updateInterval[mode] = undefined;
         }
+    }
+    showDetailTable(data, title){
+        this.dialogRef = this.dialog.open(DashboardDetailTableComponent, {
+            height: 'auto',
+            width: '90%'
+        });
+        this.dialogRef.componentInstance.tableData = data;
+        this.dialogRef.componentInstance.title = title;
+        this.dialogRef.afterClosed().subscribe();
     }
     startInterval = {
         cpu:()=>{
@@ -465,6 +493,22 @@ export class DashboardComponent implements OnInit,OnDestroy {
             (res)=>{
                 try {
                     $this.counts.errors = res.hits.total;
+                    $this.auditErrorObject = res.hits.hits.map((audit)=>{
+                        return {
+                            AuditSourceID:(_.hasIn(audit,"_source.AuditSource.AuditSourceID"))?audit._source.AuditSource.AuditSourceID:'-',
+                            EventID:(_.hasIn(audit,"_source.EventID.originalText"))?audit._source.EventID.originalText:'-',
+                            ActionCode:(_.hasIn(audit,"_source.Event.EventActionCode"))?this.statisticsService.getActionCodeText(audit._source.Event.EventActionCode):'-',
+                            Patient:(_.hasIn(audit,"_source.Patient.ParticipantObjectName"))?audit._source.Patient.ParticipantObjectName:'-',
+                            Study:(_.hasIn(audit,"_source.Study.ParticipantObjectID"))?audit._source.Study.ParticipantObjectID:'-',
+                            AccessionNumber:(_.hasIn(audit,"_source.AccessionNumber"))?audit._source.AccessionNumber:'-',
+                            userId:(_.hasIn(audit,"_source.Source.UserID"))?audit._source.Source.UserID:'-',
+                            requestorId:(_.hasIn(audit,"_source.Requestor.UserID"))?audit._source.Requestor.UserID:'-',
+                            EventOutcomeIndicator:(_.hasIn(audit,"_source.Event.EventOutcomeIndicator"))? this.statisticsService.getEventOutcomeIndicatorText(audit._source.Event.EventOutcomeIndicator):{text:'-'},
+                            Time:(_.hasIn(audit,"_source.Event.EventDateTime"))?audit._source.Event.EventDateTime:undefined,
+                            wholeObject:j4care.flatten(audit._source),
+                            showDetail:false
+                        }
+                    });
                 }catch (e){
                     $this.counts.errors = "-";
                 }
@@ -492,7 +536,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
     getAuditEvents(){
         let $this = this;
         this.statisticsService.getAuditEvents(this.rangeDay, this.url).subscribe((res)=>{
-            $this.auditEvents = res.hits.hits.map((audit)=>{
+            $this.auditEventsOriginal = res.hits.hits.map((audit)=>{
                 return {
                     AuditSourceID:(_.hasIn(audit,"_source.AuditSource.AuditSourceID"))?audit._source.AuditSource.AuditSourceID:'-',
                     EventID:(_.hasIn(audit,"_source.EventID.originalText"))?audit._source.EventID.originalText:'-',
@@ -508,6 +552,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
                     showDetail:false
                 }
             });
+            $this.auditEvents = $this.auditEventsOriginal;
         });
     }
     getAets(retries){

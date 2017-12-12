@@ -1,0 +1,51 @@
+<h3>{{title}}</h3>
+<input type="text" [(ngModel)]="searchlist" placeholder="Search...">
+<div md-dialog-content>
+  <div class="table_content">
+    <table class="table table-bordered table-condensed">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Time</th>
+        <th>AuditSourceID</th>
+        <th>EventID</th>
+        <th>EventActionCode</th>
+        <th>Patient ParticipantObjectName</th>
+        <th>Study ParticipantObjectID</th>
+        <th>AccessionNumber</th>
+        <th>Source UserID</th>
+        <th>Requestor UserID</th>
+        <th>EventOutcomeIndicator</th>
+      </tr>
+      </thead>
+      <tbody>
+      <ng-container *ngFor="let item of tableData | search:searchlist">
+        <tr (click)="detailView(item)">
+          <td class="pointer"><span class="glyphicon glyphicon-th-list"></span></td>
+          <td>{{item.Time | date:'yyyy.MM.dd HH:mm:ss'}}</td>
+          <td tooltip="{{item.AuditSourceID}}">{{item.AuditSourceID | trim:14}}</td>
+          <td tooltip="{{item.EventID}}">{{item.EventID | trim:20}}</td>
+          <td>{{item.ActionCode}}</td>
+          <td tooltip="{{item.Patient}}">{{item.Patient | trim:20}}</td>
+          <td tooltip="{{item.Study}}">{{item.Study |trim:40}}</td>
+          <td tooltip="{{item.AccessionNumber}}">{{item.AccessionNumber|trim:15}}</td>
+          <td tooltip="{{item.userId}}">{{item.userId |trim:15}}</td>
+          <td>{{item.requestorId}}</td>
+          <td>{{item.EventOutcomeIndicator.text}}</td>
+        </tr>
+        <tr *ngIf="item.showDetail">
+          <td colspan="11">
+            <table class="table table-bordered table-condensed subtable" width="100%">
+              <tr *ngFor="let objectKeys of Object.keys(item.wholeObject)">
+                <td>{{objectKeys}}</td>
+                <td>{{item.wholeObject[objectKeys]}}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--<button class="load_more" *ngIf="tableData && moreAudit.limit <= tableData.length" (click)="loadMoreAudit()"><i *ngIf="moreAudit.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>-->

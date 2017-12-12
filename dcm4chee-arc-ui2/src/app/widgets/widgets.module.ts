@@ -37,6 +37,7 @@ import { PieTimerComponent } from './pie-timer/pie-timer.component';
 import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
 import { ModalityComponent } from './modality/modality.component';
 import { RetrieveStateDialogComponent } from './dialogs/retrieve-state-dialog/retrieve-state-dialog.component';
+import { DashboardDetailTableComponent } from './dialogs/dashboard-detail-table/dashboard-detail-table.component';
 
 @NgModule({
     imports: [
@@ -83,5 +84,6 @@ export const WidgetsComponents = [
     PieTimerComponent,
     DicomFlatListComponent,
     ModalityComponent,
-    RetrieveStateDialogComponent
+    RetrieveStateDialogComponent,
+    DashboardDetailTableComponent
 ];

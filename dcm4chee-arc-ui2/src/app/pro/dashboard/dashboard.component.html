@@ -1,6 +1,6 @@
 <div class="dashboard" *ngIf="elasticSearchIsRunning">
     <div class="dashboard_content">
-        <h2 class="dashboard_block">Counts</h2>
+        <h2 class="dashboard_block">Counts <span class="range" *ngIf="rangeDay.from && rangeDay.to">{{rangeDay.from |date:'yyyy.MM.dd HH:mm'}} - {{rangeDay.to|date:'yyyy.MM.dd HH:mm'}}</span></h2>
         <div class="dashboard_module">
             <div class="count_block dashboard_block">
                 <div class="icon"></div>
@@ -207,6 +207,7 @@
     <div class="dashboard_content" id="auditevents">
         <h2 class="dashboard_block">Audit Events
             <input type="text" [(ngModel)]="searchlist" placeholder="Search...">
+            <span class="range" *ngIf="rangeDay.from && rangeDay.to">{{rangeDay.from |date:'yyyy.MM.dd HH:mm'}} - {{rangeDay.to|date:'yyyy.MM.dd HH:mm'}}</span>
         </h2>
         <div class="dashboard_module" >
             <div class="dashboard_table dashboard_block">
