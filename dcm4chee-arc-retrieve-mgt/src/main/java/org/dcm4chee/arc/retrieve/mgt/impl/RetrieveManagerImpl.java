@@ -157,6 +157,18 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public long countRetrieveTasks(
+            String deviceName,
+            String localAET,
+            String remoteAET,
+            String destinationAET,
+            String studyUID,
+            Date updatedBefore,
+            QueueMessage.Status status) {
+        return ejb.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status);
+    }
+
+    @Override
     public boolean deleteRetrieveTask(Long pk) {
         return ejb.deleteRetrieveTask(pk);
     }

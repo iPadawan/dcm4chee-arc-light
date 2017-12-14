@@ -124,6 +124,17 @@ public class ExportTaskRS {
 
     @GET
     @NoCache
+    @Path("/count")
+    @Produces("application/json")
+    public Response countExportTasks() throws Exception {
+        logRequest();
+        return Response.ok("{\"count\":" +
+                mgr.countExportTasks(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status)) + '}')
+                .build();
+    }
+
+    @GET
+    @NoCache
     @Produces("text/csv")
     public Response listAsCSV() throws Exception {
         logRequest();

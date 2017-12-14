@@ -40,15 +40,19 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +68,6 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -115,18 +118,21 @@ public class QueueManagerEJB {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public QueueMessage onProcessingStart(String msgId) {
         QueueMessage entity = findQueueMessage(msgId);
-        if (entity == null || !entity.getStatus().equals(QueueMessage.Status.SCHEDULED)) {
-            if (entity == null)
-                LOG.info("Suppress processing of Task[id={}]", msgId);
-            else
-                LOG.info("Suppress processing of Task[id={}] at Queue {} with Status: {}",
+        if (entity == null) {
+            LOG.info("Suppress processing of already deleted Task[id={}]", msgId);
+        } else switch (entity.getStatus()) {
+            case IN_PROCESS:
+            case SCHEDULED:
+                LOG.info("Start processing Task[id={}] from Queue {} with Status: {}",
+                        entity.getMessageID(), entity.getQueueName());
+                entity.setProcessingStartTime(new Date());
+                entity.setStatus(QueueMessage.Status.IN_PROCESS);
+                return entity;
+            default:
+                LOG.info("Suppress processing of Task[id={}] from Queue {} with Status: {}",
                         msgId, entity.getQueueName(), entity.getStatus());
-            return null;
         }
-        entity.setProcessingStartTime(new Date());
-        entity.setStatus(QueueMessage.Status.IN_PROCESS);
-        LOG.info("Start processing Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
-        return entity;
+        return null;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -311,18 +317,33 @@ public class QueueManagerEJB {
                 .executeUpdate();
     }
 
-    public List<QueueMessage> search(String queueName, QueueMessage.Status status, int offset, int limit) {
-        TypedQuery<QueueMessage> query = status != null
-                ? em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME_AND_STATUS, QueueMessage.class)
-                    .setParameter(1, queueName)
-                    .setParameter(2, status)
-                : em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME, QueueMessage.class)
-                    .setParameter(1, queueName);
-        if (offset > 0)
-            query.setFirstResult(offset);
+    public List<QueueMessage> search(String queueName,
+            String deviceName, QueueMessage.Status status, int offset, int limit) {
+        return createQuery(queueName, deviceName, status, offset, limit).fetch();
+    }
+
+    public long countTasks(String queueName,
+                           String deviceName, QueueMessage.Status status) {
+        return createQuery(queueName, deviceName, status, 0, 0).fetchCount();
+    }
+
+    private HibernateQuery<QueueMessage> createQuery(
+            String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(QQueueMessage.queueMessage.queueName.eq(queueName));
+        if (deviceName != null)
+            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (status != null)
+            builder.and(QQueueMessage.queueMessage.status.eq(status));
+
+        HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(builder);
         if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultList();
+            query.limit(limit);
+        if (offset > 0)
+            query.offset(offset);
+        return query;
     }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {

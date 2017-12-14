@@ -71,6 +71,15 @@ public interface RetrieveManager {
             int offset,
             int limit);
 
+    long countRetrieveTasks(
+            String deviceName,
+            String localAET,
+            String remoteAET,
+            String destinationAET,
+            String studyUID,
+            Date updatedBefore,
+            QueueMessage.Status status);
+
     boolean deleteRetrieveTask(Long pk);
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
