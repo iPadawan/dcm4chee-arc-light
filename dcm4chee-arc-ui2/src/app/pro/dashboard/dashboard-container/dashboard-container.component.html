@@ -1,0 +1,17 @@
+<div class="left_arrow arrow"  [ngClass]="{'active':activePageEndState ==='second'}" (click)="left()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+<div class="right_arrow arrow" [ngClass]="{'active':activePageEndState ==='first'}" (click)="right()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+<ul class="navigation_point">
+    <li (click)="left()" [ngClass]="{'active':activePageEndState ==='first'}"></li>
+    <li (click)="right()" [ngClass]="{'active':activePageEndState ==='second'}"></li>
+</ul>
+<div class="dashboard_wrapper">
+    <ul class="page_block {{activePageEndState}}">
+        <li class="first">
+            <dashboard *ngIf="showFirstPage"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></dashboard>
+        </li>
+        <li class="second">
+            <queue-dashboard *ngIf="showSecondPage"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></queue-dashboard>
+        </li>
+    </ul>
+</div>
+

@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import {AppService} from "../../app.service";
 import {DashboardDetailTableComponent} from "../../widgets/dialogs/dashboard-detail-table/dashboard-detail-table.component";
 import {MdDialog, MdDialogRef} from "@angular/material";
+import {animate, style, transition, trigger} from "@angular/animations";
 
 @Component({
     selector: 'dashboard',
@@ -21,6 +22,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
     public barChartLegend:boolean = true;
     public barChartData:any[] = [];*/
     //
+
     Object = Object;
     searchlist = '';
     counts = {
@@ -183,7 +185,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
             }, 500);
             this.auditEvents = this.auditErrorObject;
             this.searchlist = 'failure';*/
-            if(this.auditErrorObject && this.auditErrorObject.length < 500){
+            if(this.auditErrorObject && this.auditErrorObject.length < 2500){
                 this.showDetailTable(this.auditErrorObject,'Audit Errors');
             }else{
                 this.mainservice.setMessage({

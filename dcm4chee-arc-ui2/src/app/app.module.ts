@@ -61,9 +61,7 @@ import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.se
 import {WindowRefService} from "./helpers/window-ref.service";
 import { DiffProComponent } from './pro/diff-pro/diff-pro.component';
 import {DiffProService} from "./pro/diff-pro/diff-pro.service";
-import {ChartsModule} from "ng2-charts";
 import { StatisticsComponent } from './pro/statistics/statistics.component';
-import {StatisticsService} from "./pro/statistics/statistics.service";
 import {DiffDetailViewService} from "./widgets/dialogs/diff-detail-view/diff-detail-view.service";
 import { LifecycleManagementComponent } from './pro/lifecycle-management/lifecycle-management.component';
 import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component';
@@ -77,12 +75,17 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import { ExternalRetrieveComponent } from './monitoring/external-retrieve/external-retrieve.component';
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
-import { DashboardComponent } from './pro/dashboard/dashboard.component';
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {DashboardService} from "./pro/dashboard/dashboard.service";
 import {ConvertBytePipe} from "./pipes/convert-byte.pipe";
 import { RetrieveExportComponent } from './pro/migration/retrieve-export/retrieve-export.component';
 import {RetrieveExportService} from "./pro/migration/retrieve-export/retrieve-export.service";
+import {ChartsModule} from "ng2-charts";
+import {DashboardComponent} from "./pro/dashboard/dashboard.component";
+import {StatisticsService} from "./pro/statistics/statistics.service";
+import { DashboardContainerComponent } from './pro/dashboard/dashboard-container/dashboard-container.component';
+import { QueueDashboardComponent } from './pro/dashboard/queue-dashboard/queue-dashboard.component';
+import {QueueDashboardService} from "./pro/dashboard/queue-dashboard/queue-dashboard.service";
 
 @NgModule({
     declarations: [
@@ -132,7 +135,9 @@ import {RetrieveExportService} from "./pro/migration/retrieve-export/retrieve-ex
         FilterGeneratorComponent,
         DashboardComponent,
         ConvertBytePipe,
-        RetrieveExportComponent
+        RetrieveExportComponent,
+        DashboardContainerComponent,
+        QueueDashboardComponent
     ],
     imports: [
         BrowserModule,
@@ -170,7 +175,7 @@ import {RetrieveExportService} from "./pro/migration/retrieve-export/retrieve-ex
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
             { path: 'monitoring/statistics', component: StatisticsComponent },
             { path: 'monitoring/lifecycle-management', component: LifecycleManagementComponent },
-            { path: 'monitoring/dashboard', component: DashboardComponent },
+            { path: 'monitoring/dashboard', component: DashboardContainerComponent },
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
@@ -214,7 +219,8 @@ import {RetrieveExportService} from "./pro/migration/retrieve-export/retrieve-ex
         j4care,
         ExternalRetrieveService,
         DashboardService,
-        RetrieveExportService
+        RetrieveExportService,
+        QueueDashboardService
     ],
     bootstrap: [AppComponent]
 })

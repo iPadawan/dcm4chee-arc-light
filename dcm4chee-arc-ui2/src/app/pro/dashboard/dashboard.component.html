@@ -1,9 +1,8 @@
-<div class="dashboard" *ngIf="elasticSearchIsRunning">
+<div class="dashboard" *ngIf="elasticSearchIsRunning" >
     <div class="dashboard_content">
         <h2 class="dashboard_block">Counts <span class="range" *ngIf="rangeDay.from && rangeDay.to">{{rangeDay.from |date:'yyyy.MM.dd HH:mm'}} - {{rangeDay.to|date:'yyyy.MM.dd HH:mm'}}</span></h2>
         <div class="dashboard_module">
             <div class="count_block dashboard_block">
-                <div class="icon"></div>
                 <div class="count"><span class="glyphicon glyphicon-save"></span>{{counts.studieStored}}</div>
                 <div class="text">Studies Stored Count</div>
             </div>

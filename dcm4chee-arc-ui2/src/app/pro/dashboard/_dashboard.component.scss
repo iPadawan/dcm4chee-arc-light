@@ -27,6 +27,18 @@
     flex-wrap: wrap;
     margin-bottom: 15px;
   }
+  .boxh_shadow{
+    -webkit-box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    -moz-box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+    box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+  }
+  .dashboard_module_wrap{
+    float: left;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 2px 15px 2px;
+  }
   .dashboard_loader{
     font-size: 30px;
     text-align: center;
@@ -119,6 +131,62 @@
     .text{
       text-align: center;
     }
+  }
+  .list_block{
+    height:auto;
+    margin-right:5px;
+    margin-bottom:5px;
+    min-width:15%;
+    flex-grow: 1;
+    &:hover{
+      background:rgba(82, 36, 88, 0.85);
+    }
+    h4{
+      margin-top: 2px;
+      margin-bottom: 5px;
+      padding: 10px 9px;
+      height:38px;
+      //color:rgba(6, 29, 47, 0.84);
+      width: 100%;
+      color: white;
+      //background: rgba(6, 29, 47, 0.71);
+    }
+    .content_list{
+      padding: 15px 10px;
+      table{
+        width: 100%;
+        tr{
+          td{
+            &:first-child{
+              text-align: right;
+              padding-right: 10px;
+              width: 55%;
+            }
+            &:last-child{
+              font-weight:bold;
+            }
+          }
+        }
+      }
+    }
+  }
+  .subheader_gradient{
+    background: -moz-linear-gradient(top,  rgba(6, 29, 47, 0.71) 0%,rgba(53, 65, 74, 0.92) 100%);
+    background: -webkit-linear-gradient(top,  rgba(6, 29, 47, 0.71) 0%,rgba(53, 65, 74, 0.92) 100%);
+    background: linear-gradient(to bottom,  rgba(6, 29, 47, 0.71) 0%,rgba(53, 65, 74, 0.92) 100%);
+  }
+  .gradient0{
+    background: rgba(6, 29, 47, 0.71);
+    background: -moz-linear-gradient(top, rgba(28, 36, 43, 0.92) 0%,rgba(6, 29, 47, 0.71) 100%);
+    background: -webkit-linear-gradient(top, rgba(28, 36, 43, 0.92) 0%,rgba(6, 29, 47, 0.71) 100%);
+    background: linear-gradient(to bottom, rgba(28, 36, 43, 0.92) 0%,rgba(6, 29, 47, 0.71) 100%);
+    color: white;
+  }
+  .gradient1{
+    background: -moz-linear-gradient(top, rgba(53, 65, 74, 0.92) 0%,rgba(28, 36, 43, 0.92) 100%);
+    background: -webkit-linear-gradient(top, rgba(53, 65, 74, 0.92) 0%,rgba(28, 36, 43, 0.92) 100%);
+    background: linear-gradient(to bottom, rgba(53, 65, 74, 0.92) 0%,rgba(28, 36, 43, 0.92) 100%);
+    color: white;
   }
   .dashboard_table{
     min-width: 760px;
