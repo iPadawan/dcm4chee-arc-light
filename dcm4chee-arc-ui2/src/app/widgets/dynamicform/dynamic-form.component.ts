@@ -20,10 +20,6 @@ export class DynamicFormComponent implements OnInit{
     @Input() formelements: FormElement<any>[] = [];
     @Input() model;
     @Output() submitFunction = new EventEmitter<any>();
-    @Output() onChangeFunction = new EventEmitter<any>();
-    @Input() dontShowSearch;
-    @Input() dontShowSave;
-    @Input() dontGroup;
     form: FormGroup;
     payLoad = '';
     partSearch = '';
@@ -55,38 +51,43 @@ export class DynamicFormComponent implements OnInit{
     }
     init(): void {
         console.log('formelements', this.formelements);
-        let orderedGroup: any = new OrderByPipe().transform(this.formelements, 'order');
+        let orderedGroupClone:any;
+        let orderedGroup: any;
         let orderValue = 0;
         let order = 0;
+        let diffState = 0;
+        orderedGroup = new OrderByPipe().transform(this.formelements, 'order');
+        orderedGroupClone = _.cloneDeep(orderedGroup);
+        orderedGroupClone = new OrderByPipe().transform(orderedGroupClone, 'order');
         // this.filteredFormElements = _.cloneDeep(this.formelements);
-        if(!this.dontGroup){
-            _.forEach(orderedGroup, (m, i) => {
-                if (orderValue != parseInt(m.order)){
-                    let title = '';
-                    if (1 <= m.order && m.order < 3){
-                        title = 'Extensions';
-                        order = 0;
+        // let orderedGroupClone =  new OrderByPipe().transform(this.formelements, 'order');
+        _.forEach(orderedGroup, (m, i) => {
+            if (orderValue != parseInt(m.order)){
+                let title = '';
+                if (1 <= m.order && m.order < 3){
+                    title = 'Extensions';
+                    order = 0;
+                }else{
+                    if (3 <= m.order && m.order  < 4) {
+                        title = 'Child Objects';
+                        order = 2;
                     }else{
-                        if (3 <= m.order && m.order  < 4) {
-                            title = 'Child Objects';
-                            order = 2;
-                        }else{
-                            title = 'Attributes';
-                            order = 4;
-                        }
+                        title = 'Attributes';
+                        order = 4;
                     }
-                    orderedGroup.splice(i, 0, {
-                        controlType: 'togglebutton',
-                        title: title,
-                        orderId: order,
-                        order: order
-                    });
                 }
-                orderValue = parseInt(m.order);
-            });
-        }
-        this.formelements = orderedGroup;
-        let formGroup: any = this.formservice.toFormGroup(orderedGroup);
+                orderedGroupClone.splice(i+diffState, 0, {
+                    controlType: 'togglebutton',
+                    title: title,
+                    orderId: order,
+                    order: order
+                });
+                diffState++;
+            }
+            orderValue = parseInt(m.order);
+        });
+        this.formelements = orderedGroupClone;
+        let formGroup: any = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
         console.log('after convert form', this.form);
         //Test setting some values
@@ -94,14 +95,13 @@ export class DynamicFormComponent implements OnInit{
 /*        if(this.model){
             this.form.patchValue(this.model);
         }*/
-        // this.setFormModel(this.model);
+
         this.form.valueChanges
-/*            .debounceTime(500)
-            .distinctUntilChanged()*/
+            .debounceTime(500)
+            .distinctUntilChanged()
             .subscribe(fe => {
                 console.log('insubscribe changes fe', fe);
-                console.log('form', this.form)
-                this.onChangeFunction.emit(this.form);
+                console.log('form', this.form);
             });
 
         console.log('form', this.form);
