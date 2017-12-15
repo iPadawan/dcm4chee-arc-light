@@ -47,21 +47,21 @@ ul.page_block {
   }
 }
 .left_arrow{
-  position: absolute;
+  position: fixed;
   left:5px;
   top: 50%;
   font-size:33px;
 }
 .right_arrow{
   font-size:33px;
-  position: absolute;
+  position: fixed;
   right:5px;
   top: 50%;
 }
 .navigation_point{
   padding: 0;
   list-style: none;
-  position: fixed;
+  position: absolute;
   left: 50%;
   top:12px;
   margin-left:-16px;

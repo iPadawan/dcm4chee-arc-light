@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import {QueueDashboardService} from "./queue-dashboard.service";
 import {AppService} from "../../../app.service";
 import * as _ from 'lodash';
+import {Observable} from "rxjs/Observable";
+import {SlimLoadingBarService} from "ng2-slim-loading-bar";
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 
 @Component({
   selector: 'queue-dashboard',
@@ -11,9 +14,10 @@ import * as _ from 'lodash';
 export class QueueDashboardComponent implements OnInit {
 
     queuesAccessable = false;
-    queueTypes;
+    queueNames;
+    queueCounts = {};
     statuses = [
-        "ALL",
+        "*",
         "SCHEDULED",
         "IN PROCESS",
         "COMPLETED",
@@ -24,7 +28,9 @@ export class QueueDashboardComponent implements OnInit {
 
     constructor(
         private service:QueueDashboardService,
-        private mainservice:AppService
+        private mainservice:AppService,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public httpErrorHandler:HttpErrorHandler
     ) {}
 
     ngOnInit(){
@@ -45,14 +51,47 @@ export class QueueDashboardComponent implements OnInit {
         }
     }
     init(){
-      this.getQueueTypes();
+        this.statuses.forEach(status=>{
+            this.queueCounts[status] = {};
+        })
+        this.getQueueName();
     }
-    getQueueTypes(){
-      this.service.getQueueTypes().subscribe((res)=>{
-        this.queueTypes = res;
+    getQueueName(){
+      this.service.getQueueName().subscribe((res)=>{
+        this.queueNames = res;
         this.queuesAccessable = true;
+        this.getQueuesCount();
       },(err)=>{
         this.queuesAccessable = false;
       });
+    }
+    getQueuesCount(){
+        let actions = [];
+        this.cfpLoadingBar.start();
+        this.statuses.forEach(status => {
+            this.queueNames.forEach(queueName =>{
+                actions.push({
+                    observable: this.service.getQueuesCount(queueName.name, (status != '*') ? {status: status} : {}),
+                    status:status,
+                    queueName:queueName
+                });
+            })
+        });
+        Observable.combineLatest(actions.map(action => {return action.observable;})).subscribe((responses)=>{
+            responses.forEach((res,i) => {
+                this.queueCounts[actions[i].status][actions[i].queueName.name] = res;
+            });
+            this.cfpLoadingBar.complete();
+            console.log("queueCounts",this.queueCounts);
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            actions.forEach((res,i) => {
+                this.queueCounts[actions[i].status][actions[i].queueName.name] = '!';
+            });
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+    refreshQueueCount(){
+        this.getQueuesCount();
     }
 }

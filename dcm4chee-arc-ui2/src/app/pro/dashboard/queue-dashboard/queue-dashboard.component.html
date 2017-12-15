@@ -1,21 +1,35 @@
 <div class="dashboard" *ngIf="queuesAccessable">
   <div class="dashboard_content">
-    <h2 class="dashboard_block">Queue</h2>
+    <h2 class="dashboard_block">Queue <span class="range"><div title="Refresh Queue counts" class="refresh pointer" (click)="refreshQueueCount()"><i class="glyphicon glyphicon-refresh"></i></div></span></h2>
     <div class="dashboard_module_wrap">
-      <div class="list_block" *ngFor="let queue of queueTypes">
-        <h4 class="boxh_shadow subheader_gradient">{{queue.description}}</h4>
+      <div class="list_block" *ngFor="let queueName of queueNames">
+        <h4 class="boxh_shadow subheader_gradient" title="Queue Name">{{queueName.description}}</h4>
         <div class="content_list boxh_shadow gradient1">
           <table>
               <tr *ngFor="let status of statuses">
-                  <td>{{status}}</td>
-                  <td>-</td>
+                  <td [ngClass]="{'null_value':queueCounts[status][queueName.name]?.count == 0}" title="Status">{{status}}</td>
+                  <td [ngClass]="{'null_value':queueCounts[status][queueName.name]?.count == 0}">{{queueCounts[status][queueName.name]?.count}}</td>
               </tr>
           </table>
         </div>
       </div>
     </div>
+<!--    <h2 class="dashboard_block">Export</h2>
+    <div class="dashboard_module_wrap">
+      <div class="list_block" *ngFor="let queueName of queueNames">
+        <h4 class="boxh_shadow subheader_gradient" title="Queue Name">{{queueName.description}}</h4>
+        <div class="content_list boxh_shadow gradient1">
+          <table>
+              <tr *ngFor="let status of statuses">
+                  <td [ngClass]="{'null_value':queueCounts[status][queueName.name]?.count == 0}">{{status}}</td>
+                  <td [ngClass]="{'null_value':queueCounts[status][queueName.name]?.count == 0}">{{queueCounts[status][queueName.name]?.count}}</td>
+              </tr>
+          </table>
+        </div>
+      </div>
+    </div>-->
   </div>
 </div>
 <div class="dashboard statistics_content no_data" *ngIf="!queuesAccessable">
-    <h3 class="text-center error">Unable to get queues!</h3>
+    <h3 class="text-center error">Unable to get Queue Names!</h3>
 </div>
