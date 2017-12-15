@@ -15,7 +15,8 @@ export class QueueDashboardComponent implements OnInit {
 
     queuesAccessable = false;
     queueNames;
-    queueCounts = {};
+    queuesCount = {};
+    exportsCount = {};
     statuses = [
         "*",
         "SCHEDULED",
@@ -25,6 +26,8 @@ export class QueueDashboardComponent implements OnInit {
         "FAILED",
         "CANCELED"
     ];
+    devices: any;
+    myDevice:string;
 
     constructor(
         private service:QueueDashboardService,
@@ -52,7 +55,7 @@ export class QueueDashboardComponent implements OnInit {
     }
     init(){
         this.statuses.forEach(status=>{
-            this.queueCounts[status] = {};
+            this.queuesCount[status] = {};
         })
         this.getQueueName();
     }
@@ -79,17 +82,42 @@ export class QueueDashboardComponent implements OnInit {
         });
         Observable.combineLatest(actions.map(action => {return action.observable;})).subscribe((responses)=>{
             responses.forEach((res,i) => {
-                this.queueCounts[actions[i].status][actions[i].queueName.name] = res;
+                this.queuesCount[actions[i].status][actions[i].queueName.name] = res;
             });
             this.cfpLoadingBar.complete();
-            console.log("queueCounts",this.queueCounts);
+            console.log("queuesCount",this.queuesCount);
         },(err)=>{
             this.cfpLoadingBar.complete();
             actions.forEach((res,i) => {
-                this.queueCounts[actions[i].status][actions[i].queueName.name] = '!';
+                this.queuesCount[actions[i].status][actions[i].queueName.name] = '!';
             });
             this.httpErrorHandler.handleError(err);
         });
+    }
+    getDevices(){
+        this.service.getDevices().filter(device => device.hasArcDevExt).subscribe((devices)=>{
+            this.devices = devices;
+        },(err)=>{
+            this.devices = [];
+        });
+    }
+    getMyDevice(){
+        this.service.getMyDevice().subscribe((myDevice=>{
+                try{
+                    this.myDevice = myDevice.dicomDeviceName;
+                    this.getExportsCount();
+                }catch(e){
+                    console.error("dicomDeviceName in myDevice response not found",e);
+                }
+            }),
+            (err)=>{
+                this.myDevice = "";
+            });
+    }
+    getExportsCount(){
+        let actions = [];
+        this.cfpLoadingBar.start();
+        //TODO
     }
     refreshQueueCount(){
         this.getQueuesCount();
