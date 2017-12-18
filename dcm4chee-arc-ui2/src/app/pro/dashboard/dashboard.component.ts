@@ -39,6 +39,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
     showLegend = true;
     showXAxisLabel = true;
     showYAxisLabel = true;
+    graphWidth = '49.5%';
     xAxisLabel = {
         cpu:'@timestamp per 30 seconds',
         memoryRss:'@timestamp per 30 seconds',
@@ -170,11 +171,25 @@ export class DashboardComponent implements OnInit,OnDestroy {
         }
     }
     init() {
+        console.log("width",$(window).width());
         console.log("colorSets",colorSets);
+        this.setGraphWidth();
         this.colorScheme = colorSets[2];
         this.setTodayDate();
         this.setMin();
         this.getElasticsearchUrl(2);
+
+    }
+    setGraphWidth(){
+        let width = $(window).width();
+        if(width < 1750){
+            if(width < 1250){
+                this.graphWidth = "100%";
+                this.view[0] = (width)-150;
+            }else{
+                this.view[0] = (width/2)-150;
+            }
+        }
 
     }
     showErrors(){

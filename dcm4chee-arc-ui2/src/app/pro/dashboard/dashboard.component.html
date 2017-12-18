@@ -29,7 +29,7 @@
           </div>
         </div>
     </div>
-    <div class="dashboard_content graph" style="width: 49.5%;" >
+    <div class="dashboard_content graph" [ngStyle]="{'width':graphWidth}" >
         <h2 class="dashboard_block">Docker Stats - CPU <pie-timer *ngIf="firstIntervalInit['cpu']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('cpu')"></pie-timer></h2>
         <div class="dashboard_module">
             <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
@@ -58,7 +58,7 @@
             </div>
         </div>
     </div>
-    <div class="dashboard_content right graph" style="width: 49.5%;" >
+    <div class="dashboard_content right graph" [ngStyle]="{'width':graphWidth}" >
         <h2 class="dashboard_block">Docker Stats - Memory Total Resources <pie-timer *ngIf="firstIntervalInit['memoryRss']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('memoryRss')"></pie-timer></h2>
         <div class="dashboard_module">
             <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
@@ -87,7 +87,7 @@
             </div>
         </div>
     </div>
-    <div class="dashboard_content graph" style="width: 49.5%;" >
+    <div class="dashboard_content graph" [ngStyle]="{'width':graphWidth}" >
         <h2 class="dashboard_block">Docker Stats - Current memory consumption <pie-timer *ngIf="firstIntervalInit['memoryUsage']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('memoryUsage')"></pie-timer></h2>
         <div class="dashboard_module">
             <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
@@ -116,7 +116,7 @@
             </div>
         </div>
     </div>
-    <div class="dashboard_content graph right" style="width: 49.5%;" >
+    <div class="dashboard_content graph right" [ngStyle]="{'width':graphWidth}" >
         <h2 class="dashboard_block">Docker Stats - Transmitted packets <pie-timer *ngIf="firstIntervalInit['transmittedPackets']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('transmittedPackets')"></pie-timer></h2>
         <div class="dashboard_module">
             <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
@@ -145,7 +145,7 @@
             </div>
         </div>
     </div>
-    <div class="dashboard_content graph" style="width: 49.5%;" >
+    <div class="dashboard_content graph" [ngStyle]="{'width':graphWidth}" >
         <h2 class="dashboard_block">Docker Stats - Average amount of bytes written per second <pie-timer *ngIf="firstIntervalInit['writesPerSecond']" [size]="30" [timer]="30" [toggle]="true" [color]="'#fff'" [start]="3" (click)="toggleTimer('writesPerSecond')"></pie-timer></h2>
         <div class="dashboard_module">
             <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
@@ -174,7 +174,7 @@
             </div>
         </div>
     </div>
-    <div class="dashboard_content right graph" style="width: 49.5%;" >
+    <div class="dashboard_content right graph" [ngStyle]="{'width':graphWidth}" >
         <h2 class="dashboard_block">Docker Stats - Average amount of bytes read per second <pie-timer  *ngIf="firstIntervalInit['readsPerSecond']" [size]="30" [timer]="30"  [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('readsPerSecond')"></pie-timer></h2>
         <div class="dashboard_module">
             <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
