@@ -60,8 +60,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -76,6 +75,24 @@ import java.util.List;
 @Path("monitor/export")
 public class ExportTaskRS {
     private static final Logger LOG = LoggerFactory.getLogger(ExportTaskRS.class);
+    private static final String CSV_HEADER =
+            "pk," +
+            "createdTime," +
+            "updatedTime," +
+            "ExporterID," +
+            "StudyInstanceUID," +
+            "SeriesInstanceUID," +
+            "SOPInstanceUID," +
+            "NumberOfInstances," +
+            "Modality," +
+            "dicomDeviceName," +
+            "status," +
+            "scheduledTime," +
+            "failures," +
+            "processingStartTime," +
+            "processingEndTime," +
+            "errorMessage," +
+            "outcomeMessage\r\n";
 
     @Inject
     private ExportManager mgr;
@@ -135,7 +152,7 @@ public class ExportTaskRS {
 
     @GET
     @NoCache
-    @Produces("text/csv")
+    @Produces("text/csv; charset=UTF-8")
     public Response listAsCSV() throws Exception {
         logRequest();
         return Response.ok(toEntityAsCSV(
@@ -205,26 +222,14 @@ public class ExportTaskRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                out.write(getHeader().getBytes());
-                writeNewLine(out);
+                Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(CSV_HEADER);
                 for (ExportTask task : tasks) {
-                    task.writeAsCSVTo(out);
-                    writeNewLine(out);
+                    task.writeAsCSVTo(writer);
                 }
-                out.flush();
-                out.close();
+                writer.flush();
             }
         };
-    }
-
-    private String getHeader() {
-        return "\"pk\",\"createdTime\",\"updatedTime\",\"ExporterID\",\"StudyInstanceUID\"," +
-                "\"SeriesInstanceUID\",\"SOPInstanceUID\",\"NumberOfInstances\",\"Modality\",\"dicomDeviceName\"," +
-                "\"status\",\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
-    }
-
-    private void writeNewLine(OutputStream out) throws IOException {
-        out.write("\n".getBytes());
     }
 
     private static QueueMessage.Status parseStatus(String s) {

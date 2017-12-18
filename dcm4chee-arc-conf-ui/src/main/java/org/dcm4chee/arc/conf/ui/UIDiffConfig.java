@@ -51,8 +51,10 @@ public class UIDiffConfig {
     private String callingAET;
     private String primaryCFindSCP;
     private String primaryCMoveSCP;
+    private String primaryCStoreSCP;
     private String secondaryCFindSCP;
     private String secondaryCMoveSCP;
+    private String secondaryCStoreSCP;
     private final Map<String,UIDiffCriteria> criterias = new HashMap<>();
 
     public UIDiffConfig() {
@@ -110,6 +112,22 @@ public class UIDiffConfig {
         this.secondaryCMoveSCP = secondaryCMoveSCP;
     }
 
+    public String getPrimaryCStoreSCP() {
+        return primaryCStoreSCP;
+    }
+
+    public void setPrimaryCStoreSCP(String primaryCStoreSCP) {
+        this.primaryCStoreSCP = primaryCStoreSCP;
+    }
+
+    public String getSecondaryCStoreSCP() {
+        return secondaryCStoreSCP;
+    }
+
+    public void setSecondaryCStoreSCP(String secondaryCStoreSCP) {
+        this.secondaryCStoreSCP = secondaryCStoreSCP;
+    }
+
     public void addCriteria(UIDiffCriteria criteria) {
         criterias.put(criteria.getTitle(), criteria);
     }
@@ -118,7 +136,7 @@ public class UIDiffConfig {
         return criterias.remove(name);
     }
 
-    public UIDiffCriteria getCriterias(String name) {
+    public UIDiffCriteria getCriteria(String name) {
         return criterias.get(name);
     }
 

@@ -58,8 +58,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -74,6 +73,29 @@ import java.util.List;
 public class RetrieveTaskRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskRS.class);
+    private static final String CSV_HEADER =
+            "pk," +
+            "createdTime," +
+            "updatedTime," +
+            "LocalAET," +
+            "RemoteAET," +
+            "DestinationAET," +
+            "StudyInstanceUID," +
+            "SeriesInstanceUID," +
+            "SOPInstanceUID," +
+            "remaining," +
+            "completed," +
+            "failed," +
+            "warning," +
+            "statusCode," +
+            "errorComment," +
+            "dicomDeviceName," +
+            "status,scheduledTime," +
+            "failures," +
+            "processingStartTime," +
+            "processingEndTime," +
+            "errorMessage," +
+            "outcomeMessage\r\n";
 
     @Inject
     private RetrieveManager mgr;
@@ -125,7 +147,7 @@ public class RetrieveTaskRS {
 
     @GET
     @NoCache
-    @Produces("text/csv")
+    @Produces("text/csv; charset=UTF-8")
     public Response listRetrieveTasksAsCSV() {
         logRequest();
         return Response.ok(toEntityAsCSV(
@@ -202,27 +224,14 @@ public class RetrieveTaskRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                out.write(getHeader().getBytes());
-                writeNewLine(out);
+                Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(CSV_HEADER);
                 for (RetrieveTask task : tasks) {
-                    task.writeAsCSVTo(out);
-                    writeNewLine(out);
+                    task.writeAsCSVTo(writer);
                 }
-                out.flush();
-                out.close();
+                writer.flush();
             }
         };
-    }
-
-    private String getHeader() {
-        return "\"pk\",\"createdTime\",\"updatedTime\",\"LocalAET\",\"RemoteAET\"," +
-                "\"DestinationAET\",\"StudyInstanceUID\",\"SeriesInstanceUID\",\"SOPInstanceUID\",\"remaining\"," +
-                "\"completed\",\"failed\",\"warning\",\"statusCode\",\"errorComment\",\"dicomDeviceName\",\"status\"," +
-                "\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
-    }
-
-    private void writeNewLine(OutputStream out) throws IOException {
-        out.write("\n".getBytes());
     }
 
     private void logRequest() {
