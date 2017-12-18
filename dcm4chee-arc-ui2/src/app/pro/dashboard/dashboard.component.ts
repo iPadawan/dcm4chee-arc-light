@@ -89,6 +89,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
     auditEvents;
     auditEventsOriginal;
     auditErrorObject;
+    applicationErrorObject;
     moreAudit = {
         limit: 30,
         start: 0,
@@ -194,14 +195,23 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     showErrors(){
         if(this.counts.errors && this.counts.errors != '-' && this.counts.errors != '0'){
-/*            console.log("$('#auditevents').offset().top",$('#auditevents').offset().top);
-            $('html, body').animate({
-                scrollTop: $("#auditevents").offset().top
-            }, 500);
-            this.auditEvents = this.auditErrorObject;
-            this.searchlist = 'failure';*/
             if(this.auditErrorObject && this.auditErrorObject.length < 2500){
                 this.showDetailTable(this.auditErrorObject,'Audit Errors');
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Error',
+                    'text': 'Too much data!',
+                    'status': 'error'
+                });
+            }
+
+
+        }
+    }
+    showApplicationErrors(){
+        if(this.counts.wildflError && this.counts.wildflError != '-' && this.counts.wildflError != '0'){
+            if(this.applicationErrorObject && this.applicationErrorObject.length < 2500){
+                this.showDetailTable(this.applicationErrorObject,'Application Errors');
             }else{
                 this.mainservice.setMessage({
                     'title': 'Error',
@@ -541,6 +551,22 @@ export class DashboardComponent implements OnInit,OnDestroy {
             (res)=>{
                 try {
                     $this.counts.wildflError = res.hits.total;
+                    $this.applicationErrorObject = res.hits.hits.map((audit)=>{
+                        return {
+                            AuditSourceID:(_.hasIn(audit,"_source.AuditSource.AuditSourceID"))?audit._source.AuditSource.AuditSourceID:'-',
+                            EventID:(_.hasIn(audit,"_source.EventID.originalText"))?audit._source.EventID.originalText:'-',
+                            ActionCode:(_.hasIn(audit,"_source.Event.EventActionCode"))?this.statisticsService.getActionCodeText(audit._source.Event.EventActionCode):'-',
+                            Patient:(_.hasIn(audit,"_source.Patient.ParticipantObjectName"))?audit._source.Patient.ParticipantObjectName:'-',
+                            Study:(_.hasIn(audit,"_source.Study.ParticipantObjectID"))?audit._source.Study.ParticipantObjectID:'-',
+                            AccessionNumber:(_.hasIn(audit,"_source.AccessionNumber"))?audit._source.AccessionNumber:'-',
+                            userId:(_.hasIn(audit,"_source.Source.UserID"))?audit._source.Source.UserID:'-',
+                            requestorId:(_.hasIn(audit,"_source.Requestor.UserID"))?audit._source.Requestor.UserID:'-',
+                            EventOutcomeIndicator:(_.hasIn(audit,"_source.Event.EventOutcomeIndicator"))? this.statisticsService.getEventOutcomeIndicatorText(audit._source.Event.EventOutcomeIndicator):{text:'-'},
+                            Time:(_.hasIn(audit,"_source.Event.EventDateTime"))?audit._source.Event.EventDateTime:undefined,
+                            wholeObject:j4care.flatten(audit._source),
+                            showDetail:false
+                        }
+                    });
                 }catch (e){
                     $this.counts.wildflError = "-";
                 }

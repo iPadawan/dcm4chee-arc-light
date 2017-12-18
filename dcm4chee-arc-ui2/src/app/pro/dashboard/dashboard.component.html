@@ -22,10 +22,10 @@
               <div class="count" [ngClass]="{'error':(counts.errors != '-' && counts.errors !='0')}"><span class="glyphicon glyphicon-warning-sign"></span>{{counts.errors}}</div>
               <div class="text">Audit Errors</div>
           </div>
-          <div class="count_block dashboard_block">
+          <div class="count_block dashboard_block pointer" (click)="showApplicationErrors()">
               <!--<div class="icon"><span class="glyphicon glyphicon-exclamation-sign"></span></div>-->
               <div class="count" [ngClass]="{'error':(counts.wildflError != '-' && counts.wildflError !='0')}"><span class="glyphicon glyphicon-exclamation-sign"></span>{{counts.wildflError}}</div>
-              <div class="text">Application Error</div>
+              <div class="text">Application Errors</div>
           </div>
         </div>
     </div>
