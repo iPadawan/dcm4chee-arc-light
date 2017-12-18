@@ -40,12 +40,12 @@ package org.dcm4chee.arc.retrieve.mgt;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -66,7 +66,8 @@ public interface RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit);
@@ -77,12 +78,13 @@ public interface RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status);
 
     boolean deleteRetrieveTask(Long pk);
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException;
+    boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 }

@@ -121,8 +121,9 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException {
-        return ejb.rescheduleMessage(msgId, device.getDeviceName(), queueName);
+    public boolean rescheduleMessage(String msgId, String queueName)
+            throws IllegalTaskStateException, DifferentDeviceException {
+        return ejb.rescheduleMessage(msgId, queueName);
     }
 
     @Override
@@ -136,12 +137,14 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return ejb.search(queueName, deviceName, status, offset, limit);
+    public List<QueueMessage> search(
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
+        return ejb.search(queueName, deviceName, status, createdTime, updatedTime, offset, limit);
     }
 
     @Override
-    public long countTasks(String queueName, String deviceName, QueueMessage.Status status) {
-        return ejb.countTasks(queueName, deviceName, status);
+    public long countTasks(
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime) {
+        return ejb.countTasks(queueName, deviceName, status, createdTime, updatedTime);
     }
 }

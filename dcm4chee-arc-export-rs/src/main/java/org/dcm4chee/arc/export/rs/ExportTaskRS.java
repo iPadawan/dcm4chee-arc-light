@@ -45,6 +45,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -61,9 +62,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -113,9 +111,11 @@ public class ExportTaskRS {
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
-    @QueryParam("updatedBefore")
-    @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
-    private String updatedBefore;
+    @QueryParam("createdTime")
+    private String createdTime;
+
+    @QueryParam("updatedTime")
+    private String updatedTime;
 
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
@@ -134,7 +134,7 @@ public class ExportTaskRS {
     public Response search() throws Exception {
         logRequest();
         return Response.ok(toEntity(
-                mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
                     parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -146,7 +146,7 @@ public class ExportTaskRS {
     public Response countExportTasks() throws Exception {
         logRequest();
         return Response.ok("{\"count\":" +
-                mgr.countExportTasks(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status)) + '}')
+                mgr.countExportTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status)) + '}')
                 .build();
     }
 
@@ -156,7 +156,7 @@ public class ExportTaskRS {
     public Response listAsCSV() throws Exception {
         logRequest();
         return Response.ok(toEntityAsCSV(
-                mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
                         parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -189,7 +189,7 @@ public class ExportTaskRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
-        } catch (IllegalTaskStateException e) {
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
@@ -243,15 +243,5 @@ public class ExportTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private static Date parseDate(String s) {
-        try {
-            return s != null
-                    ? new SimpleDateFormat("yyyy-MM-dd").parse(s)
-                    : null;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

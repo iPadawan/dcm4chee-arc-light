@@ -44,6 +44,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -57,7 +58,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -148,11 +148,12 @@ public class RetrieveManagerImpl implements RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit) {
-        return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status,
+        return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status,
                 offset, limit);
     }
 
@@ -163,9 +164,11 @@ public class RetrieveManagerImpl implements RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status) {
-        return ejb.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status);
+        return ejb.countRetrieveTasks(
+                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status);
     }
 
     @Override
@@ -179,7 +182,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException {
+    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleRetrieveTask(pk);
     }
 }

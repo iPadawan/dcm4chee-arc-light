@@ -43,13 +43,13 @@ package org.dcm4chee.arc.export.mgt;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.event.Observes;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,15 +68,15 @@ public interface ExportManager {
     void updateExportTask(Long pk);
 
     List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
             int offset, int limit);
 
     long countExportTasks(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status);
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
 
     boolean deleteExportTask(Long pk);
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException;
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
 }

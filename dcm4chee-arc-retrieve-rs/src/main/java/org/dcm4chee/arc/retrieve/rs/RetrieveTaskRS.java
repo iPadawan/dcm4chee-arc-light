@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve.rs;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -59,9 +60,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -122,9 +120,11 @@ public class RetrieveTaskRS {
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
-    @QueryParam("updatedBefore")
-    @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
-    private String updatedBefore;
+    @QueryParam("createdTime")
+    private String createdTime;
+
+    @QueryParam("updatedTime")
+    private String updatedTime;
 
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
@@ -140,7 +140,7 @@ public class RetrieveTaskRS {
     public Response listRetrieveTasks() {
         logRequest();
         return Response.ok(toEntity(
-                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
+                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
                         parseStatus(status), parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -151,7 +151,7 @@ public class RetrieveTaskRS {
     public Response listRetrieveTasksAsCSV() {
         logRequest();
         return Response.ok(toEntityAsCSV(
-                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
+                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
                         parseStatus(status), parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -163,7 +163,7 @@ public class RetrieveTaskRS {
     public Response countRetrieveTasks() {
         logRequest();
         return Response.ok("{\"count\":" +
-                mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
+                mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
                         parseStatus(status)) + '}')
                 .build();
     }
@@ -191,7 +191,7 @@ public class RetrieveTaskRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
-        } catch (IllegalTaskStateException e) {
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
@@ -237,16 +237,6 @@ public class RetrieveTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private static Date parseDate(String s) {
-        try {
-            return s != null
-                    ? new SimpleDateFormat("yyyy-MM-dd").parse(s)
-                    : null;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static int parseInt(String s) {
