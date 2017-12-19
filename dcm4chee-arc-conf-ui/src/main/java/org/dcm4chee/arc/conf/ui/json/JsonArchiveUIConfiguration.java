@@ -133,7 +133,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDiffCriteriaTitle", uiDiffCriteria.getTitle(), null);
             writer.writeNotNullOrDef("dicomDescription", uiDiffCriteria.getDescription(), null);
-            writer.writeNotDef("dcmuiDiffIncludeMissing", uiDiffCriteria.isIncludeMissing(), false);
+            writer.writeNotDef("dcmuiDiffCriteriaNumber", uiDiffCriteria.getNumber(), 0);
             writer.writeNotDef("dcmuiDiffIncludeMissing", uiDiffCriteria.isIncludeMissing(), false);
             writer.writeNotNullOrDef("dcmAttributeSetID", uiDiffCriteria.getAttributeSetID(), null);
             writer.writeNotEmpty("dcmuiDiffGroupButton", uiDiffCriteria.getGroupButtons());
@@ -151,8 +151,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         for (UIDashboardConfig uiDashboardConfig : dashboardConfigs) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDashboardConfigName", uiDashboardConfig.getName(), null);
-            writer.writeNotEmpty("dcmQueueName", uiDashboardConfig.getQueueNames());
-            writer.writeNotEmpty("dicomDeviceName", uiDashboardConfig.getDeviceNames());
+            writer.writeNotEmpty("dcmuiQueueName", uiDashboardConfig.getQueueNames());
+            writer.writeNotEmpty("dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -316,10 +316,10 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiDashboardConfigName":
                         uiDashboardConfig.setName(reader.stringValue());
                         break;
-                    case "dcmQueueName":
+                    case "dcmuiQueueName":
                         uiDashboardConfig.setQueueNames(reader.stringArray());
                         break;
-                    case "dicomDeviceName":
+                    case "dicomuiDeviceName":
                         uiDashboardConfig.setDeviceNames(reader.stringArray());
                         break;
                     default:
