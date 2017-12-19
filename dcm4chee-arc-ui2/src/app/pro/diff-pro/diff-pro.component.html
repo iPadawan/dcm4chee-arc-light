@@ -244,7 +244,7 @@
             </h2>
             <ng-container *ngFor="let attributes of diffAttributes">
                 <div class="bluebar" >
-                    <div class="group_title" >
+                    <div class="group_title" (click)="toggleBar(attributes.id)">
                         <span class="pull-left" title="{{attributes.description}}">{{attributes.title}}</span>
                         <md-progress-spinner
                                 *ngIf="showLoader[attributes.id]"
