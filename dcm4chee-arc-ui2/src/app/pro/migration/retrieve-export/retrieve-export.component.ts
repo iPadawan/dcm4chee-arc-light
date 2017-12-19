@@ -102,7 +102,7 @@ export class RetrieveExportComponent implements OnInit {
     }
     getAes(retries){
         this.aeListService.getAes().subscribe((aes)=>{
-            this.aes = (<any[]>aes).map(ae => {
+            this.aes = (<any[]>j4care.extendAetObjectWithAlias(aes)).map(ae => {
               return {
                   value:ae.dicomAETitle,
                   text:ae.dicomAETitle

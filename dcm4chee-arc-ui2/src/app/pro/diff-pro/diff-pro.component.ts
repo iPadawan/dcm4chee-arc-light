@@ -524,7 +524,7 @@ export class DiffProComponent implements OnInit {
         let $this = this;
         this.service.getAes().subscribe(
             (aes)=>{
-                $this.aes = _.sortBy(aes,['dicomAETitle']);
+                $this.aes = _.sortBy(j4care.extendAetObjectWithAlias(aes),['dicomAETitle']);
             },
             (err)=>{
                 if (retries){
@@ -980,7 +980,7 @@ export class DiffProComponent implements OnInit {
         let $this = this;
         this.service.getAets().subscribe(
             (aets)=>{
-                $this.aets = aets;
+                $this.aets = j4care.extendAetObjectWithAlias(aets);
                 $this.homeAet = aets[0].dicomAETitle;
             },
             (err)=>{
