@@ -18,13 +18,18 @@ export class QueueDashboardService {
           .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
   }
   getQueuesCount(queueName, filter){
-    let filterParm = (filter) ? `?${this.mainservice.param(filter)}`:'';
+    let filterParm = (this.mainservice.param(filter)) ? `?${this.mainservice.param(filter)}`:'';
       return this.$http.get(`../queue/${queueName}/count${filterParm}`)
           .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
   }
   getExportsCount(filter){
-    let filterParm = (filter) ? `?${this.mainservice.param(filter)}`:'';
+    let filterParm = (this.mainservice.param(filter)) ? `?${this.mainservice.param(filter)}`:'';
       return this.$http.get(`../monitor/export/count${filterParm}`)
+          .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+  }
+  getRetrievesCount(filter){
+    let filterParm = (this.mainservice.param(filter)) ? `?${this.mainservice.param(filter)}`:'';
+      return this.$http.get(`../monitor/retrieve/count${filterParm}`)
           .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
   }
   getClusterDevices(myDevice){
@@ -53,8 +58,12 @@ export class QueueDashboardService {
   getDevices(){
       return this.devicesService.getDevices();
   }
-  getMyDevice(){
+  getMyDeviceName(){
       return this.$http.get('../devicename')
+          .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+  }
+  getMyDeviceObject(myDevaceName){
+      return this.$http.get(`../devices/${myDevaceName}`)
           .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
   }
 }
