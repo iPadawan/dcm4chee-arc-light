@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.data.DateRange;
@@ -49,10 +50,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QQueueMessage;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -272,61 +270,29 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore) {
-        if (status != null) {
-            if (updatedBefore != null) {
-                em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
-                        .setParameter(1, queueName)
-                        .setParameter(2, status)
-                        .setParameter(3, updatedBefore)
-                        .executeUpdate();
-                em.createNamedQuery(RetrieveTask.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
-                        .setParameter(1, queueName)
-                        .setParameter(2, status)
-                        .setParameter(3, updatedBefore)
-                        .executeUpdate();
-                return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
-                        .setParameter(1, queueName)
-                        .setParameter(2, status)
-                        .setParameter(3, updatedBefore)
-                        .executeUpdate();
-            }
-            em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME_AND_STATUS)
-                    .setParameter(1, queueName)
-                    .setParameter(2, status)
-                    .executeUpdate();
-            em.createNamedQuery(RetrieveTask.DELETE_BY_QUEUE_NAME_AND_STATUS)
-                    .setParameter(1, queueName)
-                    .setParameter(2, status)
-                    .executeUpdate();
-            return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS)
-                    .setParameter(1, queueName)
-                    .setParameter(2, status)
-                    .executeUpdate();
-        }
-        if (updatedBefore != null) {
-            em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
-                    .setParameter(1, queueName)
-                    .setParameter(2, updatedBefore)
-                    .executeUpdate();
-            em.createNamedQuery(RetrieveTask.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
-                    .setParameter(1, queueName)
-                    .setParameter(2, updatedBefore)
-                    .executeUpdate();
-            return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
-                    .setParameter(1, queueName)
-                    .setParameter(2, updatedBefore)
-                    .executeUpdate();
-        }
-        em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME)
-                .setParameter(1, queueName)
-                .executeUpdate();
-        em.createNamedQuery(RetrieveTask.DELETE_BY_QUEUE_NAME)
-                .setParameter(1, queueName)
-                .executeUpdate();
-        return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME)
-                .setParameter(1, queueName)
-                .executeUpdate();
+
+
+    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName) {
+        BooleanBuilder queueMessagePredicate = new BooleanBuilder();
+        queueMessagePredicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
+        if (deviceName != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (status != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
+        if (updatedBefore != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.updatedTime.lt(updatedBefore));
+
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                                .from(QQueueMessage.queueMessage)
+                                .where(queueMessagePredicate);
+
+        new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery)).execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).execute();
+
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(queueMessagePredicate).execute();
     }
 
     public List<QueueMessage> search(String queueName,
