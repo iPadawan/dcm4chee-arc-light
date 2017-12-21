@@ -25,7 +25,6 @@ import {StudiesService} from './studies/studies.service';
 import {AppService} from './app.service';
 import { AttributeListComponent } from './helpers/attribute-list/attribute-list.component';
 import { FileAttributeListComponent } from './helpers/file-attribute-list/file-attribute-list.component';
-import {CalendarModule} from 'primeng/components/calendar/calendar';
 import {DropdownModule} from 'primeng/components/dropdown/dropdown';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
@@ -86,6 +85,7 @@ import {StatisticsService} from "./pro/statistics/statistics.service";
 import { DashboardContainerComponent } from './pro/dashboard/dashboard-container/dashboard-container.component';
 import { QueueDashboardComponent } from './pro/dashboard/queue-dashboard/queue-dashboard.component';
 import {QueueDashboardService} from "./pro/dashboard/queue-dashboard/queue-dashboard.service";
+import {CalendarModule} from "primeng/components/calendar/calendar";
 
 @NgModule({
     declarations: [
