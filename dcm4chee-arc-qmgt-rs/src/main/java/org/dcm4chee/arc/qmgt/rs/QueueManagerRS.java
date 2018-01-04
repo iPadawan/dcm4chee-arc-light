@@ -60,9 +60,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,10 +95,6 @@ public class QueueManagerRS {
     @QueryParam("limit")
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
-
-    @QueryParam("updatedBefore")
-    @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
-    private String updatedBefore;
 
     @QueryParam("createdTime")
     private String createdTime;
@@ -145,6 +138,24 @@ public class QueueManagerRS {
     }
 
     @POST
+    @Path("/cancel")
+    public Response cancelTasks() {
+        logRequest();
+        QueueMessage.Status cancelTasksStatus = parseStatus(status);
+        if (cancelTasksStatus != null
+                && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
+                    || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
+            int count = mgr.cancelTasks(queueName, dicomDeviceName, cancelTasksStatus, createdTime, updatedTime);
+            return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
+                    .entity("{\"count\":" + count + '}')
+                    .build();
+        }
+
+        throw new WebApplicationException(
+                getResponse("Cannot cancel tasks with Status : " + status, Response.Status.BAD_REQUEST));
+    }
+
+    @POST
     @Path("{msgId}/reschedule")
     public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
@@ -173,7 +184,7 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         return "{\"deleted\":"
-                + mgr.deleteMessages(queueName, parseStatus(status), parseDate(updatedBefore), dicomDeviceName)
+                + mgr.deleteMessages(queueName, parseStatus(status), dicomDeviceName, createdTime, updatedTime)
                 + '}';
     }
 
@@ -203,18 +214,13 @@ public class QueueManagerRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private Date parseDate(String s) {
-        try {
-            return s != null
-                    ? new SimpleDateFormat("yyyy-MM-dd").parse(s)
-                    : null;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }

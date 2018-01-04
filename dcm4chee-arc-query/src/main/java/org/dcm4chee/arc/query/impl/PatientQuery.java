@@ -73,14 +73,27 @@ class PatientQuery extends AbstractQuery {
     }
 
     @Override
-    protected HibernateQuery<Tuple> newHibernateQuery() {
+    protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QPatient.patient);
+        return newHibernateQuery(q, forCount);
+    }
+
+    @Override
+    public long fetchCount() {
+        HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QPatient.patient);
+        return newHibernateQuery(q, true).fetchCount();
+    }
+
+    private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount) {
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                context.isOrderByPatientName());
-        BooleanBuilder predicates = new BooleanBuilder();
+                context.isOrderByPatientName(),
+                forCount);
+        BooleanBuilder predicates = new BooleanBuilder(QPatient.patient.mergedWith.isNull());
+        if (!context.getQueryParam().isWithoutStudies())
+            predicates.and(QPatient.patient.numberOfStudies.gt(0));
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),
                 context.getQueryKeys(),

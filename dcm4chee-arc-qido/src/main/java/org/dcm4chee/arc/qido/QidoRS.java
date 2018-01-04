@@ -372,15 +372,12 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(
                 "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
-        try (Query query = service.createQuery(ctx)) {
-            query.initUnknownSizeQuery();
+        try (Query query = service.createStudyQuery(ctx)) {
             Transaction transaction = query.beginTransaction();
             try {
-                query.setFetchSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
-                query.executeQuery();
-                Long studyPk;
-                while ((studyPk = query.nextPk()) != null)
-                    ctx.getQueryService().calculateStudySize(studyPk);
+                Iterator<Long> studyPks = query.withUnknownSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
+                while (studyPks.hasNext())
+                    ctx.getQueryService().calculateStudySize(studyPks.next());
             } finally {
                 try {
                     transaction.commit();
@@ -389,9 +386,8 @@ public class QidoRS {
                 }
             }
         }
-        try (Query query = service.createQuery(ctx)) {
-            query.initSizeQuery();
-            return Response.ok("{\"size\":" + query.size() + '}').build();
+        try (Query query = service.createStudyQuery(ctx)) {
+            return Response.ok("{\"size\":" + query.fetchSize() + '}').build();
         }
     }
 
@@ -401,8 +397,7 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         try (Query query = model.createQuery(service, ctx)) {
-            query.initQuery();
-            return Response.ok("{\"count\":" + query.count() + '}').build();
+            return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
         }
     }
 
@@ -421,7 +416,7 @@ public class QidoRS {
             int limitInt = parseInt(limit);
             int remaining = 0;
             if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
-                int numResults = (int) (query.count() - offsetInt);
+                int numResults = (int) (query.fetchCount() - offsetInt);
                 if (numResults <= 0)
                     return Response.noContent().build();
 

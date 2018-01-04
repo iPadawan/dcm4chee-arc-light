@@ -46,6 +46,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.hibernate.Transaction;
 
 import java.io.Closeable;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -58,21 +59,17 @@ public interface Query extends Closeable {
 
     void initQuery();
 
-    void initSizeQuery();
-
-    void initUnknownSizeQuery();
-
     Transaction beginTransaction();
 
     void setFetchSize(int fetchSize);
 
     void executeQuery();
 
-    long count();
+    long fetchCount();
 
-    long size();
+    Iterator<Long> withUnknownSize(int fetchSize);
 
-    Long nextPk();
+    long fetchSize();
 
     void limit(long limit);
 

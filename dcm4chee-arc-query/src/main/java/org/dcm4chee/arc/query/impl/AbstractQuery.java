@@ -74,16 +74,11 @@ abstract class AbstractQuery implements Query {
     }
 
     public void initQuery() {
-        query = newHibernateQuery();
+        query = newHibernateQuery(false);
     }
 
     @Override
-    public void initSizeQuery() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void initUnknownSizeQuery() {
+    public Iterator<Long> withUnknownSize(int fetchSize) {
         throw new UnsupportedOperationException();
     }
 
@@ -97,7 +92,7 @@ abstract class AbstractQuery implements Query {
         return session.beginTransaction();
     }
 
-    protected abstract HibernateQuery<Tuple> newHibernateQuery();
+    protected abstract HibernateQuery<Tuple> newHibernateQuery(boolean forCount);
 
     protected abstract Attributes toAttributes(Tuple results);
 
@@ -121,23 +116,8 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public long count() {
-        checkQuery();
-        return query.fetchCount();
-    }
-
-    @Override
-    public long size() {
-        checkQuery();
-        Long size = query.fetchOne().get(0, Long.class);
-        return size != null ? size.longValue() : 0L;
-    }
-
-    @Override
-    public Long nextPk() {
-        return results.hasNext()
-                ? results.next().get(0, Long.class)
-                : null;
+    public long fetchSize() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
