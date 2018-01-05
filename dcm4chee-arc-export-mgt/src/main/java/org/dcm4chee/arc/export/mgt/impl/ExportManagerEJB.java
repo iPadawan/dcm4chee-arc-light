@@ -367,6 +367,37 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
+    public int cancelExportTasks(String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
+            String createdTime, String updatedTime) throws IllegalTaskRequestException {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (exporterID != null)
+            predicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
+        if (deviceName != null)
+            predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
+        if (studyUID != null)
+            predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
+
+        //TODO - cannot cancel task with status TO SCHEDULE
+
+        if (exporter != null)
+            return queueManager.cancelTasksInQueue(
+                exporter.getQueueName(), deviceName, status, createdTime, updatedTime, predicate, null);
+        else {
+            int count;
+            count = queueManager.cancelTasksInQueue(
+                    "Export1", deviceName, status, createdTime, updatedTime, predicate, null);
+            count += queueManager.cancelTasksInQueue(
+                    "Export2", deviceName, status, createdTime, updatedTime, predicate, null);
+            count += queueManager.cancelTasksInQueue(
+                    "Export3", deviceName, status, createdTime, updatedTime, predicate, null);
+            return count;
+        }
+    }
+
+    @Override
     public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
             throws IllegalTaskStateException, DifferentDeviceException {
         ExportTask task = em.find(ExportTask.class, pk);

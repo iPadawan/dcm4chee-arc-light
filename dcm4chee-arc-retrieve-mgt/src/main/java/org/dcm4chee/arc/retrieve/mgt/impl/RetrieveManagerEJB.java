@@ -48,10 +48,7 @@ import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -228,6 +225,25 @@ public class RetrieveManagerEJB {
         queueManager.cancelProcessing(queueMessage.getMessageID());
         LOG.info("Cancel {}", task);
         return true;
+    }
+
+    public int cancelRetrieveTasks(String localAET, String remoteAET, String destinationAET, String studyUID,
+            String deviceName, QueueMessage.Status status, String createdTime, String updatedTime)
+            throws IllegalTaskRequestException {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
+        if (remoteAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
+        if (destinationAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
+        if (studyUID != null)
+            predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
+
+        //TODO - cannot cancel task with status TO SCHEDULE
+
+        return queueManager.cancelTasksInQueue(
+                RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, null, predicate);
     }
 
     public boolean rescheduleRetrieveTask(Long pk)

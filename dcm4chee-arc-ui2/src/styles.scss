@@ -113,6 +113,10 @@ $hoverBlue:#5293C1;
   }
 }
 
+.single_block{
+  float: left;
+  width:100%;
+}
 body{
   margin: 0;
   font-family: Robot, sans-serif;
@@ -143,6 +147,9 @@ md-grid-list{
 /*[draggable=true] {
   -khtml-user-drag: element;
 }*/
+.w45percent{
+  width: 45%;
+}
 .group_input{
   border: 1px solid #ccc;
   margin-left: 0;

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve.rs;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -179,6 +180,23 @@ public class RetrieveTaskRS {
                     .build();
         } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
+    }
+
+    @POST
+    @Path("/cancel")
+    public Response cancelRetrieveTasks() {
+        logRequest();
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity("{\"count\":"
+                            + mgr.cancelRetrieveTasks(
+                                    localAET, remoteAET, destinationAET, studyIUID, deviceName, parseStatus(status),
+                                    createdTime, updatedTime)
+                            + '}')
+                    .build();
+        } catch (IllegalTaskRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
 

@@ -52,10 +52,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -219,8 +216,8 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int cancelTasks(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
-                            String updatedTime) {
+    public int cancelTasksInQueue(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
+                            String updatedTime, BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate) {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         predicate.and(QQueueMessage.queueMessage.status.eq(status));
@@ -230,19 +227,38 @@ public class QueueManagerEJB {
                 .from(QQueueMessage.queueMessage)
                 .where(predicate);
 
-        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .set(QExportTask.exportTask.updatedTime, new Date())
-                .where(QExportTask.exportTask.queueMessage.in(queueMsgSubQuery)).execute();
-
-        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
-                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery)).execute();
+        if (queueName.equals("Export1") || queueName.equals("Export2") || queueName.equals("Export3"))
+            exportUpdateClause(exportPredicate, queueMsgSubQuery).execute();
+        if (queueName.equals("CMoveSCU"))
+            extRetrieveUpdateClause(extRetrievePredicate, queueMsgSubQuery).execute();
 
         LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
                 .set(QQueueMessage.queueMessage.updatedTime, new Date())
                 .where(predicate).execute();
+    }
+
+    private HibernateUpdateClause extRetrieveUpdateClause(
+            BooleanBuilder extRetrievePredicate, HibernateQuery<QueueMessage> queueMsgSubQuery) {
+        return extRetrievePredicate != null
+                ? new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                    .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                    .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery))
+                : new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                    .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                    .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery));
+    }
+
+    private HibernateUpdateClause exportUpdateClause(
+            BooleanBuilder exportPredicate, HibernateQuery<QueueMessage> queueMsgSubQuery) {
+        return exportPredicate != null
+                ? new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .set(QExportTask.exportTask.updatedTime, new Date())
+                    .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgSubQuery))
+                : new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .set(QExportTask.exportTask.updatedTime, new Date())
+                    .where(QExportTask.exportTask.queueMessage.in(queueMsgSubQuery));
     }
 
     private void addOptionalPredicates(String deviceName, String createdTime, String updatedTime, BooleanBuilder predicate) {

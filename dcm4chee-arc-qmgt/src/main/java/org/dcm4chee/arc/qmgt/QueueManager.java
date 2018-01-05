@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.qmgt;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4chee.arc.entity.QueueMessage;
 
 import javax.jms.ObjectMessage;
@@ -63,8 +64,9 @@ public interface QueueManager {
 
     boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
 
-    int cancelTasks(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-                        String updatedTime);
+    int cancelTasksInQueue(
+            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
+            BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate) throws IllegalTaskRequestException;
 
     boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 

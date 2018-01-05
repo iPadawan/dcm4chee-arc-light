@@ -1208,7 +1208,7 @@
             "type": "string",
             "enum": [
               "SCHEDULED",
-              "IN PROCESS",
+              "IN PROCESS"
             ]
           },
           {
@@ -1230,6 +1230,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Invalid status for Cancel of Export tasks"
           },
           "default": {
             "description": "unexpected error"
@@ -1827,6 +1830,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Invalid status for Cancel of Retrieve tasks"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -2304,10 +2310,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is invalid"
-          },
-          "404": {
-            "description": "Queue not found"
+            "description": "Invalid Queue Message status"
           },
           "default": {
             "description": "unexpected error"
