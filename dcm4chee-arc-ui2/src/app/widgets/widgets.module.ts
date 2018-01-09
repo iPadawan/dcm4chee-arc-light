@@ -38,7 +38,7 @@ import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
 import { ModalityComponent } from './modality/modality.component';
 import { RetrieveStateDialogComponent } from './dialogs/retrieve-state-dialog/retrieve-state-dialog.component';
 import { DashboardDetailTableComponent } from './dialogs/dashboard-detail-table/dashboard-detail-table.component';
-
+import { RangePickerComponent } from './range-picker/range-picker.component';
 @NgModule({
     imports: [
         CommonModule,
@@ -85,5 +85,6 @@ export const WidgetsComponents = [
     DicomFlatListComponent,
     ModalityComponent,
     RetrieveStateDialogComponent,
-    DashboardDetailTableComponent
+    DashboardDetailTableComponent,
+    RangePickerComponent
 ];
