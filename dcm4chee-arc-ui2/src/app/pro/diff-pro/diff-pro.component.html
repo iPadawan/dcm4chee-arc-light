@@ -28,33 +28,9 @@
                 </div>
                 <div class="col-md-3 block-1-1">
                     <div class="row">
-                        <label class="col-md-6 text-right control-label">Start date:</label>
+                        <label class="col-md-6 text-right control-label">Study start/end date:</label>
                         <div class="col-md-6">
-                            <p-calendar
-                                    [(ngModel)]="StudyDateTime.from"
-                                    dateFormat="yy-mm-dd"
-                                    hourFormat="24"
-                                    monthNavigator="true"
-                                    yearNavigator="true"
-                                    yearRange="1800:2100"
-                                    placeholder="Start date"
-                                    (ngModelChange)="studyDateTimeChanged($event,'from')"
-                            ></p-calendar>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label class="col-md-6 text-right control-label">End date:</label>
-                        <div class="col-md-6">
-                            <p-calendar
-                                    [(ngModel)]="StudyDateTime.to"
-                                    dateFormat="yy-mm-dd"
-                                    hourFormat="24"
-                                    monthNavigator="true"
-                                    yearNavigator="true"
-                                    yearRange="1800:2100"
-                                    placeholder="End date"
-                                    (ngModelChange)="studyDateTimeChanged($event,'to')"
-                            ></p-calendar>
+                            <range-picker [model]="filters.StudyDate" (modelChange)="filters.StudyDate = $event" mode="range" placeholder="Start/end date" title="Study start/end date" dateFormat="yymmdd" onlyDate="true"></range-picker>
                         </div>
                     </div>
                 </div>
@@ -169,10 +145,13 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>
+                                <!--<p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>-->
+                                <range-picker [model]="filters.StudyReceiveDateTime" (modelChange)="filters.StudyReceiveDateTime = $event" mode="range" placeholder="Created date" title="Created date" dateFormat="yymmdd"></range-picker>
+
                             </div>
                             <div class="col-md-6">
-                                <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'to')" [(ngModel)]="StudyReceiveDateTime.to" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="to"></p-calendar>
+                                <input id="InstitutionalDepartmentName" type="text" [(ngModel)]="filters.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
+                                <!--<p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'to')" [(ngModel)]="StudyReceiveDateTime.to" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="to"></p-calendar>-->
                             </div>
                         </div>
                         <div class="row">
@@ -213,7 +192,6 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <input id="InstitutionalDepartmentName" type="text" [(ngModel)]="filters.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
                             </div>
                             <div class="col-md-6">
                                 <!--<input id="StationName" type="text" [(ngModel)]="filters.StationName" placeholder="Station Name" title="Station Name" class="col-md-12" />-->

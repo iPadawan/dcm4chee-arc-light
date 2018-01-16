@@ -386,7 +386,7 @@ export class DiffProComponent implements OnInit {
     };
 
     studyDateTimeChanged(e, mode){
-        this.filters['StudyDate'] = this.filters['StudyDate'] || {};
+/*        this.filters['StudyDate'] = this.filters['StudyDate'] || {};
         this['StudyDateTime'][mode] = e;
         if (this.StudyDateTime.from && this.StudyDateTime.to){
             let datePipeEn = new DatePipe('us-US');
@@ -399,12 +399,12 @@ export class DiffProComponent implements OnInit {
             }else{
                 this.filters['StudyDate'] = fromDate + '-' + toDate;
             }
-/*            if(fromTime === toTime){
+/!*            if(fromTime === toTime){
                 this.filters['StudyTime'] = fromTime;
             }else{
                 this.filters['StudyTime'] = fromTime + '-' + toTime;
-            }*/
-        }
+            }*!/
+        }*/
     };
 
     conditionWarning($event, condition, msg){
