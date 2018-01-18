@@ -261,6 +261,30 @@
                 </div>
             </ng-container>
         </div>
+        <div class="float_content">
+            <h2>
+                File Diff
+            </h2>
+            <div>
+                <label >Upload a csv-file with StudieInstanceUIDs to use them as a filter</label>
+                <input type="file" (change)="onFileChange($event)" accept=".csv">
+                <span *ngIf="fileStudyCount">{{fileStudyCount}} Entries found in the file</span><br>
+                <button class="btn btn-default submit" (click)="findeMissingStudies()" title="Refresh">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                    FIND MISSING STUDIES
+                </button>
+                <button class="btn btn-default submit"  (click)="sendMissingStudies()" *ngIf="checked > 0 && checked >= studyInstanceUIDsFromFile.length">
+                    <span class="glyphicon glyphicon-ban-circle"></span>
+                    SEND MISSING STUDIES TO {{aet2}}
+                </button>
+            </div>
+            <ng-container *ngIf="processStarted">
+                {{missingStudies.length}} missing studies in {{aet2}}<br/>
+                checked: {{checked}} from {{studyInstanceUIDsFromFile.length}}<br>
+                <progress value="{{checked}}" max="{{studyInstanceUIDsFromFile.length}}">
+                </progress>
+            </ng-container>
+        </div>
   <!--      <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>

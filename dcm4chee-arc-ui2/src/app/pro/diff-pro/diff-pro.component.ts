@@ -11,6 +11,8 @@ import {DicomOperationsComponent} from "../../widgets/dialogs/dicom-operations/d
 import {j4care} from "../../helpers/j4care.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
+import {Observable} from "rxjs/Observable";
+import {DiffDetailViewService} from "../../widgets/dialogs/diff-detail-view/diff-detail-view.service";
 
 @Component({
     selector: 'app-diff-pro',
@@ -46,6 +48,7 @@ export class DiffProComponent implements OnInit {
         StationName:undefined,
         InstitutionName:undefined,
     };
+    cancel = false;
     _ = _;
     aes;
     aets;
@@ -71,6 +74,12 @@ export class DiffProComponent implements OnInit {
         from: undefined,
         to: undefined
     };
+    studyInstanceUIDsFromFile = [];
+    fileStudyCount;
+    missingStudies = [];
+    checkStep = 5;
+    processStarted = false;
+    checked = 0;
     groups;
     groupObject;
     Object = Object;
@@ -156,7 +165,8 @@ export class DiffProComponent implements OnInit {
         private mainservice:AppService,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MdDialog,
-        public config: MdDialogConfig
+        public config: MdDialogConfig,
+        public diffDetailViewService:DiffDetailViewService
     ) { }
     ngOnInit(){
         this.initCheck(10);
@@ -704,4 +714,138 @@ export class DiffProComponent implements OnInit {
             }
         );
     };
+    onFileChange(event){
+        console.log("file",event);
+        let file = event.target.files[0];
+        let ignoreFirstElement = false;
+        this.missingStudies = [];
+        this.checked = 0;
+        this.cancel = false;
+        if(file){
+
+            let blob = file.slice(0, 240);
+            let checkReader = new FileReader();
+            checkReader.readAsText(blob);
+            checkReader.onload = ()=>{
+                if(checkReader.result.indexOf(',') > -1){
+                    this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': 'More than one column found, try uploading csv-file with only one column!',
+                        'status': 'error'
+                    });
+                }else{
+                    let reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onprogress = (data)=>{
+                        if (data.lengthComputable) {
+                            var progress = parseInt( ((data.loaded / data.total) * 100).toString(), 10 );
+                            console.log(progress);
+                        }
+                    }
+                    reader.onload = () => {
+                        // console.log("reader.result",reader.result);
+                        this.studyInstanceUIDsFromFile = reader.result.split('\n');
+                        if(this.studyInstanceUIDsFromFile[0].toLowerCase().indexOf('study') > -1 || this.studyInstanceUIDsFromFile[0].toLowerCase().indexOf('insta') > -1){
+                            ignoreFirstElement = true;
+                        }
+                        console.log("reader.result",this.studyInstanceUIDsFromFile);
+                        if(ignoreFirstElement)
+                            this.studyInstanceUIDsFromFile.splice(0,1);
+                        this.fileStudyCount = this.studyInstanceUIDsFromFile.length;
+
+                    }
+                }
+            };
+        }
+
+    }
+    findeMissingStudies(){
+        if(this.studyInstanceUIDsFromFile.length > 0){
+            this.performeMissingStudyDiffFromFile(this.studyInstanceUIDsFromFile);
+        }
+    }
+    performeMissingStudyDiffFromFile(studies:string[]){
+        this.processStarted = true;
+        if(!this.aet2) {
+            this.mainservice.setMessage({
+                'title': 'Warning',
+                'text': "Secondary AET is empty!",
+                'status': 'warning'
+            });
+            this.cfpLoadingBar.complete();
+        }else{
+            if(!this.aet1){
+                this.aet1 = this.homeAet;
+            }
+            if(studies.length > 0){
+                this.filters["different"]=false;
+                this.filters["missing"]=true;
+                this.getMissingStudiesWithStudyInstaceUID(studies,0,this.checkStep, 5);
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Info',
+                    'text': "No StudyInstanceUIDs found in the file!",
+                    'status': 'info'
+                });
+            }
+        }
+    }
+    getMissingStudiesWithStudyInstaceUID(studyInstanceUIDsFromFile, start, end, retry){
+        let service = [];
+        studyInstanceUIDsFromFile.slice(start,end).forEach(StudyInstanceUID => {
+            this.filters.StudyInstanceUID = StudyInstanceUID.trim();
+            if(StudyInstanceUID && StudyInstanceUID != '')
+                service.push(this.service.getDiff(this.homeAet,this.aet1,this.aet2,this.createQueryParams(this.filters.limit + 1, this.createStudyFilterParams())));
+            else
+                this.checked++;
+        });
+        Observable.forkJoin(service).subscribe((res)=>{
+            this.checked = this.checked + res.length;
+            let nextEnd;
+            if(studyInstanceUIDsFromFile.length > end+this.checkStep)
+                nextEnd = end+this.checkStep;
+            else
+                nextEnd = studyInstanceUIDsFromFile.length;
+                res.forEach(checkRes=>{
+                   if(checkRes && _.hasIn(checkRes,'[0]["0020000D"].Value[0]'))
+                       this.missingStudies.push(checkRes[0]["0020000D"].Value[0]);
+                });
+            if(!this.cancel)
+                this.getMissingStudiesWithStudyInstaceUID(studyInstanceUIDsFromFile,end,nextEnd, retry);
+        },(err)=>{
+            console.log("err",err);
+            if(retry)
+                this.getMissingStudiesWithStudyInstaceUID(studyInstanceUIDsFromFile,start,end, retry-1);
+        });
+    }/*
+    cancelProcess(){
+        this.processStarted = false;
+        this.cancel = true;
+        this.checked = 0;
+        this.missingStudies = [];
+
+    }*/
+    sendMissingStudies(){
+        console.log("this.missing",this.missingStudies);
+        this.copyScp1 = this.copyScp1 || this.aet1;
+        this.cMoveScp1 = this.cMoveScp1 ||  this.aet1;
+        this.copyScp2 = this.copyScp2 || this.aet2;
+        this.cMoveScp2 = this.cMoveScp2 ||  this.aet2;
+        let externalAET;
+        let destinationAET;
+            externalAET = this.cMoveScp1;
+            destinationAET = this.copyScp2;
+        // if(this.selectedVersion === "FIRST"){
+/*        }else{
+            externalAET = this.cMoveScp2;
+            destinationAET = this.copyScp1;
+        }*/
+        this.missingStudies.forEach(StudieInstanceUID => {
+            this.diffDetailViewService.exportStudyExternal(this.homeAet,externalAET, StudieInstanceUID, destinationAET,true).subscribe((res)=>{
+                console.log("StudieInstanceUID",StudieInstanceUID,"send successfully");
+            },(err)=>{
+
+            });
+        });
+    }
 }
