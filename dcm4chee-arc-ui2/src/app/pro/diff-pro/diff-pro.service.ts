@@ -142,5 +142,22 @@ export class DiffProService {
             return resjson;
         });
     }
+    getDiffCount(homeAet, aet1, aet2, params){
+        let url;
+        url =  `../aets/${homeAet}/dimse/${aet1}/diff/${aet2}/studies/count${this._config(params)}`;
+        return  this.$http.get(url).map(res => {
+            let resjson;
+            try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+            }catch (e){
+                resjson = {};
+            }
+            return resjson;
+        });
+    }
 
 }

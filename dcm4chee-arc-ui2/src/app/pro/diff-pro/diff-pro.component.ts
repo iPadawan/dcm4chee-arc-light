@@ -769,6 +769,7 @@ export class DiffProComponent implements OnInit {
     performeMissingStudyDiffFromFile(studies:string[]){
         this.processStarted = true;
         this.showSendProgress = false;
+        this.checked = 0;
         if(!this.aet2) {
             this.mainservice.setMessage({
                 'title': 'Warning',
@@ -795,11 +796,13 @@ export class DiffProComponent implements OnInit {
     }
     getMissingStudiesWithStudyInstaceUID(studyInstanceUIDsFromFile, start, end, retry){
         let services = [];
+        let studyInstanceUIDs = [];
         studyInstanceUIDsFromFile.slice(start,end).forEach(StudyInstanceUID => {
             this.filters.StudyInstanceUID = StudyInstanceUID.trim();
-            if(StudyInstanceUID && StudyInstanceUID != '')
-                services.push(this.service.getDiff(this.homeAet,this.aet1,this.aet2,this.createQueryParams(this.filters.limit + 1, this.createStudyFilterParams())));
-            else
+            if(StudyInstanceUID && StudyInstanceUID != ''){
+                services.push(this.service.getDiffCount(this.homeAet,this.aet1,this.aet2,this.createQueryParams(this.filters.limit + 1, this.createStudyFilterParams())));
+                studyInstanceUIDs.push(this.filters.StudyInstanceUID);
+            }else
                 this.checked++;
         });
         Observable.forkJoin(services).subscribe((res)=>{
@@ -809,9 +812,11 @@ export class DiffProComponent implements OnInit {
                 nextEnd = end+this.checkStep;
             else
                 nextEnd = studyInstanceUIDsFromFile.length;
-                res.forEach(checkRes=>{
-                   if(checkRes && _.hasIn(checkRes,'[0]["0020000D"].Value[0]'))
-                       this.missingStudies.push(checkRes[0]["0020000D"].Value[0]);
+                res.forEach((checkRes,i)=>{
+                    if(checkRes && _.hasIn(checkRes,'missing') && checkRes['missing'] > 0)
+                       this.missingStudies.push(studyInstanceUIDs[i]);
+                   /*if(checkRes && _.hasIn(checkRes,'[0]["0020000D"].Value[0]'))
+                       this.missingStudies.push(checkRes[0]["0020000D"].Value[0]);*/
                 });
             if(!this.cancel)
                 this.getMissingStudiesWithStudyInstaceUID(studyInstanceUIDsFromFile,end,nextEnd, retry);
@@ -857,10 +862,10 @@ export class DiffProComponent implements OnInit {
                 nextEnd = end+2;
             else
                 nextEnd = missingStudies.length;
-            res.forEach(checkRes=>{
+/*            res.forEach(checkRes=>{
                 if(checkRes && _.hasIn(checkRes,'[0]["0020000D"].Value[0]'))
                     this.missingStudies.push(checkRes[0]["0020000D"].Value[0]);
-            });
+            });*/
             if(!this.cancel)
                 this.sendQueuedMissingStudies(missingStudies,end,nextEnd, retry, externalAET, destinationAET);
         },(err)=>{
