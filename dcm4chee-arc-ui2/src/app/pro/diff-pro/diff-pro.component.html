@@ -288,7 +288,7 @@
 <!--                <div class="check" *ngIf="processStarted">
                 </div>-->
             </div>
-            <div class="send_block" *ngIf="checked > 0 && checked >= studyInstanceUIDsFromFile.length">
+            <div class="send_block" *ngIf="missingStudies.length > 0 && checked > 0 && checked >= studyInstanceUIDsFromFile.length">
                 <div>
                     <span *ngIf="showSendProgress">Sent: {{send}} from {{missingStudies.length}} studies</span>
                 </div>
