@@ -265,25 +265,47 @@
             <h2>
                 File Diff
             </h2>
-            <div>
-                <label >Upload a csv-file with StudieInstanceUIDs to use them as a filter</label>
+            <label >Upload a csv-file with StudieInstanceUIDs to use them as a filter</label>
+            <div class="check_block">
                 <input type="file" (change)="onFileChange($event)" accept=".csv">
-                <span *ngIf="fileStudyCount">{{fileStudyCount}} Entries found in the file</span><br>
-                <button class="btn btn-default submit" (click)="findeMissingStudies()" title="Refresh">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                    FIND MISSING STUDIES
-                </button>
-                <button class="btn btn-default submit"  (click)="sendMissingStudies()" *ngIf="checked > 0 && checked >= studyInstanceUIDsFromFile.length">
-                    <span class="glyphicon glyphicon-ban-circle"></span>
-                    SEND MISSING STUDIES TO {{aet2}}
-                </button>
+                <span *ngIf="fileStudyCount">{{fileStudyCount}} Entries found in the file</span>
+                <div>
+                    <span *ngIf="processStarted">{{missingStudies.length}} missing studies in {{aet2}}</span>
+                </div>
+                <div>
+                    <span *ngIf="processStarted">Checked: {{checked}} from {{studyInstanceUIDsFromFile.length}}</span>
+                </div>
+                <div class="progress_content">
+                    <progress *ngIf="processStarted" value="{{checked}}" max="{{studyInstanceUIDsFromFile.length}}">
+                    </progress>
+                </div>
+                <div class="button_block">
+                    <button class="btn btn-default submit" (click)="findeMissingStudies()" title="Refresh">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                        FIND MISSING STUDIES
+                    </button>
+                </div>
+<!--                <div class="check" *ngIf="processStarted">
+                </div>-->
             </div>
-            <ng-container *ngIf="processStarted">
-                {{missingStudies.length}} missing studies in {{aet2}}<br/>
-                checked: {{checked}} from {{studyInstanceUIDsFromFile.length}}<br>
-                <progress value="{{checked}}" max="{{studyInstanceUIDsFromFile.length}}">
-                </progress>
-            </ng-container>
+            <div class="send_block" *ngIf="checked > 0 && checked >= studyInstanceUIDsFromFile.length">
+                <div>
+                    <span *ngIf="showSendProgress">Sent: {{send}} from {{missingStudies.length}} studies</span>
+                </div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div class="progress_content">
+                    <progress *ngIf="showSendProgress" value="{{send}}" max="{{missingStudies.length}}">
+                    </progress>
+                </div>
+                <div class="button_block">
+                    <button class="btn btn-default submit" title="SEND MISSING STUDIES TO {{aet2}}"  (click)="sendMissingStudies()">
+                        <span class="glyphicon glyphicon-ban-circle"></span>
+                        SEND MISSING STUDIES
+                    </button>
+                </div>
+            </div>
         </div>
   <!--      <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>

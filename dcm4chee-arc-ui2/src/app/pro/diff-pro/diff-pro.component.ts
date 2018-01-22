@@ -58,6 +58,7 @@ export class DiffProComponent implements OnInit {
     advancedConfig = false;
     diff;
     count;
+    send = 0;
     groupResults = {};
     disabled = {
         IssuerOfPatientID:false,
@@ -79,6 +80,7 @@ export class DiffProComponent implements OnInit {
     missingStudies = [];
     checkStep = 5;
     processStarted = false;
+    showSendProgress = false;
     checked = 0;
     groups;
     groupObject;
@@ -766,6 +768,7 @@ export class DiffProComponent implements OnInit {
     }
     performeMissingStudyDiffFromFile(studies:string[]){
         this.processStarted = true;
+        this.showSendProgress = false;
         if(!this.aet2) {
             this.mainservice.setMessage({
                 'title': 'Warning',
@@ -791,15 +794,15 @@ export class DiffProComponent implements OnInit {
         }
     }
     getMissingStudiesWithStudyInstaceUID(studyInstanceUIDsFromFile, start, end, retry){
-        let service = [];
+        let services = [];
         studyInstanceUIDsFromFile.slice(start,end).forEach(StudyInstanceUID => {
             this.filters.StudyInstanceUID = StudyInstanceUID.trim();
             if(StudyInstanceUID && StudyInstanceUID != '')
-                service.push(this.service.getDiff(this.homeAet,this.aet1,this.aet2,this.createQueryParams(this.filters.limit + 1, this.createStudyFilterParams())));
+                services.push(this.service.getDiff(this.homeAet,this.aet1,this.aet2,this.createQueryParams(this.filters.limit + 1, this.createStudyFilterParams())));
             else
                 this.checked++;
         });
-        Observable.forkJoin(service).subscribe((res)=>{
+        Observable.forkJoin(services).subscribe((res)=>{
             this.checked = this.checked + res.length;
             let nextEnd;
             if(studyInstanceUIDsFromFile.length > end+this.checkStep)
@@ -826,7 +829,7 @@ export class DiffProComponent implements OnInit {
 
     }*/
     sendMissingStudies(){
-        console.log("this.missing",this.missingStudies);
+        this.showSendProgress = true;
         this.copyScp1 = this.copyScp1 || this.aet1;
         this.cMoveScp1 = this.cMoveScp1 ||  this.aet1;
         this.copyScp2 = this.copyScp2 || this.aet2;
@@ -835,17 +838,36 @@ export class DiffProComponent implements OnInit {
         let destinationAET;
             externalAET = this.cMoveScp1;
             destinationAET = this.copyScp2;
-        // if(this.selectedVersion === "FIRST"){
-/*        }else{
-            externalAET = this.cMoveScp2;
-            destinationAET = this.copyScp1;
-        }*/
-        this.missingStudies.forEach(StudieInstanceUID => {
-            this.diffDetailViewService.exportStudyExternal(this.homeAet,externalAET, StudieInstanceUID, destinationAET,true).subscribe((res)=>{
-                console.log("StudieInstanceUID",StudieInstanceUID,"send successfully");
-            },(err)=>{
-
+        this.send = 0;
+        this.sendQueuedMissingStudies(this.missingStudies,0,2,3, externalAET, destinationAET);
+    }
+    sendQueuedMissingStudies(missingStudies:any[],start:number,end:number, retry:number, externalAET:string, destinationAET:string){
+        let services:any[] = [];
+        missingStudies.slice(start,end).forEach(StudyInstanceUID => {
+            this.filters.StudyInstanceUID = StudyInstanceUID.trim();
+            if(StudyInstanceUID && StudyInstanceUID != '')
+                services.push(this.diffDetailViewService.exportStudyExternal(this.homeAet,externalAET, StudyInstanceUID, destinationAET,true));
+            else
+                this.send++;
+        });
+        Observable.forkJoin(services).subscribe((res)=>{
+            this.send = this.send + res.length;
+            let nextEnd;
+            if(missingStudies.length > end+this.checkStep)
+                nextEnd = end+2;
+            else
+                nextEnd = missingStudies.length;
+            res.forEach(checkRes=>{
+                if(checkRes && _.hasIn(checkRes,'[0]["0020000D"].Value[0]'))
+                    this.missingStudies.push(checkRes[0]["0020000D"].Value[0]);
             });
+            if(!this.cancel)
+                this.sendQueuedMissingStudies(missingStudies,end,nextEnd, retry, externalAET, destinationAET);
+        },(err)=>{
+            console.log("err",err);
+            if(retry)
+                this.sendQueuedMissingStudies(missingStudies,start,end, retry-1,  externalAET, destinationAET);
         });
     }
+
 }
