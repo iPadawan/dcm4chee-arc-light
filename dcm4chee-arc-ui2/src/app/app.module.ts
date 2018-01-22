@@ -175,7 +175,13 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
             { path: 'monitoring/statistics', component: StatisticsComponent },
             { path: 'monitoring/lifecycle-management', component: LifecycleManagementComponent },
-            { path: 'monitoring/dashboard', component: DashboardContainerComponent },
+            { path: 'monitoring/dashboard/:id', component: DashboardContainerComponent ,
+                children: [
+                    { path: '', redirectTo: 'homescreen', pathMatch: 'full' },
+                    { path: 'home', component: DashboardComponent },
+                    { path: 'queue', component: QueueDashboardComponent }
+                ]
+            },
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
