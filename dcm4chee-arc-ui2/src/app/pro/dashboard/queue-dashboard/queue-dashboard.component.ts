@@ -75,28 +75,24 @@ export class QueueDashboardComponent implements OnInit {
       });
     }*/
     getQueuesCount(){
-        let actions = [];
-        this.cfpLoadingBar.start();
         this.statuses.forEach(status => {
             this.dashboardConfig.dcmuiQueueName.forEach(queueName =>{
-                actions.push({
-                    observable: this.service.getQueuesCount(queueName.dcmQueueName, (status != '*') ? {status: status} : {}),
-                    status:status,
-                    queueName:queueName
+                this.queuesCount[status][queueName.dcmQueueName] = {
+                    loader:true,
+                    result:''
+                };
+                this.service.getQueuesCount(queueName.dcmQueueName, (status != '*') ? {status: status} : {}).subscribe((res)=>{
+                    this.queuesCount[status][queueName.dcmQueueName] = {
+                        loader:false,
+                        result:res
+                    };
+                },(err)=>{
+                    this.queuesCount[status][queueName.dcmQueueName] = {
+                        loader:false,
+                        result:'!'
+                    };
                 });
             })
-        });
-        Observable.combineLatest(actions.map(action => {return action.observable;})).subscribe((responses)=>{
-            responses.forEach((res,i) => {
-                this.queuesCount[actions[i].status][actions[i].queueName.dcmQueueName] = res;
-            });
-            this.cfpLoadingBar.complete();
-        },(err)=>{
-            this.cfpLoadingBar.complete();
-            actions.forEach((res,i) => {
-                this.queuesCount[actions[i].status][actions[i].queueName.dcmQueueName] = '!';
-            });
-            this.httpErrorHandler.handleError(err);
         });
     }
     getDevices(){
@@ -175,61 +171,53 @@ export class QueueDashboardComponent implements OnInit {
         this.getExportsCount();
     }
     getRetrievesCount(){
-        let actions = [];
-        this.cfpLoadingBar.start();
         this.statuses.forEach(status => {
             this.dashboardConfig.dicomuiDeviceName.forEach(deviceName =>{
                 let filter = {
                     status: (status != '*') ? status:undefined,
                     dicomDeviceName:(deviceName != '*') ? deviceName:undefined,
                 }
-                actions.push({
-                    observable: this.service.getRetrievesCount(filter),
-                    status:status,
-                    name:deviceName
+                this.retrievesCount[status][deviceName] = {
+                    loader:true,
+                    result:''
+                };
+                this.service.getRetrievesCount(filter).subscribe(res =>{
+                    this.retrievesCount[status][deviceName] = {
+                        loader:false,
+                        result:res
+                    };
+                },(err)=>{
+                    this.retrievesCount[status][deviceName] = {
+                        loader:false,
+                        result:'!'
+                    };
                 });
             })
-        });
-        Observable.combineLatest(actions.map(action => {return action.observable;})).subscribe((responses)=>{
-            responses.forEach((res,i) => {
-                this.retrievesCount[actions[i].status][actions[i].name] = res;
-            });
-            this.cfpLoadingBar.complete();
-        },(err)=>{
-            this.cfpLoadingBar.complete();
-            actions.forEach((res,i) => {
-                this.retrievesCount[actions[i].status][actions[i].name] = '!';
-            });
-            this.httpErrorHandler.handleError(err);
         });
     }
     getExportsCount(){
-        let actions = [];
-        this.cfpLoadingBar.start();
         this.statuses.forEach(status => {
             this.dashboardConfig.dicomuiDeviceName.forEach(deviceName =>{
                 let filter = {
                     status: (status != '*') ? status:undefined,
                     dicomDeviceName:(deviceName != '*') ? deviceName:undefined,
                 }
-                actions.push({
-                    observable: this.service.getExportsCount(filter),
-                    status:status,
-                    name:deviceName
+                this.exportsCount[status][deviceName] = {
+                    loader:true,
+                    result:''
+                };
+                this.service.getExportsCount(filter).subscribe(res =>{
+                    this.exportsCount[status][deviceName] = {
+                        loader:false,
+                        result:res
+                    };
+                },(err)=>{
+                    this.exportsCount[status][deviceName] = {
+                        loader:false,
+                        result:'!'
+                    };
                 });
             })
-        });
-        Observable.combineLatest(actions.map(action => {return action.observable;})).subscribe((responses)=>{
-            responses.forEach((res,i) => {
-                this.exportsCount[actions[i].status][actions[i].name] = res;
-            });
-            this.cfpLoadingBar.complete();
-        },(err)=>{
-            this.cfpLoadingBar.complete();
-            actions.forEach((res,i) => {
-                this.exportsCount[actions[i].status][actions[i].name] = '!';
-            });
-            this.httpErrorHandler.handleError(err);
         });
     }
     refreshQueueCount(){

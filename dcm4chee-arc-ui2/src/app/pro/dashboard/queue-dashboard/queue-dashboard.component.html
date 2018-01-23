@@ -7,8 +7,9 @@
         <div class="content_list boxh_shadow gradient1">
           <table>
               <tr *ngFor="let status of statuses">
-                  <td [ngClass]="{'null_value':retrievesCount[status][name]?.count == 0}">{{status}}</td>
-                  <td [ngClass]="{'null_value':retrievesCount[status][name]?.count == 0}">{{retrievesCount[status][name]?.count}}</td>
+                  <td [ngClass]="{'null_value':retrievesCount[status][name].result?.count == 0}">{{status}}</td>
+                  <td *ngIf="!retrievesCount[status][name].loader" [ngClass]="{'null_value':retrievesCount[status][name].result?.count == 0}">{{retrievesCount[status][name].result?.count}}</td>
+                  <td *ngIf="retrievesCount[status][name].loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
               </tr>
           </table>
         </div>
@@ -21,8 +22,10 @@
         <div class="content_list boxh_shadow gradient1">
           <table>
               <tr *ngFor="let status of statuses">
-                  <td [ngClass]="{'null_value':exportsCount[status][name]?.count == 0}">{{status}}</td>
-                  <td [ngClass]="{'null_value':exportsCount[status][name]?.count == 0}">{{exportsCount[status][name]?.count}}</td>
+                  <td [ngClass]="{'null_value':exportsCount[status][name].result?.count == 0}">{{status}}</td>
+                  <td *ngIf="!exportsCount[status][name].loader" [ngClass]="{'null_value':exportsCount[status][name].result?.count == 0}">{{exportsCount[status][name].result?.count}}</td>
+                  <td *ngIf="exportsCount[status][name].loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+
               </tr>
           </table>
         </div>
@@ -35,8 +38,10 @@
         <div class="content_list boxh_shadow gradient1">
           <table>
               <tr *ngFor="let status of statuses">
-                  <td [ngClass]="{'null_value':queuesCount[status][queueName.dcmQueueName]?.count == 0}" title="Status">{{status}}</td>
-                  <td [ngClass]="{'null_value':queuesCount[status][queueName.dcmQueueName]?.count == 0}">{{queuesCount[status][queueName.dcmQueueName]?.count}}</td>
+                  <td [ngClass]="{'null_value':queuesCount[status][queueName.dcmQueueName].result?.count == 0}" title="Status">{{status}}</td>
+                  <td *ngIf="!queuesCount[status][queueName.dcmQueueName].loader" [ngClass]="{'null_value':queuesCount[status][queueName.dcmQueueName].result?.count == 0}">{{queuesCount[status][queueName.dcmQueueName].result?.count}}</td>
+                  <td *ngIf="queuesCount[status][queueName.dcmQueueName].loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                  <!--<td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>-->
               </tr>
           </table>
         </div>
