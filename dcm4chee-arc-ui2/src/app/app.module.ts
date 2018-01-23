@@ -159,7 +159,7 @@ import { HardwareDashboardComponent } from './pro/dashboard/hardware-dashboard/h
         RouterModule.forRoot([
             {
               path: '',
-              redirectTo: '/monitoring/dashboard',
+              redirectTo: '/monitoring/dashboard/home',
               pathMatch: 'full'
             },
             {
