@@ -1,0 +1,178 @@
+<div class="dashboard" *ngIf="elasticSearchIsRunning" >
+  <div class="dashboard_content graph" [ngStyle]="{'width':graphWidth}" >
+    <h2 class="dashboard_block">Docker Stats - CPU <pie-timer *ngIf="firstIntervalInit['cpu']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('cpu')"></pie-timer></h2>
+    <div class="dashboard_module">
+      <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+        <ng-container *ngIf="!(graphData && graphData.cpu && graphData.cpu.length > 0)"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></ng-container>
+        <ng-container *ngIf="graphData && graphData.cpu && graphData.cpu.length > 0">
+          <ngx-charts-line-chart
+                  [view]="view"
+                  [scheme]="colorScheme"
+                  [results]="graphData?.cpu"
+                  [gradient]="gradient"
+                  [xAxis]="showXAxis"
+                  [yAxis]="showYAxis"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [showYAxisLabel]="showYAxisLabel"
+                  [xAxisLabel]="xAxisLabel.cpu"
+                  [yAxisLabel]="yAxisLabel.cpu"
+                  [autoScale]="autoScale"
+                  (select)="onSelect($event)">
+            <ng-template #tooltipTemplate let-model="model">
+              <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+              <h4>{{model.value}}</h4>
+            </ng-template>
+          </ngx-charts-line-chart>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard_content right graph" [ngStyle]="{'width':graphWidth}" >
+    <h2 class="dashboard_block">Docker Stats - Memory Total Resources <pie-timer *ngIf="firstIntervalInit['memoryRss']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('memoryRss')"></pie-timer></h2>
+    <div class="dashboard_module">
+      <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+        <ng-container *ngIf="!(graphData && graphData.memoryRss && graphData.memoryRss.length > 0)"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></ng-container>
+        <ng-container *ngIf="graphData && graphData.memoryRss && graphData.memoryRss.length > 0">
+          <ngx-charts-line-chart
+                  [view]="view"
+                  [scheme]="colorScheme"
+                  [results]="graphData?.memoryRss"
+                  [gradient]="gradient"
+                  [xAxis]="showXAxis"
+                  [yAxis]="showYAxis"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [showYAxisLabel]="showYAxisLabel"
+                  [xAxisLabel]="xAxisLabel.memoryRss"
+                  [yAxisLabel]="yAxisLabel.memoryRss"
+                  [autoScale]="autoScale"
+                  (select)="onSelect($event)">
+            <ng-template #tooltipTemplate let-model="model">
+              <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+              <h4>{{model.value|convertByte:2}}</h4>
+            </ng-template>
+          </ngx-charts-line-chart>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard_content graph" [ngStyle]="{'width':graphWidth}" >
+    <h2 class="dashboard_block">Docker Stats - Current memory consumption <pie-timer *ngIf="firstIntervalInit['memoryUsage']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('memoryUsage')"></pie-timer></h2>
+    <div class="dashboard_module">
+      <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+        <ng-container *ngIf="!(graphData && graphData.memoryUsage && graphData.memoryUsage.length > 0)"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></ng-container>
+        <ng-container *ngIf="graphData && graphData.memoryUsage && graphData.memoryUsage.length > 0">
+          <ngx-charts-line-chart
+                  [view]="view"
+                  [scheme]="colorScheme"
+                  [results]="graphData?.memoryUsage"
+                  [gradient]="gradient"
+                  [xAxis]="showXAxis"
+                  [yAxis]="showYAxis"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [showYAxisLabel]="showYAxisLabel"
+                  [xAxisLabel]="xAxisLabel.memoryUsage"
+                  [yAxisLabel]="yAxisLabel.memoryUsage"
+                  [autoScale]="autoScale"
+                  (select)="onSelect($event)">
+            <ng-template #tooltipTemplate let-model="model">
+              <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+              <h4>{{model.value|convertByte:2}}</h4>
+            </ng-template>
+          </ngx-charts-line-chart>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard_content graph right" [ngStyle]="{'width':graphWidth}" >
+    <h2 class="dashboard_block">Docker Stats - Transmitted packets <pie-timer *ngIf="firstIntervalInit['transmittedPackets']" [size]="30" [timer]="30" [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('transmittedPackets')"></pie-timer></h2>
+    <div class="dashboard_module">
+      <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+        <ng-container *ngIf="!(graphData && graphData.transmittedPackets && graphData.transmittedPackets.length > 0)"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></ng-container>
+        <ng-container *ngIf="graphData && graphData.transmittedPackets && graphData.transmittedPackets.length > 0">
+          <ngx-charts-line-chart
+                  [view]="view"
+                  [scheme]="colorScheme"
+                  [results]="graphData?.transmittedPackets"
+                  [gradient]="gradient"
+                  [xAxis]="showXAxis"
+                  [yAxis]="showYAxis"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [showYAxisLabel]="showYAxisLabel"
+                  [xAxisLabel]="xAxisLabel.transmittedPackets"
+                  [yAxisLabel]="yAxisLabel.transmittedPackets"
+                  [autoScale]="autoScale"
+                  (select)="onSelect($event)">
+            <ng-template #tooltipTemplate let-model="model">
+              <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+              <h4>{{model.value}}</h4>
+            </ng-template>
+          </ngx-charts-line-chart>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard_content graph" [ngStyle]="{'width':graphWidth}" >
+    <h2 class="dashboard_block">Docker Stats - Average amount of bytes written per second <pie-timer *ngIf="firstIntervalInit['writesPerSecond']" [size]="30" [timer]="30" [toggle]="true" [color]="'#fff'" [start]="3" (click)="toggleTimer('writesPerSecond')"></pie-timer></h2>
+    <div class="dashboard_module">
+      <div class="dashboard_block" > <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+        <ng-container *ngIf="!(graphData && graphData.writesPerSecond && graphData.writesPerSecond.length > 0)"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></ng-container>
+        <ng-container *ngIf="graphData && graphData.writesPerSecond && graphData.writesPerSecond.length > 0">
+          <ngx-charts-line-chart
+                  [view]="view"
+                  [scheme]="colorScheme"
+                  [results]="graphData?.writesPerSecond"
+                  [gradient]="gradient"
+                  [xAxis]="showXAxis"
+                  [yAxis]="showYAxis"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [showYAxisLabel]="showYAxisLabel"
+                  [xAxisLabel]="xAxisLabel.writesPerSecond"
+                  [yAxisLabel]="yAxisLabel.writesPerSecond"
+                  [autoScale]="autoScale"
+                  (select)="onSelect($event)">
+            <ng-template #tooltipTemplate let-model="model">
+              <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+              <h4>{{model.value|convertByte}}/s</h4>
+            </ng-template>
+          </ngx-charts-line-chart>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard_content right graph" [ngStyle]="{'width':graphWidth}" >
+    <h2 class="dashboard_block">Docker Stats - Average amount of bytes read per second <pie-timer  *ngIf="firstIntervalInit['readsPerSecond']" [size]="30" [timer]="30"  [color]="'#fff'" [toggle]="true" [start]="3" (click)="toggleTimer('readsPerSecond')"></pie-timer></h2>
+    <div class="dashboard_module">
+      <div class="dashboard_block"> <!--*ngIf="histogramData.ready && histogramData.ready.labels.length > 0"-->
+        <ng-container *ngIf="!(graphData && graphData.readsPerSecond && graphData.readsPerSecond.length > 0)"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></ng-container>
+        <ng-container *ngIf="graphData && graphData.readsPerSecond && graphData.readsPerSecond.length > 0">
+          <ngx-charts-line-chart
+                  [view]="view"
+                  [scheme]="colorScheme"
+                  [results]="graphData?.readsPerSecond"
+                  [gradient]="gradient"
+                  [xAxis]="showXAxis"
+                  [yAxis]="showYAxis"
+                  [legend]="showLegend"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [showYAxisLabel]="showYAxisLabel"
+                  [xAxisLabel]="xAxisLabel.readsPerSecond"
+                  [yAxisLabel]="yAxisLabel.readsPerSecond"
+                  [autoScale]="autoScale"
+                  (select)="onSelect($event)">
+            <ng-template #tooltipTemplate let-model="model">
+              <h6>{{model.series}} - {{model.name|date:'HH:MM:ss'}}</h6>
+              <h4>{{model.value|convertByte}}/s</h4>
+            </ng-template>
+          </ngx-charts-line-chart>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+<div class="dashboard statistics_content no_data" *ngIf="!elasticSearchIsRunning">
+  <h3 class="text-center error">Unable to connect to Elasticsearch!</h3>
+</div>

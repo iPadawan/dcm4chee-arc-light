@@ -32,32 +32,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
         wildflError:'-',
         studieStored:'-'
     };
-    colorScheme;
-    showXAxis = true;
-    showYAxis = true;
-    gradient = true;
-    showLegend = true;
-    showXAxisLabel = true;
-    showYAxisLabel = true;
-    graphWidth = '49.5%';
-    xAxisLabel = {
-        cpu:'@timestamp per 30 seconds',
-        memoryRss:'@timestamp per 30 seconds',
-        memoryUsage:'@timestamp per 30 seconds',
-        transmittedPackets:'@timestamp per 30 seconds',
-        writesPerSecond:'@timestamp per 30 seconds',
-        readsPerSecond:'@timestamp per 30 seconds'
-    };
-    yAxisLabel = {
-        cpu:'Max CPU total usage',
-        memoryRss:'RSS memory consumption (B)',
-        memoryUsage:'Memory consumption (B)',
-        transmittedPackets:'Packets transmitted per second',
-        writesPerSecond:'Average written B/s',
-        readsPerSecond:'Average read B/s'
-    };
-    autoScale = true;
-    view: any[] = [800, 250];
+
     onSelect(event) {
         console.log(event);
 /*        this.colorScheme = colorSets[0];
@@ -76,10 +51,6 @@ export class DashboardComponent implements OnInit,OnDestroy {
     url;
     // graphData = {"labels":[1510754400000],"data":{"1.2.840.10008.5.1.4.1.1.1":{"data":[3]},"1.2.840.10008.5.1.4.1.1.2":{"data":[1]}},"ready":{"labels":["2017-11-13T14:24:25.694Z","2017-11-15T14:00:00.000Z","2017-11-20T14:24:25.695Z"],"data":[{"label":"1.2.840.10008.5.1.4.1.1.1","data":[null,3,null]},{"label":"1.2.840.10008.5.1.4.1.1.2","data":[null,1,null]}]},"chartOptions":{"scaleShowVerticalLines":false,"responsive":true,"maintainAspectRatio":false,"legend":{"position":"top"},"scales":{"xAxes":[{"type":"time","time":{"displayFormats":{"millisecond":"DD.MM.YYYY","second":"DD.MM.YYYY","minute":"DD.MM.YYYY","hour":"DD.MM.YYYY","day":"DD.MM.YYYY","week":"DD.MM.YYYY","month":"DD.MM.YYYY","quarter":"DD.MM.YYYY","year":"DD.MM.YYYY"}}}],"yAxes":[{"ticks":{"min":0},"scaleLabel":{"display":true,"labelString":"Studies"}}]}},"show":false};
     graphData = {};
-    rangeMin = {
-        from:undefined,
-        to:undefined
-    };
     rangeDay = {
         from:undefined,
         to:undefined
@@ -95,65 +66,15 @@ export class DashboardComponent implements OnInit,OnDestroy {
         start: 0,
         loaderActive: false
     };
-    updateInterval = {
-        'cpu':undefined,
-        'memoryRss':undefined,
-        'memoryUsage':undefined,
-        'transmittedPackets':undefined,
-        'writesPerSecond':undefined,
-        'readsPerSecond':undefined
-    };
-    firstIntervalInit = {
-        'cpu':false,
-        'memoryRss':false,
-        'memoryUsage':false,
-        'transmittedPackets':false,
-        'writesPerSecond':false,
-        'readsPerSecond':false
-    };
+
     dialogRef: MdDialogRef<any>;
-    updateIntervalTime= 30000;
     constructor(
         public statisticsService:StatisticsService,
         public service:DashboardService,
         public mainservice:AppService,
         public dialog: MdDialog
     ) { }
-    public barChartOptions:any = {
-        scaleShowVerticalLines: false,
-        responsive: true,
-        maintainAspectRatio: false,
-        legend:{
-            position:'right'
-        },
-        scales: {
-            xAxes: [{
-                type: 'time',
-                time: {
-                    displayFormats: {
-                        'millisecond': 'DD.MM.YYYY',
-                        'second': 'DD.MM.YYYY',
-                        'minute': 'DD.MM.YYYY',
-                        'hour': 'DD.MM.YYYY',
-                        'day': 'DD.MM.YYYY',
-                        'week': 'DD.MM.YYYY',
-                        'month': 'DD.MM.YYYY',
-                        'quarter': 'DD.MM.YYYY',
-                        'year': 'DD.MM.YYYY',
-                    }
-                }
-            }],
-            yAxes: [{
-                ticks: {
-                    min: 0
-                },
-                scaleLabel: {
-                    display: true,
-                    labelString: 'Queries'
-                }
-            }]
-        }
-    };
+
     ngOnInit(){
         this.initCheck(10);
     }
@@ -174,25 +95,11 @@ export class DashboardComponent implements OnInit,OnDestroy {
     init() {
         console.log("width",$(window).width());
         console.log("colorSets",colorSets);
-        this.setGraphWidth();
-        this.colorScheme = colorSets[2];
         this.setTodayDate();
-        this.setMin();
         this.getElasticsearchUrl(2);
 
     }
-    setGraphWidth(){
-        let width = $(window).width();
-        if(width < 1750){
-            if(width < 1250){
-                this.graphWidth = "100%";
-                this.view[0] = (width)-150;
-            }else{
-                this.view[0] = (width/2)-150;
-            }
-        }
 
-    }
     showErrors(){
         if(this.counts.errors && this.counts.errors != '-' && this.counts.errors != '0'){
             if(this.auditErrorObject && this.auditErrorObject.length < 2500){
@@ -248,24 +155,11 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.rangeDay.from = d;
         this.rangeDay.to = new Date();
     }
-    setMin(){
-        let d = new Date();
-        d.setMinutes(d.getMinutes() - 15);
-        this.rangeMin.from = d;
-        this.rangeMin.to = new Date();
-    }
     detailView(object){
         console.log("wholeobject",object);
         object.showDetail = !object.showDetail;
     }
-    toggleTimer(mode){
-        if(!this.updateInterval[mode]){
-            this.startInterval[mode]();
-        }else{
-            clearInterval(this.updateInterval[mode]);
-            this.updateInterval[mode] = undefined;
-        }
-    }
+
     showDetailTable(data, title){
         this.dialogRef = this.dialog.open(DashboardDetailTableComponent, {
             height: 'auto',
@@ -275,66 +169,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.afterClosed().subscribe();
     }
-    startInterval = {
-        cpu:()=>{
-            // this.getCpuUsage();
-            if(!this.updateInterval['cpu']){
-                this.updateInterval['cpu'] = setInterval(()=>{
-                    this.getCpuUsage();
-                },this.updateIntervalTime);
-            }
-        },
-        memoryRss:()=>{
-            // this.getMemoryRssUsage();
-            if(!this.updateInterval['memoryRss']){
-                this.updateInterval['memoryRss'] = setInterval(()=>{
-                    this.getMemoryRssUsage();
-                },this.updateIntervalTime);
-            }
-        },
-        memoryUsage:()=>{
-            // this.getMemoryUsage();
-            if(!this.updateInterval['memoryUsage']){
-                this.updateInterval['memoryUsage'] = setInterval(()=>{
-                    this.getMemoryUsage();
-                },this.updateIntervalTime);
-            }
-        },
-        transmittedPackets:()=>{
-            // this.getNetworkTransmittedPackets();
-            if(!this.updateInterval['transmittedPackets']){
-                this.updateInterval['transmittedPackets'] = setInterval(()=>{
-                    this.getNetworkTransmittedPackets();
-                },this.updateIntervalTime);
-            }
-        },
-        writesPerSecond:()=>{
-            // this.getWritesPerSecond();
-            if(!this.updateInterval['writesPerSecond']){
-                this.updateInterval['writesPerSecond'] = setInterval(()=>{
-                    this.getWritesPerSecond();
-                },this.updateIntervalTime);
-            }
-        },
-        readsPerSecond:()=>{
-            // this.getReadsPerSecond();
-            if(!this.updateInterval['readsPerSecond']){
-                this.updateInterval['readsPerSecond'] = setInterval(()=>{
-                    this.getReadsPerSecond();
-                },this.updateIntervalTime);
-            }
-        }
-    };
-    startAllGraphIntervals(){
-       for(let interval in this.startInterval){
-           this.startInterval[interval]();
-       }
-    }
-    stopAllGraphIntervals(){
-       for(let interval in this.startInterval){
-           clearInterval(this.updateInterval[interval]);
-       }
-    }
+
     getElasticsearchUrl(retries){
         let $this = this;
         this.statisticsService.getElasticsearchUrl().subscribe(
@@ -361,7 +196,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
                 //     $this.setMin();
                 //     $this.getGraphDataFromElasticsearch();
                 // },$this.updateIntervalTime);
-                $this.getGraphDataFromElasticsearch();
+                // $this.getGraphDataFromElasticsearch();
                 // $this.startAllGraphIntervals();
                 $this.getCountDataFromElasticsearch();
                 $this.getAets(2);
@@ -377,7 +212,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
     }
     getData(){
         this.getStudiesStoredCountsFromDatabase();
-        this.getGraphDataFromElasticsearch();
+        // this.getGraphDataFromElasticsearch();
         this.getCountDataFromElasticsearch();
     }
     getCountDataFromElasticsearch(){
@@ -388,87 +223,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
         this.getAuditEvents();
 
     }
-    getGraphDataFromElasticsearch(){
-        this.getCpuUsage();
-        this.getMemoryRssUsage();
-        this.getMemoryUsage();
-        this.getNetworkTransmittedPackets();
-        this.getReadsPerSecond();
-        this.getWritesPerSecond();
 
-    }
-    getCpuUsage(){
-        this.statisticsService.getCpuUsage(this.rangeMin, this.url).subscribe(cpu=>{
-            if(this.graphData['cpu']){
-                this.graphData['cpu'] = [];
-                this.graphData['cpu'] = [...this.service.prepareGraphData(cpu)];
-            }else{
-                this.graphData['cpu'] = this.service.prepareGraphData(cpu);
-            }
-            this.startInterval["cpu"]();
-            this.firstIntervalInit["cpu"] = true;
-        });
-    }
-    getMemoryRssUsage(){
-        this.statisticsService.getMemoryRssUsage(this.rangeMin, this.url).subscribe(memoryRss=>{
-            if(this.graphData['memoryRss']){
-                this.graphData['memoryRss'] = [];
-                this.graphData['memoryRss'] = [...this.service.prepareGraphData(memoryRss)];
-            }else{
-                this.graphData['memoryRss'] = this.service.prepareGraphData(memoryRss);
-            }
-            this.startInterval["memoryRss"]();
-            this.firstIntervalInit["memoryRss"] = true;
-        });
-    }
-    getMemoryUsage(){
-        this.statisticsService.getMemoryUsage(this.rangeMin, this.url).subscribe(memoryUsage=>{
-            if(this.graphData['memoryUsage']){
-                this.graphData['memoryUsage'] = [];
-                this.graphData['memoryUsage'] = [...this.service.prepareGraphData(memoryUsage)];
-            }else{
-                this.graphData['memoryUsage'] = this.service.prepareGraphData(memoryUsage);
-            }
-            this.startInterval["memoryUsage"]();
-            this.firstIntervalInit["memoryUsage"] = true;
-        });
-    }
-    getNetworkTransmittedPackets(){
-        this.statisticsService.getNetworkTransmittedPackets(this.rangeMin, this.url).subscribe(transmittedPackets=>{
-            if(this.graphData['transmittedPackets']){
-                this.graphData['transmittedPackets'] = [];
-                this.graphData['transmittedPackets'] = [...this.service.prepareGraphData(transmittedPackets)];
-            }else{
-                this.graphData['transmittedPackets'] = this.service.prepareGraphData(transmittedPackets);
-            }
-            this.startInterval["transmittedPackets"]();
-            this.firstIntervalInit["transmittedPackets"] = true;
-        });
-    }
-    getWritesPerSecond(){
-        this.statisticsService.getWritesPerSecond(this.rangeMin, this.url).subscribe(writesPerSecond=>{
-            if(this.graphData['writesPerSecond']){
-                this.graphData['writesPerSecond'] = [];
-                this.graphData['writesPerSecond'] = [...this.service.prepareGraphData(writesPerSecond)];
-            }else{
-                this.graphData['writesPerSecond'] = this.service.prepareGraphData(writesPerSecond);
-            }
-            this.startInterval["writesPerSecond"]();
-            this.firstIntervalInit["writesPerSecond"] = true;
-        });
-    }
-    getReadsPerSecond(){
-        this.statisticsService.getReadsPerSecond(this.rangeMin, this.url).subscribe(readsPerSecond=>{
-            if(this.graphData['readsPerSecond']){
-                this.graphData['readsPerSecond'] = [];
-                this.graphData['readsPerSecond'] = [...this.service.prepareGraphData(readsPerSecond)];
-            }else{
-                this.graphData['readsPerSecond'] = this.service.prepareGraphData(readsPerSecond);
-            }
-            this.startInterval["readsPerSecond"]();
-            this.firstIntervalInit["readsPerSecond"] = true;
-        });
-    }
     getQueriesCount(){
         let $this = this;
         this.statisticsService.getQueriesCounts(this.rangeDay, this.url).subscribe(
@@ -611,6 +366,6 @@ export class DashboardComponent implements OnInit,OnDestroy {
 
     ngOnDestroy(){
         // clearInterval(this.updateInterval);
-        this.stopAllGraphIntervals();
+        // this.stopAllGraphIntervals();
     }
 }

@@ -5,14 +5,17 @@
 ul.page_block {
   padding: 0;
   list-style: none;
-  width:200%;
+  width:300%;
   overflow: hidden;
   margin-left:0;
   &.second{
     margin-left:-100%;
   }
+  &.third{
+    margin-left:-200%;
+  }
   li {
-    width: 50%;
+    width: calc(100% / 3);
     float: left;
     display: block;
     min-height: 300px;
@@ -32,6 +35,14 @@ ul.page_block {
       }
       &.not-active{
         left: 100%;
+      }
+    }
+    &.third{
+      &.active{
+        left: 0;
+      }
+      &.not-active{
+        left: -200%;
       }
     }
   }

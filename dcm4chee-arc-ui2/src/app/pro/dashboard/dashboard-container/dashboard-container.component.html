@@ -1,16 +1,20 @@
-<div class="left_arrow arrow"  [ngClass]="{'active':activePageEndState ==='second'}" (click)="left()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-<div class="right_arrow arrow" [ngClass]="{'active':activePageEndState ==='first'}" (click)="right()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+<div class="left_arrow arrow"  [ngClass]="{'active':activePageEndState ==='second' || activePageEndState ==='third'}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+<div class="right_arrow arrow" [ngClass]="{'active':activePageEndState ==='first' || activePageEndState ==='second'}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
 <ul class="navigation_point">
-    <li (click)="left()" [ngClass]="{'active':activePageEndState ==='first'}"></li>
-    <li (click)="right()" [ngClass]="{'active':activePageEndState ==='second'}"></li>
+    <li (click)="goToPage('home')" [ngClass]="{'active':activePageEndState ==='first'}"></li>
+    <li (click)="goToPage('hardware')" [ngClass]="{'active':activePageEndState ==='second'}"></li>
+    <li (click)="goToPage('queue')" [ngClass]="{'active':activePageEndState ==='third'}"></li>
 </ul>
 <div class="dashboard_wrapper">
     <ul class="page_block {{activePageEndState}}">
         <li class="first">
-            <dashboard *ngIf="showFirstPage"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></dashboard>
+            <dashboard *ngIf="visiblePage.first"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></dashboard>
         </li>
         <li class="second">
-            <queue-dashboard *ngIf="showSecondPage"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></queue-dashboard>
+            <hardware-dashboard *ngIf="visiblePage.second"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></hardware-dashboard>
+        </li>
+        <li class="third">
+            <queue-dashboard *ngIf="visiblePage.third"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></queue-dashboard>
         </li>
     </ul>
 </div>

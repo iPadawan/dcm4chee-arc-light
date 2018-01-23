@@ -86,6 +86,7 @@ import { DashboardContainerComponent } from './pro/dashboard/dashboard-container
 import { QueueDashboardComponent } from './pro/dashboard/queue-dashboard/queue-dashboard.component';
 import {QueueDashboardService} from "./pro/dashboard/queue-dashboard/queue-dashboard.service";
 import {CalendarModule} from "primeng/components/calendar/calendar";
+import { HardwareDashboardComponent } from './pro/dashboard/hardware-dashboard/hardware-dashboard.component';
 
 @NgModule({
     declarations: [
@@ -137,7 +138,8 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
         ConvertBytePipe,
         RetrieveExportComponent,
         DashboardContainerComponent,
-        QueueDashboardComponent
+        QueueDashboardComponent,
+        HardwareDashboardComponent
     ],
     imports: [
         BrowserModule,
@@ -175,10 +177,16 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
             { path: 'monitoring/statistics', component: StatisticsComponent },
             { path: 'monitoring/lifecycle-management', component: LifecycleManagementComponent },
+            {
+                path: 'monitoring/dashboard',
+                redirectTo: 'monitoring/dashboard/home',
+                pathMatch: 'full'
+            },
             { path: 'monitoring/dashboard/:id', component: DashboardContainerComponent ,
                 children: [
                     { path: '', redirectTo: 'homescreen', pathMatch: 'full' },
                     { path: 'home', component: DashboardComponent },
+                    { path: 'hardware', component: HardwareDashboardComponent },
                     { path: 'queue', component: QueueDashboardComponent }
                 ]
             },
