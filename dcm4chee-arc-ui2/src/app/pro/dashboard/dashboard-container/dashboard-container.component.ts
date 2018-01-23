@@ -50,32 +50,13 @@ export class DashboardContainerComponent implements OnInit {
             });
     }
     goToPage(pagename){
-        // this.router.navigateByUrl(`/monitoring/dashboard/${pagename}`);
-/*        if(this.activePageEndState === "first" && pagename != 'home'){
-            if(pagename === 'hardware')
-                this.next();
-        }
-        if(this.activePageEndState === "second" && pagename != 'hardware'){
-            // this.left();
-            if(pagename === 'home')
-                this.prev();
-            if(pagename === 'queue')
-                this.next();
-        }
-        if(this.activePageEndState === "third" && pagename != 'queue'){
-            // this.left();
-            if(pagename === 'hardware')
-                this.prev();
-        }*/
         if(pagename === 'home' && this.activePageEndState != 'first'){
             if(this.activePageEndState === 'second')
                 this.prev();
             if(this.activePageEndState === 'third'){
                 this.prev(true);
             }
-
         }
-
         if(pagename === 'hardware' && this.activePageEndState != 'second'){
             if(this.activePageEndState === 'first')
                 this.next();
