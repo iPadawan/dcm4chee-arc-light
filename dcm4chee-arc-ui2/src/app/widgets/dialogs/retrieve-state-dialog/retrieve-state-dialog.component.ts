@@ -11,6 +11,7 @@ export class RetrieveStateDialogComponent implements OnInit,OnDestroy {
     filter;
     state = {};
     title;
+    mode;
     constructor(
       public dialogRef: MdDialogRef<RetrieveStateDialogComponent>,
       private retrieveService:RetrieveExportService
@@ -27,23 +28,42 @@ export class RetrieveStateDialogComponent implements OnInit,OnDestroy {
         });
         this.studyDateSplit.forEach((study)=>{
           console.log("study",study);
-          this.retrieveService.retrieve(study,this.filter).subscribe((res)=>{
-              console.log("res",res);
-            this.state[study] = {
-                loader:false,
-                ticker:true,
-                count:res.count,
-                x:false
-            };
-          },(err)=>{
-              console.log("err",err);
-              this.state[study] = {
-                  loader:false,
-                  ticker:false,
-                  count:`Error ${err.status} ${err.statusText}`,
-                  x:true
-              };
-          });
+          if(this.mode === 'export')
+              this.retrieveService.export(study,this.filter).subscribe((res)=>{
+                  console.log("res",res);
+                  this.state[study] = {
+                      loader:false,
+                      ticker:true,
+                      count:res.count,
+                      x:false
+                  };
+              },(err)=>{
+                  console.log("err",err);
+                  this.state[study] = {
+                      loader:false,
+                      ticker:false,
+                      count:`Error ${err.status} ${err.statusText}`,
+                      x:true
+                  };
+              });
+          else
+              this.retrieveService.retrieve(study,this.filter).subscribe((res)=>{
+                  console.log("res",res);
+                this.state[study] = {
+                    loader:false,
+                    ticker:true,
+                    count:res.count,
+                    x:false
+                };
+              },(err)=>{
+                  console.log("err",err);
+                  this.state[study] = {
+                      loader:false,
+                      ticker:false,
+                      count:`Error ${err.status} ${err.statusText}`,
+                      x:true
+                  };
+              });
         });
     }
     ngOnDestroy(){

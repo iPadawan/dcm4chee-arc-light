@@ -5,6 +5,7 @@ import {forEach} from "@angular/router/src/utils/collection";
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Injectable()
 export class RetrieveExportService {
@@ -43,7 +44,7 @@ export class RetrieveExportService {
         let param = this.mainservice.param(
                             this.setStudyDateRangeToFilterObject(
                                 studyDate,
-                                this.cloneWithoutAet(
+                                this.cloneWithoutMainFilters(
                                     filters,
                                     false
                                 )
@@ -53,7 +54,24 @@ export class RetrieveExportService {
             url = `${url}?${param}`;
         }
         return this.$http.post(url,{})
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+            .map(res=>j4care.redirectOnAuthResponse(res))
+    }
+    export(studyDate, filters){
+        let url = `../aets/${filters.aet}/export/${filters.exporterID}/studies`;
+        let param = this.mainservice.param(
+            this.setStudyDateRangeToFilterObject(
+                studyDate,
+                this.cloneWithoutMainFilters(
+                    filters,
+                    false
+                )
+            )
+        );
+        if(param != "" && param != undefined){
+            url = `${url}?${param}`;
+        }
+        return this.$http.post(url,{})
+            .map(res=>j4care.redirectOnAuthResponse(res))
     }
     setStudyDateRangeToFilterObject(studyRange,filters){
         let dateKey = "StudyDate";
@@ -229,6 +247,94 @@ export class RetrieveExportService {
         ];
     }
   }
+    getExportFilterSchema(aet, exporterIds, submitText,splitBlock){
+
+        let filterSchema:any = [
+            {
+                tag:"label",
+                text:"Archive AE Title"
+            },
+            {
+                tag:"select",
+                options:aet,
+                filterKey:"aet",
+                description:"Archive AE Title to filter by"
+            },
+            {
+                tag:"label",
+                text:"Exporter ID"
+            },
+            {
+                tag:"select",
+                options:exporterIds,
+                filterKey:"exporterID",
+                description:"Exporter ID"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"only-stgcmt",
+                text:"Only storage commitment without export"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"only-ian",
+                text:"Only enable IAN without export"
+            }
+        ];
+        if(splitBlock){
+            return [
+                ...filterSchema,
+                ...[
+                    {
+                        tag:"dummy"
+                    },
+                    {
+                        tag:"dummy"
+                    },
+                    {
+                        tag:"checkbox",
+                        filterKey:"splitMode",
+                        text:"Split (StudyDate) day-ways"
+                    },
+                    {
+                        tag:"button",
+                        text:submitText,
+                        description:"Retrieve studies"
+                    },                {
+                        tag:"dummy"
+                    },
+                    {
+                        tag:"dummy"
+                    }
+                ]
+            ]
+        }else{
+            return [
+                ...filterSchema,
+                ...[
+                    {
+                        tag:"dummy"
+                    },
+                    {
+                        tag:"dummy"
+                    },{
+                        tag:"dummy"
+                    },
+                    {
+                        tag:"dummy"
+                    },
+                    {
+                        tag:"button",
+                        text:submitText,
+                        description:"Maximal number of tasks in returned list"
+                    },
+                    {
+                        tag:"dummy"
+                    }
+                ]
+            ];
+        }
+    }
   getFlatStudieFilterSchema(aet,submitText, countText){
       return [
           {
@@ -399,16 +505,18 @@ export class RetrieveExportService {
 
       ]
   }
-    cloneWithoutAet(object,convertDate){
-        const aetsKey = [
+    cloneWithoutMainFilters(object,convertDate){
+        const ignoreKeys = [
             "LocalAET",
             "ExternalAET",
             "QueryAET",
             "DestinationAET",
-            "splitMode"
+            "splitMode",
+            "aet",
+            "exporterID"
         ];
         let newObject = _.clone(object);
-        aetsKey.forEach(aet=>{
+        ignoreKeys.forEach(aet=>{
           delete newObject[aet];
         })
         if(convertDate){
@@ -423,9 +531,13 @@ export class RetrieveExportService {
         return this.studieService.rsURL("external",null, initernalAet, externalAet);
     }
     getStudiesCount(params){
-        return this.studieService.getCount(this.rsUrl(params), "studies",this.cloneWithoutAet(params,true));
+        return this.studieService.getCount(this.rsUrl(params), "studies",this.cloneWithoutMainFilters(params,true));
     }
     getStudies(params){
-        return this.studieService.queryStudies(this.rsUrl(params), this.cloneWithoutAet(params,true));
+        return this.studieService.queryStudies(this.rsUrl(params), this.cloneWithoutMainFilters(params,true));
+    }
+    getExporters(){
+        return this.$http.get('../export').
+            map(res => j4care.redirectOnAuthResponse(res))
     }
 }

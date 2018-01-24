@@ -34,6 +34,7 @@ export class RetrieveExportComponent implements OnInit {
     dicomObject;
     countText = "QUERIE COUNT";
     dialogRef: MdDialogRef<any>;
+    exporterIds;
     constructor(
         private httpErrorHandler:HttpErrorHandler,
         private cfpLoadingBar: SlimLoadingBarService,
@@ -86,7 +87,7 @@ export class RetrieveExportComponent implements OnInit {
                     this.submitText = "EXPORT";
                     break;
                 }
-                this.getAes(2);
+                this.setMainFilters(2);
                 this.initAttributeFilter('Patient', 1);
             });
     }
@@ -100,7 +101,7 @@ export class RetrieveExportComponent implements OnInit {
             }
         }));
     }
-    getAes(retries){
+    setMainFilters(retries){
         this.aeListService.getAes().subscribe((aes)=>{
             this.aes = (<any[]>j4care.extendAetObjectWithAlias(aes)).map(ae => {
               return {
@@ -109,32 +110,60 @@ export class RetrieveExportComponent implements OnInit {
               }
             });
             this.filterObject['LocalAET'] = this.aes[0].value;
-            this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
-            // this.studyFilterSchema = this.service.getStudieFilterSchema(this.aes,this.submitText);
+            if(this.mode === 'export'){
+                let getExporters = (exporterRetries)=>{
+                    this.service.getExporters().subscribe((exporterIds)=>{
+                        this.exporterIds = exporterIds.map(exporter=>{
+                            return {
+                                value:exporter.id,
+                                text:exporter.id
+                            }
+                        });
+                        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getExportFilterSchema(this.aes,this.exporterIds,this.submitText, false),2);
+                    },(err)=>{
+                        if(exporterRetries)
+                            getExporters(exporterRetries-1);
+                    })
+                };
+                getExporters(3);
+            }else
+                this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
             this.setStudyFilterSchema();
         },(err)=>{
               if (retries)
-                  this.getAes(retries - 1);
+                  this.setMainFilters(retries - 1);
         });
     }
     onChange(object){
-        console.log("in retrieve object",object);
-        if(_.hasIn(object,"ExternalAET") && !_.hasIn(object,"QueryAET")){
-            object['QueryAET'] = object['ExternalAET'];
-            this.filterObject['QueryAET'] = this.filterObject['ExternalAET'];
-
-            // this.studyFilterSchema = [];
-            this.setStudyFilterSchema();
-        }
-        let dummyObject = {};
-        if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
-            dummyObject['StudyDate.from'] = object['StudyDate.from'];
-            dummyObject['StudyDate.to'] = object['StudyDate.to'];
-            this.service.convertDateFilter(dummyObject,["StudyDate"]);
-            // this.showSplitBlock = true;
-            this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, true),2);
+        if(this.mode === 'export'){
+            let dummyObject = {};
+            if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
+                dummyObject['StudyDate.from'] = object['StudyDate.from'];
+                dummyObject['StudyDate.to'] = object['StudyDate.to'];
+                this.service.convertDateFilter(dummyObject,["StudyDate"]);
+                // this.showSplitBlock = true;
+                this.filterSchema = j4care.prepareFlatFilterObject(this.service.getExportFilterSchema(this.aes,this.exporterIds,this.submitText, true),2);
+            }else{
+                this.filterSchema = j4care.prepareFlatFilterObject(this.service.getExportFilterSchema(this.aes,this.exporterIds,this.submitText, false),2);
+            }
         }else{
-            this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
+            if(_.hasIn(object,"ExternalAET") && !_.hasIn(object,"QueryAET")){
+                object['QueryAET'] = object['ExternalAET'];
+                this.filterObject['QueryAET'] = this.filterObject['ExternalAET'];
+
+                // this.studyFilterSchema = [];
+                this.setStudyFilterSchema();
+            }
+            let dummyObject = {};
+            if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
+                dummyObject['StudyDate.from'] = object['StudyDate.from'];
+                dummyObject['StudyDate.to'] = object['StudyDate.to'];
+                this.service.convertDateFilter(dummyObject,["StudyDate"]);
+                // this.showSplitBlock = true;
+                this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, true),2);
+            }else{
+                this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, false),2);
+            }
         }
     }
 
@@ -163,60 +192,78 @@ export class RetrieveExportComponent implements OnInit {
                 });
             }
         }else{
-            if(_.hasIn(object,"LocalAET") && _.hasIn(object,"ExternalAET") && _.hasIn(object,"DestinationAET")){
-
+            if((_.hasIn(object,"LocalAET") && _.hasIn(object,"ExternalAET") && _.hasIn(object,"DestinationAET"))||this.mode === 'export'){
                 let studyDateSplit = [];
                 if(_.hasIn(object,"splitMode")){
                     studyDateSplit = this.service.splitDate(object);
                 }else{
                     studyDateSplit.push(this.service.convertToDatePareString(object['StudyDate.from'],object['StudyDate.to']));
                 }
-                console.log("studyDateSplit",studyDateSplit);
                 if(studyDateSplit.length > 1){
-/*                    this.confirm({
-                        content: 'You are about to retrieve studies without specifying a StudyDate range, are you sure you want to continue?'
-                    }).subscribe(result => {*/
-                        this.dialogRef = this.dialog.open(RetrieveStateDialogComponent, {
-                            height: 'auto',
-                            width: '700px'
-                        });
-                        this.dialogRef.componentInstance.studyDateSplit = studyDateSplit;
-                        this.dialogRef.componentInstance.filter = object;
-                        this.dialogRef.componentInstance.title = title;
-                        this.dialogRef.afterClosed().subscribe((ok)=>{
-                        });
-
-                    // });
+                    this.dialogRef = this.dialog.open(RetrieveStateDialogComponent, {
+                        height: 'auto',
+                        width: '700px'
+                    });
+                    this.dialogRef.componentInstance.studyDateSplit = studyDateSplit;
+                    this.dialogRef.componentInstance.filter = object;
+                    this.dialogRef.componentInstance.title = title;
+                    this.dialogRef.componentInstance.mode = this.mode;
+                    this.dialogRef.afterClosed().subscribe((ok)=>{
+                    });
                 }else{
                     // this.studiesService.
                     if(studyDateSplit.length === 0 || (studyDateSplit.length === 1 && !studyDateSplit[0])){
                         this.confirm({
-                            content: 'You are about to retrieve studies without specifying a StudyDate range, are you sure you want to continue?'
+                            content: `You are about to ${(this.mode==='export')?'export':'retrieve'} studies without specifying a StudyDate range, are you sure you want to continue?`
                         }).subscribe(result => {
                             if(result){
-                                this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
-                                    console.log("retreive result");
-                                    this.mainservice.setMessage({
-                                        'title': 'Info',
-                                        'text': `Retrieve executed successfully!<br>${res.count} studies added in the queue`,
-                                        'status': 'info'
+                                if(this.mode === 'export')
+                                    this.service.export(studyDateSplit[0],object).subscribe((res)=>{
+                                        console.log("retreive result");
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': `Export executed successfully!<br>${res.count} studies added in the queue`,
+                                            'status': 'info'
+                                        });
+                                    },(err)=>{
+                                        this.httpErrorHandler.handleError(err);
                                     });
-                                },(err)=>{
-                                    this.httpErrorHandler.handleError(err);
-                                });
+                                else
+                                    this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
+                                        console.log("retreive result");
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': `Retrieve executed successfully!<br>${res.count} studies added in the queue`,
+                                            'status': 'info'
+                                        });
+                                    },(err)=>{
+                                        this.httpErrorHandler.handleError(err);
+                                    });
                             }
                         });
                     }else{
-                        this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
-                            console.log("retreive result");
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': `Retrieve executed successfully!<br>${res.count} studies added in the queue`,
-                                'status': 'info'
+                        if(this.mode === 'export')
+                            this.service.export(studyDateSplit[0],object).subscribe((res)=>{
+                                console.log("retreive result");
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': `Export executed successfully!<br>${res.count} studies added in the queue`,
+                                    'status': 'info'
+                                });
+                            },(err)=>{
+                                this.httpErrorHandler.handleError(err);
                             });
-                        },(err)=>{
-                            this.httpErrorHandler.handleError(err);
-                        });
+                        else
+                            this.service.retrieve(studyDateSplit[0],object).subscribe((res)=>{
+                                console.log("retreive result");
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': `Retrieve executed successfully!<br>${res.count} studies added in the queue`,
+                                    'status': 'info'
+                                });
+                            },(err)=>{
+                                this.httpErrorHandler.handleError(err);
+                            });
                     }
                 }
             }else{
