@@ -456,13 +456,15 @@ export class RetrieveExportService {
               tag:"checkbox",
               filterKey:"incomplete",
               text:"Only incomplete studies",
-              mode:"export"
+              mode:"export",
+              style:{"font-size":"12px"}
           }
           ,{
               tag:"checkbox",
               filterKey:"retrievefailed",
               text:"Only failed to be retrieved",
-              mode:"export"
+              mode:"export",
+              style:{"font-size":"12px"}
           }
           ,{
               tag:"input",
@@ -482,13 +484,13 @@ export class RetrieveExportService {
               tag:"button",
               id:"count",
               text:countText,
-              description:"QUERIE ONLY THE COUNT"
+              description:"QUERY ONLY THE COUNT"
           },
           {
               tag:"button",
               id:"querie",
-              text:'QUERIE STUDIES',
-              description:"QUERIE STUDIES"
+              text:'QUERY STUDIES',
+              description:"QUERY STUDIES"
           }
 
       ]
@@ -513,16 +515,21 @@ export class RetrieveExportService {
             return newObject;
         }
     }
-    rsUrl(params){
+    rsUrl(params,mode){
+        let externalInternalMode = 'external';
+        if(mode === "export"){
+            externalInternalMode = 'internal'
+        }
+        let aet = params.aet;
         let initernalAet = params.LocalAET || params.QueryAET;
         let externalAet = params.ExternalAET;
-        return this.studieService.rsURL("external",null, initernalAet, externalAet);
+        return this.studieService.rsURL(externalInternalMode,aet, initernalAet, externalAet);
     }
-    getStudiesCount(params){
-        return this.studieService.getCount(this.rsUrl(params), "studies",this.cloneWithoutMainFilters(params,true));
+    getStudiesCount(params,mode){
+        return this.studieService.getCount(this.rsUrl(params,mode), "studies",this.cloneWithoutMainFilters(params,true));
     }
-    getStudies(params){
-        return this.studieService.queryStudies(this.rsUrl(params), this.cloneWithoutMainFilters(params,true));
+    getStudies(params,mode){
+        return this.studieService.queryStudies(this.rsUrl(params,mode), this.cloneWithoutMainFilters(params,true));
     }
     getExporters(){
         return this.$http.get('../export').

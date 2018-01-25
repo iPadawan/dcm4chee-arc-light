@@ -32,7 +32,7 @@ export class RetrieveExportComponent implements OnInit {
     attributeFilters: any = {};
     patients = [];
     dicomObject;
-    countText = "QUERIE COUNT";
+    countText = "QUERY COUNT";
     dialogRef: MdDialogRef<any>;
     exporterIds;
     constructor(
@@ -167,6 +167,16 @@ export class RetrieveExportComponent implements OnInit {
         }
     }
 
+    executeStudiesFunction(object){
+        switch (object.id){
+            case 'count':
+                this.getStudiesCount(object.model);
+                break;
+            case 'querie':
+                this.getStudies(object.model);
+                break;
+        }
+    }
     onSubmit(object){
         console.log("onsubmit object",object);
         let title = "Retrieve splited process";
@@ -175,21 +185,32 @@ export class RetrieveExportComponent implements OnInit {
         }
         if(_.hasIn(object,"id")){
             // this.service.convertDateFilter(object.model,'StudyDate');
-            if(_.hasIn(object.model,"LocalAET") && _.hasIn(object.model,"ExternalAET")){
-                switch (object.id){
-                    case 'count':
-                        this.getStudiesCount(object.model);
-                    break;
-                    case 'querie':
-                        this.getStudies(object.model);
-                    break;
-                }
+            if(this.mode === 'retrieve' && _.hasIn(object.model,"LocalAET") && _.hasIn(object.model,"ExternalAET")){
+                if(_.hasIn(object.model,"aet")){
+                    this.executeStudiesFunction(object);
+                }else
+                    this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': "AETitle is missing",
+                        'status': 'error'
+                    });
             }else{
-                this.mainservice.setMessage({
-                    'title': 'Error',
-                    'text': "Calling AETitle or External AETitle missing!",
-                    'status': 'error'
-                });
+                if(this.mode === 'export' && _.hasIn(object.model,"aet")) {
+                    this.executeStudiesFunction(object);
+                }else{
+                    if(this.mode === 'export'){
+                        this.mainservice.setMessage({
+                            'title': 'Error',
+                            'text': "AETitle is missing",
+                            'status': 'error'
+                        });
+                    }else
+                        this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': "Calling AETitle or External AETitle missing!",
+                        'status': 'error'
+                        });
+                }
             }
         }else{
             if((_.hasIn(object,"LocalAET") && _.hasIn(object,"ExternalAET") && _.hasIn(object,"DestinationAET"))||this.mode === 'export'){
@@ -278,7 +299,7 @@ export class RetrieveExportComponent implements OnInit {
 
     getStudiesCount(params){
         this.cfpLoadingBar.start();
-        this.service.getStudiesCount(params).subscribe((count)=>{
+        this.service.getStudiesCount(params,this.mode).subscribe((count)=>{
             console.log("count",count);
             // this.count = count.count;
             this.countText = `Count:${count.count}`;
@@ -300,7 +321,7 @@ export class RetrieveExportComponent implements OnInit {
     getStudies(params){
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.getStudies(params).subscribe((res)=>{
+        this.service.getStudies(params,this.mode).subscribe((res)=>{
             console.log("studies",res);
             if(res.length === 0){
                 this.mainservice.setMessage({
