@@ -87,6 +87,7 @@ import { QueueDashboardComponent } from './pro/dashboard/queue-dashboard/queue-d
 import {QueueDashboardService} from "./pro/dashboard/queue-dashboard/queue-dashboard.service";
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { HardwareDashboardComponent } from './pro/dashboard/hardware-dashboard/hardware-dashboard.component';
+import { ClickOutsideDirective } from './helpers/click-outside.directive';
 
 @NgModule({
     declarations: [
@@ -134,6 +135,7 @@ import { HardwareDashboardComponent } from './pro/dashboard/hardware-dashboard/h
         Hl7ApplicationsComponent,
         ExternalRetrieveComponent,
         FilterGeneratorComponent,
+        ClickOutsideDirective,
         DashboardComponent,
         ConvertBytePipe,
         RetrieveExportComponent,
