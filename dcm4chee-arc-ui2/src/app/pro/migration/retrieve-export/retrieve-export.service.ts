@@ -85,28 +85,31 @@ export class RetrieveExportService {
     splitDate(object){
         let endDate = [];
         let endDatePare = [];
-        let from = object["StudyDate.from"].getTime();
-        let to = object["StudyDate.to"].getTime();
-        let diff = to-from;
-        let block = 86400000;
-        if(diff > block){
-            endDate.push(this.convertToDateString(object["StudyDate.from"]));
-            let daysInDiff = diff/block;
-            let dateStep = from;
-            while(daysInDiff > 0){
-                endDatePare.push(this.convertToDatePareString(dateStep,dateStep+block));
-                dateStep = dateStep+block;
-                endDate.push(this.convertToDateString(new Date(dateStep)));
-                daysInDiff--;
-            }
-            return endDate;
-        }else{
-            if(new Date(object["StudyDate.from"]).getTime() == new Date(object["StudyDate.to"]).getTime()){
-                return [this.convertToDateString(new Date(object["StudyDate.from"]))];
+        let m;
+        const regex = /((\d{4})(\d{2})(\d{2}))(?:\d{6})?-((\d{4})(\d{2})(\d{2}))(?:\d{6})?/;
+        if ((m = regex.exec(object["StudyDate"])) !== null) {
+            let fromString = `${m[2]}-${m[3]}-${m[4]}`;
+            let toString = `${m[6]}-${m[7]}-${m[8]}`;
+            let from = new Date(fromString).getTime();
+            let to = new Date(toString).getTime();
+            let diff = to-from;
+            let block = 86400000;
+            if(diff > block){
+                endDate.push(this.convertToDateString(fromString));
+                let daysInDiff = diff/block;
+                let dateStep = from;
+                while(daysInDiff > 0){
+                    endDatePare.push(this.convertToDatePareString(dateStep,dateStep+block));
+                    dateStep = dateStep+block;
+                    endDate.push(this.convertToDateString(new Date(dateStep)));
+                    daysInDiff--;
+                }
+                return endDate;
             }else{
-                return (this.convertToDatePareString(object["StudyDate.from"],object["StudyDate.to"])) ? [this.convertToDateString(object["StudyDate.from"]),this.convertToDateString(object["StudyDate.to"])]:null;
+                return object["StudyDate"];
             }
         }
+        return null;
     }
     convertToDateString(date){
         let addZero = (nr)=>{
