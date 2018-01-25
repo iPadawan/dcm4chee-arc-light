@@ -136,11 +136,11 @@ export class RetrieveExportComponent implements OnInit {
     }
     onChange(object){
         if(this.mode === 'export'){
-            let dummyObject = {};
-            if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
-                dummyObject['StudyDate.from'] = object['StudyDate.from'];
+            // let dummyObject = {};
+            if(_.hasIn(object,['StudyDate']) && object['StudyDate'].indexOf('-') > -1){
+/*                dummyObject['StudyDate.from'] = object['StudyDate.from'];
                 dummyObject['StudyDate.to'] = object['StudyDate.to'];
-                this.service.convertDateFilter(dummyObject,["StudyDate"]);
+                this.service.convertDateFilter(dummyObject,["StudyDate"]);*/
                 // this.showSplitBlock = true;
                 this.filterSchema = j4care.prepareFlatFilterObject(this.service.getExportFilterSchema(this.aes,this.exporterIds,this.submitText, true),2);
             }else{
@@ -154,11 +154,11 @@ export class RetrieveExportComponent implements OnInit {
                 // this.studyFilterSchema = [];
                 this.setStudyFilterSchema();
             }
-            let dummyObject = {};
-            if(_.hasIn(object,['StudyDate.from']) && _.hasIn(object,['StudyDate.to']) && (new Date(object['StudyDate.from']).getTime() != new Date(object['StudyDate.to']).getTime())){
-                dummyObject['StudyDate.from'] = object['StudyDate.from'];
+  // /**/          let dummyObject = {};
+            if(_.hasIn(object,['StudyDate']) && object['StudyDate'].indexOf('-') > -1){
+/*                dummyObject['StudyDate.from'] = object['StudyDate.from'];
                 dummyObject['StudyDate.to'] = object['StudyDate.to'];
-                this.service.convertDateFilter(dummyObject,["StudyDate"]);
+                this.service.convertDateFilter(dummyObject,["StudyDate"]);*/
                 // this.showSplitBlock = true;
                 this.filterSchema = j4care.prepareFlatFilterObject(this.service.getRetrieveFilterSchema(this.aes,this.submitText, true),2);
             }else{
@@ -197,7 +197,7 @@ export class RetrieveExportComponent implements OnInit {
                 if(_.hasIn(object,"splitMode")){
                     studyDateSplit = this.service.splitDate(object);
                 }else{
-                    studyDateSplit.push(this.service.convertToDatePareString(object['StudyDate.from'],object['StudyDate.to']));
+                    studyDateSplit.push(object['StudyDate']);
                 }
                 if(studyDateSplit.length > 1){
                     this.dialogRef = this.dialog.open(RetrieveStateDialogComponent, {
@@ -285,6 +285,7 @@ export class RetrieveExportComponent implements OnInit {
             this.cfpLoadingBar.complete();
             this.setStudyFilterSchema();
         },(err)=>{
+            this.cfpLoadingBar.complete();
             this.setStudyFilterSchema();
             this.httpErrorHandler.handleError(err);
         });
@@ -314,6 +315,7 @@ export class RetrieveExportComponent implements OnInit {
             }
             $this.cfpLoadingBar.complete();
         },(err)=>{
+            $this.cfpLoadingBar.complete();
             $this.setStudyFilterSchema();
             $this.httpErrorHandler.handleError(err);
         });

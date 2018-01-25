@@ -383,16 +383,10 @@ export class RetrieveExportService {
               placeholder:"Modality",
           }
           ,{
-              tag:"p-calendar",
-              type:"string",
-              filterKey:"StudyDate.from",
-              placeholder:"Start date from"
-          },
-          {
-              tag:"p-calendar",
-              type:"string",
-              filterKey:"StudyDate.to",
-              placeholder:"Start date to"
+              tag:"range-picker",
+              type:"text",
+              filterKey:"StudyDate",
+              description:"Study date"
           }
           ,{
               tag:"input",
@@ -480,15 +474,6 @@ export class RetrieveExportService {
               filterKey:"BodyPartExamined",
               placeholder:"Body Part Examined",
               title:"Body Part Examined"
-          }
-          ,{
-              tag:"dummy",
-          }
-          ,{
-              tag:"dummy",
-          }
-          ,{
-              tag:"dummy",
           }
           ,{
               tag:"button",
