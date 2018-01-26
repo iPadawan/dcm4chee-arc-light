@@ -102,7 +102,13 @@ export class RetrieveExportComponent implements OnInit {
         }));
     }
     setMainFilters(retries){
-        this.aeListService.getAes().subscribe((aes)=>{
+        let aeService;
+        if(this.mode === 'export'){
+            aeService = this.aeListService.getAets();
+        }else{
+            aeService = this.aeListService.getAes();
+        }
+        aeService.subscribe((aes)=>{
             this.aes = (<any[]>j4care.extendAetObjectWithAlias(aes)).map(ae => {
               return {
                   value:ae.dicomAETitle,
