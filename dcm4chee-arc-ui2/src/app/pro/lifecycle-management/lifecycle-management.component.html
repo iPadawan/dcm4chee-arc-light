@@ -199,10 +199,10 @@
                 <div class="morefunctionblock">
                     <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                     <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-                    <div class="more functions">
+                    <div class="more functions" (clickOutside)="moreFunctionsButtons = false"  [clickOutsideExceptionClass]="['mainbutton','manbutton_more_icon']">
                         <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
-                            <span *ngIf="!moreFunctionsButtons" >More configurations<i class="glyphicon glyphicon-triangle-bottom"></i></span>
-                            <span *ngIf="moreFunctionsButtons">More configurations<i class="glyphicon glyphicon-triangle-top"></i></span>
+                            <span class="manbutton_more_icon" *ngIf="!moreFunctionsButtons" >More configurations<i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                            <span class="manbutton_more_icon" *ngIf="moreFunctionsButtons">More configurations<i class="glyphicon glyphicon-triangle-top"></i></span>
                         </div>
                         <ul *ngIf="moreFunctionsButtons">
                             <li (click)="moreFunctionsButtons = false;addRetentionPolicy()" title="Set the C-MOVE SCP and STORE-SCP AETs">Add Study Retention Policy</li>
