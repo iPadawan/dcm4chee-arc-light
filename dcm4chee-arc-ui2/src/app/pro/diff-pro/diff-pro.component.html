@@ -204,7 +204,7 @@
             <div class="morefunctionblock">
                 <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                 <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-                <div class="more functions">
+                <div class="more functions" (clickOutside)="moreFunctionsButtons = false">
                     <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
                         <span *ngIf="!moreFunctionsButtons" >More configurations<i class="glyphicon glyphicon-triangle-bottom"></i></span>
                         <span *ngIf="moreFunctionsButtons">Close more configurations<i class="glyphicon glyphicon-triangle-top"></i></span>
