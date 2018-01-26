@@ -59,9 +59,9 @@ export class QueueDashboardComponent implements OnInit {
     }
     init(){
         this.statuses.forEach(status=>{
+            this.retrievesCount[status] = {};
             this.queuesCount[status] = {};
             this.exportsCount[status] = {};
-            this.retrievesCount[status] = {};
         })
         this.getMyDeviceName();
     }
@@ -166,9 +166,9 @@ export class QueueDashboardComponent implements OnInit {
         });
     }
     getCounts(){
-        this.getQueuesCount();
         this.getRetrievesCount();
         this.getExportsCount();
+        this.getQueuesCount();
     }
     getRetrievesCount(){
         this.statuses.forEach(status => {
