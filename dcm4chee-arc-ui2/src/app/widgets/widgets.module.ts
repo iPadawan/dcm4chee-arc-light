@@ -39,6 +39,8 @@ import { ModalityComponent } from './modality/modality.component';
 import { RetrieveStateDialogComponent } from './dialogs/retrieve-state-dialog/retrieve-state-dialog.component';
 import { DashboardDetailTableComponent } from './dialogs/dashboard-detail-table/dashboard-detail-table.component';
 import { RangePickerComponent } from './range-picker/range-picker.component';
+import { DynamicFieldComponent } from './dynamic-field/dynamic-field.component';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -86,5 +88,6 @@ export const WidgetsComponents = [
     ModalityComponent,
     RetrieveStateDialogComponent,
     DashboardDetailTableComponent,
-    RangePickerComponent
+    RangePickerComponent,
+    DynamicFieldComponent
 ];

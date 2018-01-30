@@ -88,6 +88,7 @@ import {QueueDashboardService} from "./pro/dashboard/queue-dashboard/queue-dashb
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { HardwareDashboardComponent } from './pro/dashboard/hardware-dashboard/hardware-dashboard.component';
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
+import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
 
 @NgModule({
     declarations: [
@@ -236,7 +237,8 @@ import { ClickOutsideDirective } from './helpers/click-outside.directive';
         ExternalRetrieveService,
         DashboardService,
         RetrieveExportService,
-        QueueDashboardService
+        QueueDashboardService,
+        DynamicFieldService
     ],
     bootstrap: [AppComponent]
 })
