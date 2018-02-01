@@ -196,7 +196,7 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
-            { path: 'migration/diff', component: DiffProComponent },
+            { path: 'correct_data/diff', component: DiffProComponent },
             { path: 'migration/:mode', component: RetrieveExportComponent },
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent },

@@ -36,11 +36,12 @@
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="monitoring/dashboard/home" routerLinkActive="active">Dashboard</a></li>
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="monitoring/queues" routerLinkActive="active">Monitoring</a></li>
     <li (click)="showMenu = false;"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
+    <li (click)="showMenu = false;"><a routerLink="correct_data/diff" routerLinkActive="active">Correct Data</a></li>
     <!--<li (click)="showMenu = false;"><a routerLink="queues" routerLinkActive="active">Queues</a></li>-->
     <li (click)="showMenu = false;"><a routerLink="lifecycle-management" routerLinkActive="active">Lifecycle Management</a></li>
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="migration/retrieve" routerLinkActive="active">Move data</a></li>
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="statistics" routerLinkActive="active">Statistics</a></li>
-    <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
+    <li (click)="showMenu = false;" *ngIf="isRole('admin')" title="Coming soon.."><a (click)="$event.preventDefault()">Audit Record Repository</a></li>
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
 <img src="assets/img/logo.png" class="logo" title="Product labelling" (click)="productLabelling()" >
