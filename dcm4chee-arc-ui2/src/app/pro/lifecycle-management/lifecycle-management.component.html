@@ -225,13 +225,15 @@
                     <!--<dynamic-form [formelements]="formObj" [model]="model" (submitFunction)="submitFunction($event)"></dynamic-form>-->
                     <div class="dynamic_table ">
                         <div class="table_header">
-                            <div class="th" *ngFor="let header of retentionPolicyTable" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">
-                                <ng-container *ngIf="header.code != 'menu'">
-                                    {{header.title}}
-                                </ng-container>
-                                <ng-container *ngIf="header.code === 'menu'">
-                                    &nbsp;
-                                </ng-container>
+                            <div class="tr">
+                                <div class="th" *ngFor="let header of retentionPolicyTable" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">
+                                    <ng-container *ngIf="header.code != 'menu'">
+                                        {{header.title}}
+                                    </ng-container>
+                                    <ng-container *ngIf="header.code === 'menu'">
+                                        &nbsp;
+                                    </ng-container>
+                                </div>
                             </div>
                         </div>
                         <div class="table_body">
@@ -259,13 +261,15 @@
             <div class="bluecontent expired" *ngIf="toggle === 'expired' && expiredStudies?.length">
                 <div class="dynamic_table ">
                     <div class="table_header">
-                        <div class="th" *ngFor="let header of table" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">
-                            <ng-container *ngIf="header.code != 'menu'">
-                                {{header.title}}
-                            </ng-container>
-                            <ng-container *ngIf="header.code === 'menu'">
-                                &nbsp;
-                            </ng-container>
+                        <div class="tr">
+                            <div class="th" *ngFor="let header of table" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">
+                                <ng-container *ngIf="header.code != 'menu'">
+                                    {{header.title}}
+                                </ng-container>
+                                <ng-container *ngIf="header.code === 'menu'">
+                                    &nbsp;
+                                </ng-container>
+                            </div>
                         </div>
                     </div>
                     <div class="table_body">
@@ -295,13 +299,15 @@
             <div class="bluecontent all" *ngIf="toggle === 'all' && allStudies?.length">
                 <div class="dynamic_table ">
                     <div class="table_header">
-                        <div class="th" *ngFor="let header of table" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">
-                            <ng-container *ngIf="header.code != 'menu'">
-                                {{header.title}}
-                            </ng-container>
-                            <ng-container *ngIf="header.code === 'menu'">
-                                &nbsp;
-                            </ng-container>
+                        <div class="tr">
+                            <div class="th" *ngFor="let header of table" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">
+                                <ng-container *ngIf="header.code != 'menu'">
+                                    {{header.title}}
+                                </ng-container>
+                                <ng-container *ngIf="header.code === 'menu'">
+                                    &nbsp;
+                                </ng-container>
+                            </div>
                         </div>
                     </div>
                     <div class="table_body">
