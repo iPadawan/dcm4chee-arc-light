@@ -178,8 +178,8 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
             { path: 'monitoring/associations', component: AssociationsComponent },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent },
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
-            { path: 'monitoring/statistics', component: StatisticsComponent },
-            { path: 'monitoring/lifecycle-management', component: LifecycleManagementComponent },
+            { path: 'statistics', component: StatisticsComponent },
+            { path: 'lifecycle-management', component: LifecycleManagementComponent },
             {
                 path: 'monitoring/dashboard',
                 redirectTo: 'monitoring/dashboard/home',

@@ -37,8 +37,9 @@
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="monitoring/queues" routerLinkActive="active">Monitoring</a></li>
     <li (click)="showMenu = false;"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
     <!--<li (click)="showMenu = false;"><a routerLink="queues" routerLinkActive="active">Queues</a></li>-->
-    <li (click)="showMenu = false;"><a routerLink="monitoring/lifecycle-management" routerLinkActive="active">Lifecycle Management</a></li>
+    <li (click)="showMenu = false;"><a routerLink="lifecycle-management" routerLinkActive="active">Lifecycle Management</a></li>
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="migration/retrieve" routerLinkActive="active">Move data</a></li>
+    <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="statistics" routerLinkActive="active">Statistics</a></li>
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
