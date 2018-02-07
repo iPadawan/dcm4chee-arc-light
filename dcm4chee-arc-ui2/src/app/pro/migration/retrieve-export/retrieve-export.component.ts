@@ -87,6 +87,8 @@ export class RetrieveExportComponent implements OnInit {
                     this.submitText = "EXPORT";
                     break;
                 }
+                this.dicomObject = [];
+                this.countText = "QUERY COUNT";
                 this.setMainFilters(2);
                 this.initAttributeFilter('Patient', 1);
             });
@@ -192,14 +194,14 @@ export class RetrieveExportComponent implements OnInit {
         if(_.hasIn(object,"id")){
             // this.service.convertDateFilter(object.model,'StudyDate');
             if(this.mode === 'retrieve' && _.hasIn(object.model,"LocalAET") && _.hasIn(object.model,"ExternalAET")){
-                if(_.hasIn(object.model,"aet")){
+                // if(_.hasIn(object.model,"aet")){
                     this.executeStudiesFunction(object);
-                }else
-                    this.mainservice.setMessage({
-                        'title': 'Error',
-                        'text': "AETitle is missing",
-                        'status': 'error'
-                    });
+                // }else
+                //     this.mainservice.setMessage({
+                //         'title': 'Error',
+                //         'text': "AETitle is missing",
+                //         'status': 'error'
+                //     });
             }else{
                 if(this.mode === 'export' && _.hasIn(object.model,"aet")) {
                     this.executeStudiesFunction(object);
@@ -306,11 +308,15 @@ export class RetrieveExportComponent implements OnInit {
     getStudiesCount(params){
         this.cfpLoadingBar.start();
         this.service.getStudiesCount(params,this.mode).subscribe((count)=>{
-            console.log("count",count);
-            // this.count = count.count;
-            this.countText = `Count:${count.count}`;
-            this.cfpLoadingBar.complete();
+            try{
+                console.log("count",count);
+                this.countText = `Count:${count.count}`;
+            }catch(e){
+                this.countText = `Count:0`;
+                console.error(e);
+            }
             this.setStudyFilterSchema();
+            this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
             this.setStudyFilterSchema();
@@ -329,12 +335,15 @@ export class RetrieveExportComponent implements OnInit {
         $this.cfpLoadingBar.start();
         this.service.getStudies(params,this.mode).subscribe((res)=>{
             console.log("studies",res);
-            if(res.length === 0){
+            if(!res || res.length === 0){
                 this.mainservice.setMessage({
                     'title': 'Info',
                     'text': "No studies found!",
                     'status': 'info'
                 });
+                $this.dicomObject = [];
+                $this.countText = `Count:0`;
+                $this.setStudyFilterSchema();
             }else{
                 $this.dicomObject = res;
                 $this.countText = `Count:${res.length }`;
