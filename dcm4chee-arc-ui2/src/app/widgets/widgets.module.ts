@@ -40,6 +40,7 @@ import { RetrieveStateDialogComponent } from './dialogs/retrieve-state-dialog/re
 import { DashboardDetailTableComponent } from './dialogs/dashboard-detail-table/dashboard-detail-table.component';
 import { RangePickerComponent } from './range-picker/range-picker.component';
 import { DynamicFieldComponent } from './dynamic-field/dynamic-field.component';
+import { DcmSelectComponent } from './dcm-select/dcm-select.component';
 
 @NgModule({
     imports: [
@@ -89,5 +90,6 @@ export const WidgetsComponents = [
     RetrieveStateDialogComponent,
     DashboardDetailTableComponent,
     RangePickerComponent,
-    DynamicFieldComponent
+    DynamicFieldComponent,
+    DcmSelectComponent
 ];
