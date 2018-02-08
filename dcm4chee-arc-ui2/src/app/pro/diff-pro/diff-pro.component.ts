@@ -78,7 +78,7 @@ export class DiffProComponent implements OnInit {
     studyInstanceUIDsFromFile = [];
     fileStudyCount;
     missingStudies = [];
-    checkStep = 5;
+    checkStep = 3;
     processStarted = false;
     showSendProgress = false;
     checked = 0;
