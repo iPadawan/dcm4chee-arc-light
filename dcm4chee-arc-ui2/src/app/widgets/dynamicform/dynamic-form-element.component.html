@@ -45,9 +45,10 @@
                 </div>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
-                <div class="checkbox_parent"  *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key">
-                    <div *ngFor="let opt of formelement.options;let checkindex=index" >
-                        <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event, formelement)" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
+                <div class="checkbox_parent"  *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key" [ngClass]="{'long_mode':formelement.options && formelement.options.length && formelement.options.length > 9}">
+                    <input type="text" *ngIf="formelement.controlType === 'checkbox' && formelement.options && formelement.options.length && formelement.options.length > 9" [formControl]="search" placeholder="Search...">
+                    <div *ngFor="let opt of formelement.options|search:search.value" >
+                        <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event, formelement);opt.active = !opt.active" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
                     </div>
                 </div>
             </div>
@@ -103,7 +104,7 @@
                             <li *ngFor="let opt of formelement.options"><span (click)="navigateTo(pt.url, formelement.options)">{{opt.title}}</span><i class="material-icons">content_copy</i><i class="material-icons">clear</i></li>
                         </ul>
                     </div>-->
-                    <dcm-select [options]="formelement.options" [placeholder]="(formelement.options && formelement.options.length && formelement.options.length > 0 ? 'Select a ' + formelement.label:'Create some childe')">
+                    <dcm-select [options]="formelement.options" [placeholder]="(formelement.options && formelement.options.length && formelement.options.length > 0 ? 'Select a ' + formelement.label:'No childe found')">
                         <ng-template let-select="select">
                             <div class="title_select_block" (click)="navigateTo(select.url, formelement.options)">{{select.title}}</div>
                             <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select)" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
