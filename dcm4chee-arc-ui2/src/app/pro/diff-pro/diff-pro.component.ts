@@ -723,9 +723,11 @@ export class DiffProComponent implements OnInit {
         this.missingStudies = [];
         this.checked = 0;
         this.cancel = false;
+        console.log("firsslice",file.slice(0, 10));
+        console.log("firsslice2",file.slice(20, 40));
         if(file){
 
-            let blob = file.slice(0, 240);
+            let blob = file.slice(0, 240); //Get first 240 letters and check if the first line contains the string study or insta than ignore
             let checkReader = new FileReader();
             checkReader.readAsText(blob);
             checkReader.onload = ()=>{
@@ -750,15 +752,41 @@ export class DiffProComponent implements OnInit {
                         if(this.studyInstanceUIDsFromFile[0].toLowerCase().indexOf('study') > -1 || this.studyInstanceUIDsFromFile[0].toLowerCase().indexOf('insta') > -1){
                             ignoreFirstElement = true;
                         }
-                        console.log("reader.result",this.studyInstanceUIDsFromFile);
+                        // console.log("reader.result",this.studyInstanceUIDsFromFile);
                         if(ignoreFirstElement)
                             this.studyInstanceUIDsFromFile.splice(0,1);
                         this.fileStudyCount = this.studyInstanceUIDsFromFile.length;
 
-                    }
+                    };
+                    // this.readFile(reader,file,0,200);
                 }
             };
         }
+
+    }
+    readFile(reader,file,pivot, portionLength){
+        let portionReader = this.service.getNextPortionFromFile(reader,file,pivot,portionLength);
+        if(portionReader)
+            portionReader.onload = ()=>{
+                console.log("portionReader.result",portionReader.result);
+                let lastDelimiter = portionReader.result.lastIndexOf('\n');
+                console.log("lastDelimiter",lastDelimiter);
+                // console.log("last index portionReader.result",portionReader.result.slice(0,lastDelimiter).lastIndexOf('\n'));
+                const regex = /^\s*([0-9.]*)\s*(?=\n)$/gm;
+                let m;
+                // console.log("protion",portionReader.result.slice(0,lastDelimiter).split(regex));
+                while ((m = regex.exec(portionReader.result)) !== null) {
+                    // This is necessary to avoid infinite loops with zero-width matches
+                    console.log("m",m[1]);
+                    if (m.index === regex.lastIndex) {
+                        regex.lastIndex++;
+                    }
+                }
+                if(lastDelimiter > -1)
+                    this.readFile(reader,file,pivot+lastDelimiter,portionLength);
+            };
+    }
+    saveFileInIndexedDB(file){
 
     }
     findeMissingStudies(){

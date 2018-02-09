@@ -159,5 +159,12 @@ export class DiffProService {
             return resjson;
         });
     }
-
+    getNextPortionFromFile(reader, file,pivot,portionLength){
+        let portion = file.slice(pivot,pivot+portionLength);
+        if(portion.size > 0){
+            reader.readAsText(portion);
+            return reader;
+        }
+        return null;
+    }
 }
