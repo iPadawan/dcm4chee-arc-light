@@ -41,17 +41,22 @@
 package org.dcm4chee.arc.qido;
 
 import com.querydsl.core.types.dsl.NumberPath;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -60,6 +65,8 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.hibernate.Transaction;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +78,8 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -104,6 +113,12 @@ public class QidoRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
+
+    @Inject
+    private AccessTokenRequestor accessTokenRequestor;
 
     @PathParam("AETitle")
     private String aet;
@@ -152,6 +167,8 @@ public class QidoRS {
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
 
+    private String otherArchiveAET;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -161,7 +178,7 @@ public class QidoRS {
     @NoCache
     @Path("/patients")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForPatientsXML() {
+    public Response searchForPatientsXML() throws Exception {
         return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.DICOM_XML);
     }
 
@@ -169,7 +186,7 @@ public class QidoRS {
     @NoCache
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
-    public Response searchForPatientsJSON() {
+    public Response searchForPatientsJSON() throws Exception {
         return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.JSON);
     }
 
@@ -177,7 +194,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForStudiesXML() {
+    public Response searchForStudiesXML() throws Exception {
         return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.DICOM_XML);
     }
 
@@ -185,7 +202,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public Response searchForStudiesJSON() {
+    public Response searchForStudiesJSON() throws Exception {
         return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.JSON);
     }
 
@@ -201,7 +218,7 @@ public class QidoRS {
     @NoCache
     @Path("/series")
     @Produces("application/dicom+json,application/json")
-    public Response searchForSeriesJSON() {
+    public Response searchForSeriesJSON() throws Exception {
         return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES, Output.JSON);
     }
 
@@ -210,7 +227,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesOfStudyXML(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.DICOM_XML);
     }
 
@@ -219,7 +236,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/dicom+json,application/json")
     public Response searchForSeriesOfStudyJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.JSON);
     }
 
@@ -227,7 +244,7 @@ public class QidoRS {
     @NoCache
     @Path("/instances")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForInstancesXML() {
+    public Response searchForInstancesXML() throws Exception {
         return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.DICOM_XML);
     }
 
@@ -235,7 +252,7 @@ public class QidoRS {
     @NoCache
     @Path("/instances")
     @Produces("application/dicom+json,application/json")
-    public Response searchForInstancesJSON() {
+    public Response searchForInstancesJSON() throws Exception {
         return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.JSON);
     }
 
@@ -244,7 +261,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesOfStudyXML(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudyInstances", Model.INSTANCE,
                 studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.DICOM_XML);
     }
@@ -254,7 +271,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/dicom+json,application/json")
     public Response searchForInstancesOfStudyJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudyInstances", Model.INSTANCE,
                 studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.JSON);
     }
@@ -265,7 +282,7 @@ public class QidoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesOfSeriesXML(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
                 studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.DICOM_XML);
     }
@@ -276,7 +293,7 @@ public class QidoRS {
     @Produces("application/dicom+json,application/json")
     public Response searchForInstancesOfSeriesJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
                 studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.JSON);
     }
@@ -285,7 +302,7 @@ public class QidoRS {
     @NoCache
     @Path("/mwlitems")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForSPSXML() {
+    public Response searchForSPSXML() throws Exception {
         return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.DICOM_XML);
     }
 
@@ -293,7 +310,7 @@ public class QidoRS {
     @NoCache
     @Path("/mwlitems")
     @Produces("application/dicom+json,application/json")
-    public Response searchForSPSJSON() {
+    public Response searchForSPSJSON() throws Exception {
         return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.JSON);
     }
 
@@ -301,7 +318,7 @@ public class QidoRS {
     @NoCache
     @Path("/patients/count")
     @Produces("application/json")
-    public Response countPatients() {
+    public Response countPatients() throws Exception {
         return count("CountPatients", Model.PATIENT, null, null);
     }
 
@@ -309,7 +326,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies/count")
     @Produces("application/json")
-    public Response countStudies() {
+    public Response countStudies() throws Exception {
         return count("CountStudies", Model.STUDY, null, null);
     }
 
@@ -317,7 +334,7 @@ public class QidoRS {
     @NoCache
     @Path("/series/count")
     @Produces("application/json")
-    public Response countSeries() {
+    public Response countSeries() throws Exception {
         return count("CountSeries", Model.SERIES, null, null);
     }
 
@@ -326,7 +343,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series/count")
     @Produces("application/json")
     public Response countSeriesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return count("CountStudySeries", Model.SERIES, studyInstanceUID, null);
     }
 
@@ -334,7 +351,7 @@ public class QidoRS {
     @NoCache
     @Path("/instances/count")
     @Produces("application/json")
-    public Response countInstances() {
+    public Response countInstances() throws Exception {
         return count("CountInstances", Model.INSTANCE, null, null);
     }
 
@@ -343,7 +360,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances/count")
     @Produces("application/json")
     public Response countInstancesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return count("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null);
     }
 
@@ -353,7 +370,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response countInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
         return count("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID);
     }
 
@@ -361,7 +378,7 @@ public class QidoRS {
     @NoCache
     @Path("/mwlitems/count")
     @Produces("application/json")
-    public Response countSPS() {
+    public Response countSPS() throws Exception {
         return count("CountSPS", Model.MWL, null, null);
     }
 
@@ -369,11 +386,16 @@ public class QidoRS {
     @NoCache
     @Path("/studies/size")
     @Produces("application/json")
-    public Response sizeOfStudies() {
+    public Response sizeOfStudies() throws Exception {
         logRequest();
+        ApplicationEntity ae = getApplicationEntity();
+        return otherArchiveAET == null ? sizeOfStudies(ae) : forwardService(ae);
+    }
+
+    private Response sizeOfStudies(ApplicationEntity ae) {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(
-                "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
+                "SizeOfStudies", queryAttrs, null, null, Model.STUDY, ae);
         try (Query query = service.createStudyQuery(ctx)) {
             Transaction transaction = query.beginTransaction();
             try {
@@ -395,10 +417,18 @@ public class QidoRS {
         }
     }
 
-    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
+    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID)
+            throws Exception {
         logRequest();
+        ApplicationEntity ae = getApplicationEntity();
+        return otherArchiveAET == null
+                ? count(method, model, studyInstanceUID, seriesInstanceUID, ae)
+                : forwardService(ae);
+    }
+
+    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID, ApplicationEntity ae) {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
         try (Query query = model.createQuery(service, ctx)) {
             return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
         } catch (Exception e) {
@@ -407,10 +437,19 @@ public class QidoRS {
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
-                            QIDO qido, Output output) {
+                            QIDO qido, Output output) throws Exception {
         logRequest();
+        ApplicationEntity ae = getApplicationEntity();
+        return otherArchiveAET == null
+                ? search(method, model, studyInstanceUID, seriesInstanceUID, qido, output, ae)
+                : forwardService(ae);
+    }
+
+    private Response search(
+            String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido, Output output,
+            ApplicationEntity ae) {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
         ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         try (Query query = model.createQuery(service, ctx)) {
@@ -470,9 +509,7 @@ public class QidoRS {
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
-                                         String seriesInstanceUID, Model model) {
-        ApplicationEntity ae = getApplicationEntity();
-
+                                         String seriesInstanceUID, Model model, ApplicationEntity ae) {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
@@ -506,12 +543,15 @@ public class QidoRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private ApplicationEntity getApplicationEntity() throws Exception {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null) {
+            ae = aeCache.get(aet);
+            otherArchiveAET = aet;
+        }
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 
@@ -684,10 +724,80 @@ public class QidoRS {
         return match;
     }
 
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
     private Response errResponseAsTextPlain(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         String exceptionAsString = sw.toString();
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+    }
+
+    private Response forwardService(ApplicationEntity ae) throws Exception {
+        Device dev = ae.getDevice();
+        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(dev);
+
+        return webApplicationInfo.baseURI == null
+                ? webApplicationInfo.errRsp(dev.getDeviceName())
+                : webApplicationInfo.forward();
+    }
+
+    class WebApplicationInfo {
+        private String webAppName;
+        private String baseURI;
+        private KeycloakServer keycloakServer;
+
+        WebApplicationInfo(Device dev) {
+            for (WebApplication webApplication : dev.getWebApplications()) {
+                for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
+                    if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
+                        webAppName = webApplication.getApplicationName();
+                        baseURI = toBaseURI(webApplication);
+                        keycloakServer = dev.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                .getKeycloakServer(webAppName);
+                    }
+                }
+            }
+        }
+
+        private String toBaseURI(WebApplication webApplication) {
+            for (Connection connection : webApplication.getConnections())
+                if (connection.getProtocol() == Connection.Protocol.HTTP) {
+                    return "http://"
+                            + connection.getHostname()
+                            + ":"
+                            + connection.getPort()
+                            + webApplication.getServicePath();
+                }
+            return null;
+        }
+
+        Response forward() throws Exception {
+            String requestURI = request.getRequestURI();
+            String targetURI = baseURI
+                                + requestURI.substring(requestURI.indexOf("/aets"))
+                                + "?"
+                                + request.getQueryString();
+            ResteasyClient client = new ResteasyClientBuilder().build();
+            WebTarget target = client.target(targetURI);
+            Invocation.Builder req = target.request();
+            String authorization = request.getHeader("Authorization");
+            if (authorization != null)
+                req.header("Authorization",
+                        keycloakServer != null
+                        ? "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServer)
+                        : authorization);
+            return req.get();
+        }
+
+        Response errRsp(String deviceName) {
+            return errResponse(
+                    webAppName == null
+                        ? "No Web Application with Service Class 'DCM4CHEE_ARC' configured for device " + deviceName
+                        : "HTTP connection not configured for WebApplication " + webAppName,
+                    Response.Status.NOT_FOUND);
+        }
     }
 }

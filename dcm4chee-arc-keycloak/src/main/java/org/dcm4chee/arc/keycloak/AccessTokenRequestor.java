@@ -76,22 +76,36 @@ public class AccessTokenRequestor {
         if (tmp == null || !tmp.keycloakServerID.equals(keycloakServerID)) {
             KeycloakServer server = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getKeycloakServerNotNull(keycloakServerID);
-            cachedKeycloak = tmp = new CachedKeycloak(keycloakServerID, KeycloakBuilder.builder()
-                    .serverUrl(server.getServerURL())
-                    .realm(server.getRealm())
-                    .clientId(server.getClientID())
-                    .clientSecret(server.getClientSecret())
-                    .username(server.getUserID())
-                    .password(server.getPassword())
-                    .grantType(server.getGrantType().name())
-                    .resteasyClient(resteasyClientBuilder(
-                            server.getServerURL(),
-                            server.isTlsAllowAnyHostname(),
-                            server.isTlsDisableTrustManager())
-                            .build())
-                    .build());
+            tmp = toCachedKeycloak(server);
         }
         return tmp.keycloak.tokenManager().getAccessTokenString();
+    }
+
+    public String getAccessTokenString(KeycloakServer server) throws Exception {
+        CachedKeycloak tmp = cachedKeycloak;
+        if (tmp == null || !tmp.keycloakServerID.equals(server.getKeycloakServerID()))
+            tmp = toCachedKeycloak(server);
+
+        return tmp.keycloak.tokenManager().getAccessTokenString();
+    }
+
+    private CachedKeycloak toCachedKeycloak(KeycloakServer server) throws Exception {
+        CachedKeycloak tmp;
+        cachedKeycloak = tmp = new CachedKeycloak(server.getKeycloakServerID(), KeycloakBuilder.builder()
+                .serverUrl(server.getServerURL())
+                .realm(server.getRealm())
+                .clientId(server.getClientID())
+                .clientSecret(server.getClientSecret())
+                .username(server.getUserID())
+                .password(server.getPassword())
+                .grantType(server.getGrantType().name())
+                .resteasyClient(resteasyClientBuilder(
+                        server.getServerURL(),
+                        server.isTlsAllowAnyHostname(),
+                        server.isTlsDisableTrustManager())
+                        .build())
+                .build());
+        return tmp;
     }
 
     public ResteasyClientBuilder resteasyClientBuilder(
